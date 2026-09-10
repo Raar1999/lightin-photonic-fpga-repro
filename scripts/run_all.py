@@ -24,9 +24,13 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 FIGDIR = os.path.join(os.path.dirname(__file__), "..", "figures")
-FIG4D_KEYS = ("lambda0_median_nm", "lambda0_p05_nm", "lambda0_p95_nm",
+FIG4D_KEYS = ("model", "lambda0_median_nm", "lambda0_p05_nm", "lambda0_p95_nm",
               "slope_median", "slope_p05", "slope_p95",
-              "n_boot", "n_failed", "fit_range_nm")
+              "n_boot", "n_failed", "fit_range_nm", "rms_db")
+XTALK_FIT_RANGE_NM = [1549, 1565]           # inside the digitized Fig 4d wavelengths
+XTALK_EXTRAP_RANGE_NM = [1530, 1549]        # below the data; model only
+FLOOR_NOTE = ("phenomenological floor fitted to Fig 4d; the mesh model has no floor "
+              "term, so modelled crosstalk below this level is not reached on the chip")
 os.makedirs(FIGDIR, exist_ok=True)
 
 
@@ -269,7 +273,9 @@ def main():
     print("\n--- 10. Recirculating mesh with feedback loops ---")
     rc = recirculating.run()
     print("\n--- 11. Fig 4d coupler dispersion fit (bootstrapped) ---")
-    f4 = {k: v for k, v in fit_fig4.main().items() if k in FIG4D_KEYS}
+    f4_all = fit_fig4.main()
+    f4 = {k: v for k, v in f4_all.items() if k in FIG4D_KEYS}
+    f4_mesh = f4_all["mesh"]
 
     print("\n--- Generating figures ---")
     fig_unitary(u); fig_nonunitary(nu); fig_iris(ir); fig_ppuf(pp)
@@ -303,6 +309,14 @@ def main():
             "bar_worst_xtalk_cband_db": sw["bar"]["worst_xtalk_over_cband_db"],
             "cross_structural_zeros": sw["cross"]["structural_zeros"],
             "bar_structural_zeros": sw["bar"]["structural_zeros"],
+            "cross_worst_xtalk_fitrange_db": switching.worst_cross_xtalk_db(
+                np.linspace(1549, 1565, 65)),
+            "cross_worst_xtalk_extrapolated_db": switching.worst_cross_xtalk_db(
+                np.linspace(1530, 1549, 77)),
+            "fit_range_nm": XTALK_FIT_RANGE_NM,
+            "extrapolated_range_nm": XTALK_EXTRAP_RANGE_NM,
+            "chip_crosstalk_floor_db": switching.FIG4D_FLOOR_DB,
+            "floor_note": FLOOR_NOTE,
             "fibre_to_fibre_loss_db": switching.insertion_loss_budget(),
         },
         "ppuf": {"uniqueness": pp["uniqueness"], "uniformity": pp["uniformity"],
@@ -330,6 +344,7 @@ def main():
             "coupler_ceiling_min_fidelity": float(ex["coupler_ceiling_fidelity"].min()),
         },
         "fig4d_fit": f4,
+        "fig4d_mesh_fit": f4_mesh,
         "recirculating": rc,
         "latency_on_chip_ps": propagation_latency(4.5e-3) * 1e12,
     }

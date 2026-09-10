@@ -114,17 +114,29 @@
   },
   "switching": {
     "cross_xtalk_center_db": [
-      -22.315330835844215,
-      -29.153799250168365
+      -21.058179020840075,
+      -27.159661481407493
     ],
     "bar_xtalk_center_db": [
-      -30.498870060008887,
-      -106.65918075391457
+      -30.500238841570884,
+      -106.67211074284721
     ],
-    "cross_worst_xtalk_cband_db": -11.553245266963359,
-    "bar_worst_xtalk_cband_db": -30.49666795007734,
+    "cross_worst_xtalk_cband_db": -11.797091608954688,
+    "bar_worst_xtalk_cband_db": -30.4976929835669,
     "cross_structural_zeros": 0,
     "bar_structural_zeros": 0,
+    "cross_worst_xtalk_fitrange_db": -16.76775295806134,
+    "cross_worst_xtalk_extrapolated_db": -11.797091608954688,
+    "fit_range_nm": [
+      1549,
+      1565
+    ],
+    "extrapolated_range_nm": [
+      1530,
+      1549
+    ],
+    "chip_crosstalk_floor_db": -26.2,
+    "floor_note": "phenomenological floor fitted to Fig 4d; the mesh model has no floor term, so modelled crosstalk below this level is not reached on the chip",
     "fibre_to_fibre_loss_db": 11.433333333333335
   },
   "ppuf": {
@@ -187,11 +199,14 @@
   },
   "coupler": {
     "extinction_at_3db_db": null,
-    "extinction_at_1560_db": 23.909438919852718,
-    "extinction_at_1520_db": 10.70703636161425,
+    "extinction_at_1560_db": 22.342005997481344,
+    "extinction_at_1520_db": 11.037589889855484,
     "link_budget_db": 11.433333333333335,
-    "demo_fit_kappa0": 0.5460462446701513,
-    "demo_fit_slope": 0.004370388901549749,
+    "demo_fit_kappa0": 0.5021956501451635,
+    "demo_fit_slope": 0.004602718933248416,
+    "demo_true_kappa0": 0.5,
+    "demo_true_slope": 0.0042,
+    "demo_fit_lam0_nm": 1574.7,
     "demo_fit_note": "recovered from the synthetic _demo_measured_dataset, not from chip data",
     "extinction_note": "ideal null: model contains no loss or coupler imbalance, so the extinction is unbounded"
   },
@@ -208,7 +223,7 @@
       "two_dof_universal": 0.9999999999999988
     },
     "realizable_unitary_fidelity": 1.0,
-    "coupler_ceiling_min_fidelity": 0.9445090792493201
+    "coupler_ceiling_min_fidelity": 0.946937684953625
   },
   "fig4d_fit": {
     "lambda0_median_nm": 1571.0154701756662,
@@ -222,7 +237,20 @@
     "fit_range_nm": [
       1549,
       1587
-    ]
+    ],
+    "model": "single-coupler proxy",
+    "rms_db": 1.0521006529798882
+  },
+  "fig4d_mesh_fit": {
+    "model": "4x4 mesh T20 normalised to total output",
+    "lambda0_nm": 1574.678458181731,
+    "slope": 0.0026085639014737333,
+    "floor_db": -26.186675078409916,
+    "lambda0_se_nm": 0.6092902856976796,
+    "slope_se": 0.00011703177545442932,
+    "floor_se_db": 0.4119488374070718,
+    "rms_db": 0.7918223382854097,
+    "n_points": 25
   },
   "recirculating": {
     "ring_rms": 2.8792312954364084e-16,

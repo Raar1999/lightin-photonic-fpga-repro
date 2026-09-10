@@ -179,6 +179,25 @@ def test_fig4d_digitized_fit():
     assert res["rms_db"] < 2.0                        # fit within digitization uncertainty
 
 
+def test_mesh_model_matches_fig4d():
+    """The mesh T20 model at the shipped constants must track the digitized Fig 4d curve.
+
+    DC_LAMBDA_3DB, DC_SLOPE and FIG4D_FLOOR_DB are the mesh fit rounded for the source,
+    so this checks both the fit and the rounding. 2.0 dB is the digitization uncertainty
+    the CSV header states; a larger RMS would mean the shipped coupler no longer
+    describes the curve it was fitted to.
+    """
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    import fit_fig4
+    from lightin import coupler, switching
+    lam, db = fit_fig4.load_points()
+    rms = fit_fig4.rms_db(fit_fig4.mesh_t20_model, lam, db,
+                          coupler.DC_LAMBDA_3DB, coupler.DC_SLOPE,
+                          switching.FIG4D_FLOOR_DB)
+    assert rms <= 2.0
+
+
 def test_energy_paper_derivation():
     from lightin import throughput
     te = throughput.reproduce(verbose=False)

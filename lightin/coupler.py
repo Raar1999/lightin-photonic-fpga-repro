@@ -24,7 +24,8 @@ import numpy as np
 
 # --- Device constants from the LightIN paper (Methods) + supplementary ---
 LAMBDA0 = 1560.0       # nm, matrix-multiplication design wavelength (Methods)
-DC_LAMBDA_3DB = 1571.0  # nm, 3-dB point fitted to digitized Fig 4d (scripts/fit_fig4.py); design wavelength is 1560 nm
+DC_LAMBDA_3DB = 1574.7  # nm, 3-dB point from fitting the mesh T20 model to digitized Fig 4d (scripts/fit_fig4.py); design wavelength is 1560 nm
+DC_SLOPE = 0.0026      # rad/nm, coupling-phase dispersion slope of the same fit
 LAMBDA_MRM = 1555.0    # nm, MRM wavelength-locking experiment (Methods)
 N_GROUP = 4.0          # group index, stated in paper ("group index of 4")
 N_EFF = 2.36           # phase index, 450x220 nm SOI strip TE @1560 nm (geometry-derived)
@@ -44,7 +45,7 @@ DEMO_TRUE_SLOPE = 0.0042    # rad/nm, linear coupling-phase dispersion
 DEMO_TRUE_QUAD = -8e-6      # rad/nm^2, higher-order term the CMT fit form cannot represent
 
 
-def dc_power_coupling(lam, kappa0=0.5, slope=0.0029, lam0=DC_LAMBDA_3DB):
+def dc_power_coupling(lam, kappa0=0.5, slope=DC_SLOPE, lam0=DC_LAMBDA_3DB):
     """Power cross-coupling ratio of a directional coupler, 50:50 at lam0.
 
     K(lambda) = sin^2( arcsin(sqrt(kappa0)) + slope*(lambda - lam0) ).
@@ -55,16 +56,17 @@ def dc_power_coupling(lam, kappa0=0.5, slope=0.0029, lam0=DC_LAMBDA_3DB):
     return np.sin(a0 + slope * (np.asarray(lam, float) - lam0)) ** 2
 
 
-def dc_field_matrix(lam, kappa0=0.5, slope=0.0029, excess_loss_db=0.1):
+def dc_field_matrix(lam, kappa0=0.5, slope=DC_SLOPE, excess_loss_db=0.1,
+                    lam0=DC_LAMBDA_3DB):
     """2x2 field transfer of a (slightly lossy) directional coupler."""
-    k = dc_power_coupling(lam, kappa0, slope)
+    k = dc_power_coupling(lam, kappa0, slope, lam0)
     t, c = np.sqrt(1 - k), np.sqrt(k)
     amp = 10 ** (-excess_loss_db / 20.0)
     return amp * np.array([[t, 1j * c], [1j * c, t]], dtype=complex)
 
 
-def mzi_single_theta(theta, lam, kappa0=0.5, slope=0.0029, excess_loss_db=0.1,
-                     kappa0_b=None, arm_phase_err=0.0):
+def mzi_single_theta(theta, lam, kappa0=0.5, slope=DC_SLOPE, excess_loss_db=0.1,
+                     kappa0_b=None, arm_phase_err=0.0, lam0=DC_LAMBDA_3DB):
     """Single-internal-phase PUC built from two (dispersive) directional couplers.
 
     M = DC_b(lambda) . diag(e^{i(theta+arm_phase_err)}, 1) . DC_a(lambda).
@@ -76,13 +78,13 @@ def mzi_single_theta(theta, lam, kappa0=0.5, slope=0.0029, excess_loss_db=0.1,
     """
     if kappa0_b is None:
         kappa0_b = kappa0
-    DCa = dc_field_matrix(lam, kappa0, slope, excess_loss_db)
-    DCb = dc_field_matrix(lam, kappa0_b, slope, excess_loss_db)
+    DCa = dc_field_matrix(lam, kappa0, slope, excess_loss_db, lam0)
+    DCb = dc_field_matrix(lam, kappa0_b, slope, excess_loss_db, lam0)
     P = np.diag([np.exp(1j * (theta + arm_phase_err)), 1.0])
     return DCb @ P @ DCa
 
 
-def extinction_ratio_db(lam, kappa0=0.5, slope=0.0029, n=512):
+def extinction_ratio_db(lam, kappa0=0.5, slope=DC_SLOPE, n=512, lam0=DC_LAMBDA_3DB):
     """Max/min through-port transmission over theta -> achievable extinction (dB).
 
     Returns None when the minimum transmission is an ideal null (below 1e-15). The
@@ -91,7 +93,8 @@ def extinction_ratio_db(lam, kappa0=0.5, slope=0.0029, n=512):
     model does not actually predict.
     """
     thetas = np.linspace(0, 2 * np.pi, n)
-    p = np.array([np.abs(mzi_single_theta(th, lam, kappa0, slope, 0.0)[0, 0]) ** 2
+    p = np.array([np.abs(mzi_single_theta(th, lam, kappa0, slope, 0.0,
+                                          lam0=lam0)[0, 0]) ** 2
                   for th in thetas])
     if p.min() < 1e-15:
         return None
