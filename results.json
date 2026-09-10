@@ -223,7 +223,12 @@
       "two_dof_universal": 0.9999999999999988
     },
     "realizable_unitary_fidelity": 1.0,
-    "coupler_ceiling_min_fidelity": 0.946937684953625
+    "coupler_ceiling_min_fidelity": 0.946937684953625,
+    "coupler_ceiling_range_nm": [
+      1530.0,
+      1565.0
+    ],
+    "coupler_ceiling_fidelity_at_1560": 0.9941682980404486
   },
   "fig4d_fit": {
     "lambda0_median_nm": 1571.0154701756662,
@@ -250,7 +255,17 @@
     "slope_se": 0.00011703177545442932,
     "floor_se_db": 0.4119488374070718,
     "rms_db": 0.7918223382854097,
-    "n_points": 25
+    "n_points": 25,
+    "lambda0_pairs_p05_nm": 1573.691176706262,
+    "lambda0_pairs_p95_nm": 1575.5261933572208,
+    "slope_pairs_p05": 0.002386454154653565,
+    "slope_pairs_p95": 0.0028505078490591814,
+    "lambda0_param_p05_nm": 1572.3387010443544,
+    "lambda0_param_p95_nm": 1577.67367858362,
+    "slope_param_p05": 0.0021854736664645713,
+    "slope_param_p95": 0.003063092658789635,
+    "n_pairs_failed": 0,
+    "n_param_failed": 0
   },
   "recirculating": {
     "ring_rms": 2.8792312954364084e-16,
@@ -259,5 +274,13 @@
     "n_pucs_big": 40,
     "big_unitarity_dev": 8.881784197001252e-16
   },
-  "latency_on_chip_ps": 60.04153713566736
+  "latency_on_chip_ps": 60.04153713566736,
+  "environment": {
+    "python_version": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "numpy": "2.4.4",
+    "scipy": "1.17.1",
+    "scikit-learn": "1.9.0",
+    "matplotlib": "3.11.1"
+  }
 }
