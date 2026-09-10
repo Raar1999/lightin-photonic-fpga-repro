@@ -1,3 +1,4 @@
+Superseded: the paper and supplementary have been obtained; see docs/REPRODUCTION_REPORT_v2.md.
 # Document search list — LightIN reproduction
 
 Produced by auditing every assumed/approximate parameter in the package.
