@@ -45,7 +45,8 @@ def figpath(name):
     return os.path.join(_figdir, name)
 
 
-FIG4D_KEYS = ("model", "lambda0_median_nm", "lambda0_p05_nm", "lambda0_p95_nm",
+FIG4D_KEYS = ("model", "lambda0_nm", "slope_rad_nm", "floor_db",
+              "lambda0_median_nm", "lambda0_p05_nm", "lambda0_p95_nm",
               "slope_median", "slope_p05", "slope_p95",
               "n_boot", "n_failed", "fit_range_nm", "rms_db")
 XTALK_FIT_RANGE_NM = [1549, 1565]           # inside the digitized Fig 4d wavelengths
@@ -410,6 +411,7 @@ def main(quick=False):
         "ppuf": {"uniqueness": pp["uniqueness"], "uniformity": pp["uniformity"],
                  "reliability_intra_die_HD": pp["reliability_intra_die_HD"],
                  "tie_fraction": pp["tie_fraction"],
+                 "tie_tol": ppuf.TIE_TOL,
                  "measurement_noise_sigma": pp["measurement_noise_sigma"],
                  "measurement_noise_source": pp["measurement_noise_source"],
                  "sensitivity_sweep": pp["sensitivity_sweep"]},
@@ -422,6 +424,7 @@ def main(quick=False):
             demo_true_kappa0=cp["demo_true_kappa0"],
             demo_true_slope=cp["demo_true_slope"],
             demo_fit_lam0_nm=cp["demo_fit_lam0_nm"],
+            power_coupling_at_1560=float(coupler.dc_power_coupling(1560.0)),
             demo_fit_note=("recovered from the synthetic _demo_measured_dataset, "
                            "not from chip data"),
             extinction_note=("ideal null: model contains no loss or coupler imbalance, "
@@ -437,7 +440,8 @@ def main(quick=False):
             "coupler_ceiling_fidelity_at_1560": ex["coupler_ceiling_at_1560"],
         },
         "fig4d_fit": f4,
-        "fig4d_mesh_fit": f4_mesh,
+        "fig4d_mesh_fit": dict(f4_mesh,
+                               digitization_sd_db=fit_fig4.DIGITIZATION_SD_DB),
         "recirculating": rc,
         "latency_on_chip_ps": propagation_latency(4.5e-3) * 1e12,
         "environment": environment(),

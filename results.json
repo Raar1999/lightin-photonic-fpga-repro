@@ -212,6 +212,7 @@
     "uniformity": 0.50119140625,
     "reliability_intra_die_HD": 0.00719140625,
     "tie_fraction": 0.0,
+    "tie_tol": 1e-12,
     "measurement_noise_sigma": 0.01,
     "measurement_noise_source": "assumed value, not taken from the paper; reliability scales with it",
     "sensitivity_sweep": [
@@ -277,6 +278,7 @@
     "demo_true_kappa0": 0.5,
     "demo_true_slope": 0.0042,
     "demo_fit_lam0_nm": 1560.0,
+    "power_coupling_at_1560": 0.461817209506274,
     "demo_fit_note": "recovered from the synthetic _demo_measured_dataset, not from chip data",
     "extinction_note": "ideal null: model contains no loss or coupler imbalance, so the extinction is unbounded"
   },
@@ -314,6 +316,9 @@
       1587
     ],
     "model": "single-coupler proxy",
+    "lambda0_nm": 1571.0463013589276,
+    "slope_rad_nm": 0.0029389090451688933,
+    "floor_db": -25.223159936904555,
     "rms_db": 1.0521006529798882
   },
   "fig4d_mesh_fit": {
@@ -335,7 +340,8 @@
     "slope_param_p05": 0.0021854736664645713,
     "slope_param_p95": 0.003063092658789635,
     "n_pairs_failed": 0,
-    "n_param_failed": 0
+    "n_param_failed": 0,
+    "digitization_sd_db": 2.0
   },
   "recirculating": {
     "ring_rms": 2.8792312954364084e-16,

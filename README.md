@@ -63,7 +63,7 @@ All "reproduction" values below come from `scripts/run_all.py`.
 | Recirculating-mesh solver | — | ring/add-drop match analytic to **1e-15** | sim |
 
 The energy and throughput rows use the paper's **own derivation** (Supplementary Note 3),
-not a guessed op-count — see [`docs/REPRODUCTION_REPORT_v3.md`](docs/REPRODUCTION_REPORT_v3.md) §6.
+not a guessed op-count — see [`docs/REPRODUCTION_REPORT_v4.md`](docs/REPRODUCTION_REPORT_v4.md) §6.
 
 **Not reproduced — hardware-only, left blank rather than faked:** measured eye-diagram SNR
 (17.10 / 17.83 dB) and Q factors (7.17–8.08), the raw measured crosstalk spectra, the
@@ -216,7 +216,7 @@ PYTHONPATH=. python tests/test_reproduction.py
 ## Parameter provenance (chip-grounded)
 
 The parameters were taken from the paper's Methods + Supplementary, not assumed
-(details in [`docs/REPRODUCTION_REPORT_v3.md`](docs/REPRODUCTION_REPORT_v3.md) §6):
+(details in [`docs/REPRODUCTION_REPORT_v4.md`](docs/REPRODUCTION_REPORT_v4.md) §6):
 
 - group index **n_g = 4.0** (stated); phase index **n_eff ≈ 2.36** (450×220 nm SOI TE)
 - directional coupler **11.5 µm long, 200 nm gap**; square-mesh unit **500 µm**; arm **208 µm**
@@ -255,7 +255,7 @@ unitary expressivity, as the paper's Discussion concedes and `expressivity.py` q
 - Zhu *et al.*, *Light: Sci. Appl.* **15**, 165 (2026) — the reproduced paper.
 - Directional-coupler dispersion, propagation loss, grating-coupler references and the
   provenance of each borrowed parameter are listed in
-  [`docs/REPRODUCTION_REPORT_v3.md`](docs/REPRODUCTION_REPORT_v3.md) §4.2 and
+  [`docs/REPRODUCTION_REPORT_v4.md`](docs/REPRODUCTION_REPORT_v4.md) §4.2 and
   [Document search list (superseded)](docs/DOCUMENT_SEARCH_LIST_superseded.md).
 
 ## License
