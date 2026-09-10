@@ -5,6 +5,7 @@ results.json, and saves verification figures into figures/.
 
 import json
 import os
+import sys
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -14,7 +15,13 @@ from lightin import (unitary, nonunitary, nn_iris, ppuf, mrm, switching, through
                      coupler, expressivity, recirculating)
 from lightin.metrics import enob, propagation_latency
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import fit_fig4                       # noqa: E402  (sibling script)
+
 FIGDIR = os.path.join(os.path.dirname(__file__), "..", "figures")
+FIG4D_KEYS = ("lambda0_median_nm", "lambda0_p05_nm", "lambda0_p95_nm",
+              "slope_median", "slope_p05", "slope_p95",
+              "n_boot", "n_failed", "fit_range_nm")
 os.makedirs(FIGDIR, exist_ok=True)
 
 
@@ -254,6 +261,8 @@ def main():
     ex = expressivity.run()
     print("\n--- 10. Recirculating mesh with feedback loops ---")
     rc = recirculating.run()
+    print("\n--- 11. Fig 4d coupler dispersion fit (bootstrapped) ---")
+    f4 = {k: v for k, v in fit_fig4.main().items() if k in FIG4D_KEYS}
 
     print("\n--- Generating figures ---")
     fig_unitary(u); fig_nonunitary(nu); fig_iris(ir); fig_ppuf(pp)
@@ -297,6 +306,7 @@ def main():
             "realizable_unitary_fidelity": ex["realizable"],
             "coupler_ceiling_min_fidelity": float(ex["coupler_ceiling_fidelity"].min()),
         },
+        "fig4d_fit": f4,
         "recirculating": rc,
         "latency_on_chip_ps": propagation_latency(4.5e-3) * 1e12,
     }

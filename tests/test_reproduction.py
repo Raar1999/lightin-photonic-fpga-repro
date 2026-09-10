@@ -83,11 +83,12 @@ def test_mrm_lock_high_er():
     assert abs(peak_bias - sw["lock_bias"]) < 0.1
 
 
-def test_coupler_3db_at_design():
+def test_coupler_3db_at_fitted_wavelength():
     from lightin import coupler
-    assert abs(coupler.dc_power_coupling(1560.0) - 0.5) < 1e-6      # 50:50 at lam0
+    lam0 = coupler.DC_LAMBDA_3DB                                    # fitted, not 1560 nm
+    assert abs(coupler.dc_power_coupling(lam0) - 0.5) < 1e-6        # 50:50 at lam0
     # extinction is high at the 3-dB wavelength, degrades at band edges
-    assert coupler.extinction_ratio_db(1560.0) > 40.0
+    assert coupler.extinction_ratio_db(lam0) > 40.0
     assert coupler.extinction_ratio_db(1520.0) < 30.0
 
 

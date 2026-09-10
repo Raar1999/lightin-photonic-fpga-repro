@@ -24,6 +24,7 @@ import numpy as np
 
 # --- Device constants from the LightIN paper (Methods) + supplementary ---
 LAMBDA0 = 1560.0       # nm, matrix-multiplication design wavelength (Methods)
+DC_LAMBDA_3DB = 1571.0  # nm, 3-dB point fitted to digitized Fig 4d (scripts/fit_fig4.py); design wavelength is 1560 nm
 LAMBDA_MRM = 1555.0    # nm, MRM wavelength-locking experiment (Methods)
 N_GROUP = 4.0          # group index, stated in paper ("group index of 4")
 N_EFF = 2.36           # phase index, 450x220 nm SOI strip TE @1560 nm (geometry-derived)
@@ -36,7 +37,7 @@ HEATER_LENGTH_UM = 100.0  # phase-shifter heater length (Methods)
 PROP_LOSS_DB_CM = 2.0  # strip-waveguide propagation loss (~2.14 dB/cm, arXiv:2111.01792)
 
 
-def dc_power_coupling(lam, kappa0=0.5, slope=0.0029, lam0=LAMBDA0):
+def dc_power_coupling(lam, kappa0=0.5, slope=0.0029, lam0=DC_LAMBDA_3DB):
     """Power cross-coupling ratio of a directional coupler, 50:50 at lam0.
 
     K(lambda) = sin^2( arcsin(sqrt(kappa0)) + slope*(lambda - lam0) ).
@@ -101,16 +102,17 @@ def link_budget_db(lam=LAMBDA0, waveguide_cm=0.45, n_couplers_in_path=4,
             + n_couplers_in_path * dc_excess_db)
 
 
-def fit_dc_dispersion(lam_data, kpow_data, p0=(0.5, 0.004)):
+def fit_dc_dispersion(lam_data, kpow_data, p0=(0.5, 0.004), lam0=DC_LAMBDA_3DB):
     """Fit the CMT coupling form K(lambda)=sin^2(arcsin(sqrt(k0))+slope*(lam-lam0)).
 
-    Returns (kappa0, slope, rms_residual). Use this on real measured coupler data.
+    Returns (kappa0, slope, rms_residual), with kappa0 the power coupling at lam0.
+    Use this on real measured coupler data.
     """
     from scipy.optimize import curve_fit
 
     def model(lam, k0, slope):
         return np.sin(np.arcsin(np.sqrt(np.clip(k0, 1e-6, 1 - 1e-6)))
-                      + slope * (lam - LAMBDA0)) ** 2
+                      + slope * (lam - lam0)) ** 2
 
     popt, _ = curve_fit(model, lam_data, kpow_data, p0=list(p0), maxfev=20000)
     resid = kpow_data - model(lam_data, *popt)
