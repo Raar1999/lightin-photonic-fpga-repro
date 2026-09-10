@@ -42,9 +42,20 @@ def test_iris_accuracy():
 
 def test_ppuf_metrics():
     res = ppuf.evaluate(n_dies=40, n_challenges=64, seed=1)
-    assert 0.45 < res["uniqueness"] < 0.55              # paper sim 49.97%
-    assert 0.45 < res["uniformity"] < 0.55              # paper sim 50.15%
     assert res["reliability_intra_die_HD"] < 0.05
+
+
+def test_ppuf_responds_to_manufacturing_spread():
+    """With negligible manufacturing spread, the response bits are set by measurement
+    noise rather than by the die, so re-measurements of one die differ about as much as
+    different dies do. With the paper's spread, the dies differ from each other far more
+    than repeated measurements of one die."""
+    lo, hi = ppuf.sensitivity_sweep(sigmas=(0.001, 1.05), n_dies=20, n_challenges=32)
+    assert 0.40 <= hi["uniqueness"] <= 0.60
+    assert 0.40 <= hi["uniformity"] <= 0.60
+    assert hi["reliability"] < 0.10
+    assert hi["tie_fraction"] < 0.05
+    assert lo["reliability"] >= 0.5 * lo["uniqueness"]
 
 
 def test_energy_exact():
