@@ -190,8 +190,9 @@
     "extinction_at_1560_db": 23.909438919852718,
     "extinction_at_1520_db": 10.70703636161425,
     "link_budget_db": 11.433333333333335,
-    "fit_kappa0": 0.5460462446701513,
-    "fit_slope": 0.004370388901549749,
+    "demo_fit_kappa0": 0.5460462446701513,
+    "demo_fit_slope": 0.004370388901549749,
+    "demo_fit_note": "recovered from the synthetic _demo_measured_dataset, not from chip data",
     "extinction_note": "ideal null: model contains no loss or coupler imbalance, so the extinction is unbounded"
   },
   "expressivity": {
