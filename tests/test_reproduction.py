@@ -96,7 +96,7 @@ def test_coupler_3db_at_fitted_wavelength():
 def test_coupler_dispersion_fit():
     from lightin import coupler
     lam, k = coupler._demo_measured_dataset(seed=3)
-    k0, slope, rms = coupler.fit_dc_dispersion(lam, k)
+    k0, slope, rms = coupler.fit_dc_dispersion(lam, k, lam0=coupler.DEMO_LAMBDA0)
     assert abs(k0 - 0.5) < 0.05 and rms < 0.01                     # recovers parameters
 
 

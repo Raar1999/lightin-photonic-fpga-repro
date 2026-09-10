@@ -189,7 +189,7 @@ def fig_coupler():
     ext = np.array([coupler.extinction_ratio_db(l) for l in np.linspace(1530, 1565, 36)])
     lam_e = np.linspace(1530, 1565, 36)
     lam_d, kdata = coupler._demo_measured_dataset()
-    k0, slope, rms = coupler.fit_dc_dispersion(lam_d, kdata)
+    k0, slope, rms = coupler.fit_dc_dispersion(lam_d, kdata, lam0=coupler.DEMO_LAMBDA0)
     kfit = coupler.dc_power_coupling(lams, kappa0=k0, slope=slope)
 
     fig, ax = plt.subplots(1, 3, figsize=(13, 3.8))
