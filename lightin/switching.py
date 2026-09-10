@@ -64,8 +64,12 @@ def fabric_matrix(state, lam, N=4, kappa0s=None, prop_db_per_stage=0.25,
     return U
 
 
-def transmission_spectra(state, lambdas, N=4, seed=0, lam0=None, slope=None):
-    """Per-port power transfer (dB) vs wavelength, with fabricated coupler spread.
+def power_spectra(state, lambdas, N=4, seed=0, lam0=None, slope=None):
+    """Per-port power transfer (linear, 0..1) vs wavelength, with coupler spread.
+
+    Linear power is the primitive: a port pair the topology forbids is exactly 0 here,
+    which is what distinguishes a structural zero from a small crosstalk level.
+    transmission_spectra() is the dB view of the same array.
 
     lam0 and slope select the directional-coupler dispersion; None takes the fitted
     chip values DC_LAMBDA_3DB and DC_SLOPE. Passing them explicitly lets the mesh
@@ -94,11 +98,27 @@ def transmission_spectra(state, lambdas, N=4, seed=0, lam0=None, slope=None):
                 k += 1
             U = (amp * L) @ U
         T[:, :, li] = np.abs(U) ** 2
+    return T, (kappa_a, kappa_b)
+
+
+def transmission_spectra(state, lambdas, N=4, seed=0, lam0=None, slope=None):
+    """Per-port power transfer (dB) vs wavelength; dB view of power_spectra().
+
+    An exactly forbidden port pair maps to -inf, which is the honest dB value. No
+    constant is added to keep the logarithm finite: doing so would report a
+    crosstalk level the model does not predict.
+    """
+    T, kappas = power_spectra(state, lambdas, N, seed, lam0, slope)
     with np.errstate(divide="ignore"):
-        return 10 * np.log10(T), (kappa_a, kappa_b)
+        return 10 * np.log10(T), kappas
 
 
-ZERO_TOL = 1e-15    # linear transmission below this is a structural zero, not crosstalk
+ZERO_TOL = 1e-20    # raw linear power below this is a structural zero, not crosstalk
+
+
+def _db(power):
+    with np.errstate(divide="ignore"):
+        return float(10 * np.log10(power))
 
 
 def crosstalk_summary(lambdas=None, N=4):
@@ -106,26 +126,29 @@ def crosstalk_summary(lambdas=None, N=4):
         lambdas = np.linspace(1530, 1565, 141)   # C-band
     out = {}
     for state in ("cross", "bar"):
-        Tdb, _ = transmission_spectra(state, lambdas, N)
+        T, _ = power_spectra(state, lambdas, N)
         U0 = fabric_matrix(state, LAMBDA0, N)
         intended = np.argmax(np.abs(U0) ** 2, axis=0)
         center = np.argmin(np.abs(lambdas - LAMBDA0))
         xt_center, il_center, xt_band, structural_zeros = [], [], [], 0
         for j in range(N):
             i_int = intended[j]
-            il_center.append(Tdb[i_int, j, center])
+            il_center.append(_db(T[i_int, j, center]))
             for i in range(N):
                 if i == i_int:
                     continue
                 # A port pair the topology forbids carries no power at all. That is a
                 # structural zero, not a crosstalk level, so it is counted rather than
-                # allowed to set the reported best or worst case.
-                for value, bucket in ((Tdb[i, j, center], xt_center),
-                                      (Tdb[i, j].max(), xt_band)):
-                    if 10 ** (value / 10.0) < ZERO_TOL:
+                # allowed to set the reported best or worst case. The test is on the
+                # raw linear power, never on a dB value that a floor could have set.
+                for power, bucket in ((T[i, j, center], xt_center),
+                                      (T[i, j].max(), xt_band)):
+                    if power < ZERO_TOL:
                         structural_zeros += 1
                     else:
-                        bucket.append(value)
+                        bucket.append(_db(power))
+        with np.errstate(divide="ignore"):
+            Tdb = 10 * np.log10(T)
         out[state] = {
             "spectra_db": Tdb, "lambdas": lambdas, "intended": intended,
             "xtalk_center_db": ((float(np.max(xt_center)), float(np.min(xt_center)))
