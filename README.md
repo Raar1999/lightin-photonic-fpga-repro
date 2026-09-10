@@ -46,7 +46,10 @@ All "reproduction" values below come from `scripts/run_all.py`.
 | Effective bits @10 GBaud (Fig 2f) | σ=0.0269 → **6.22 bit** | log₂(2/σ)=**6.216** | exact |
 | Non-unitary 3×3 mesh (Fig 2l) | modulus match | corr 1.0, err 7.8e-16 | sim |
 | Non-unitary input/output correlation (Fig 2n) | measured on chip | not reproduced | hardware — not reproduced |
-| Iris unitary NN (Fig 2o,p) | 94.67% offline | **94.67% full-set** | sim |
+| Iris unitary NN, full set (Fig 2o,p) | 94.67% offline | **95.47% ± 1.26%** (10 seeds) | sim |
+| Iris unitary NN, held out | — (paper's 93.33% is on-chip) | 89.33% ± 5.14% (10 seeds) | sim |
+| Iris identity control (unitary frozen to I) | — | 85.60% ± 0.44% full set, 81.56% ± 4.67% held out | control |
+| Iris logistic baseline (same 4 features, same splits) | — | 96.53% ± 0.88% full set, 94.89% ± 3.45% held out | control |
 | On-chip latency | ~60 ps | n_g·L/c = **60.0 ps** | exact |
 | Energy | **1.875 pJ/MAC** | 1.8 W / 0.96 TMAC·s⁻¹ = **1.875** | exact* |
 | Throughput | **1.92 TOPS** | 96 ops × 2 dir × 10 GBaud = **1.92** | exact* |

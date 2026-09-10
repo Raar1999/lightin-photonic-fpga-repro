@@ -15,8 +15,27 @@ import numpy as np
 from scipy.linalg import expm
 from scipy.optimize import minimize
 from sklearn.datasets import load_iris
+from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+
+N_RESTARTS = 15     # random restarts of the offline training, shared by model and control
+
+
+def _train_test(seed, complex_features=True):
+    """The 70/30 stratified split used everywhere here, with random_state=seed.
+
+    Returns (X, y, Xtr, Xte, ytr, yte) over the four standardized features, complex-cast
+    for the photonic layer and left real for the logistic baseline. The partition depends
+    only on y, test_size and random_state, so every function below sees the same split.
+    """
+    data = load_iris()
+    y = data.target.astype(int)
+    Xs = StandardScaler().fit_transform(data.data.astype(float))
+    X = Xs.astype(complex) if complex_features else Xs
+    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.3,
+                                          random_state=seed, stratify=y)
+    return X, y, Xtr, Xte, ytr, yte
 
 
 def _hermitian_from_params(p, N=4):
@@ -58,19 +77,13 @@ def _loss(p, X, y, N=4, n_classes=3):
 
 
 def train(seed=0):
-    data = load_iris()
-    X = data.data.astype(float)
-    y = data.target.astype(int)
-    Xs = StandardScaler().fit_transform(X)
-    # encode 4 features as complex amplitudes (real-valued here)
-    Xc = Xs.astype(complex)
-    Xtr, Xte, ytr, yte = train_test_split(Xc, y, test_size=0.3,
-                                          random_state=seed, stratify=y)
+    # 4 features encoded as complex amplitudes (real-valued here)
+    Xc, y, Xtr, Xte, ytr, yte = _train_test(seed)
 
     N, n_classes = 4, 3
     rng = np.random.default_rng(seed)
     best = None
-    for _ in range(15):
+    for _ in range(N_RESTARTS):
         p0 = rng.uniform(-1, 1, _n_params(N, n_classes))
         sol = minimize(_loss, p0, args=(Xtr, ytr, N, n_classes),
                        method="L-BFGS-B", options={"maxiter": 4000})
@@ -102,8 +115,92 @@ def train(seed=0):
     }
 
 
+def _accuracy(p, X, y, N=4, n_classes=3):
+    probs, _ = _forward(p, X, N, n_classes)
+    return float(np.mean(probs.argmax(1) == y))
+
+
+def _spread(full, test):
+    """Mean, standard deviation and per-seed values of the two accuracies."""
+    full = np.asarray(full, dtype=float)
+    test = np.asarray(test, dtype=float)
+    return {
+        "full_acc_mean": float(full.mean()), "full_acc_std": float(full.std()),
+        "test_acc_mean": float(test.mean()), "test_acc_std": float(test.std()),
+        "full_acc_per_seed": [float(v) for v in full],
+        "test_acc_per_seed": [float(v) for v in test],
+    }
+
+
+def seed_sweep(seeds=range(10)):
+    """Accuracy of the trained photonic layer across seeds.
+
+    The seed drives both the split and the random restarts, so the spread here is the
+    honest uncertainty on a single-seed number like the paper's 94.67%.
+    """
+    full, test = [], []
+    for s in seeds:
+        res = train(seed=s)
+        full.append(res["full_acc"]); test.append(res["test_acc"])
+    return _spread(full, test)
+
+
+def identity_control(seeds=range(10)):
+    """Same readout, unitary frozen to the identity.
+
+    With H = 0 the photonic layer is W = I, so the detected intensities are just the
+    squared standardized features and only the linear readout is trained. Accuracy above
+    this line is what the programmable unitary actually contributes.
+    """
+    N, n_classes = 4, 3
+    n_readout = n_classes * N + n_classes
+
+    def readout_loss(q, X, y):
+        return _loss(np.concatenate([np.zeros(N * N), q]), X, y, N, n_classes)
+
+    full, test = [], []
+    for s in seeds:
+        Xc, y, Xtr, Xte, ytr, yte = _train_test(s)
+        rng = np.random.default_rng(s)
+        best = None
+        for _ in range(N_RESTARTS):
+            q0 = rng.uniform(-1, 1, n_readout)
+            sol = minimize(readout_loss, q0, args=(Xtr, ytr),
+                           method="L-BFGS-B", options={"maxiter": 4000})
+            if best is None or sol.fun < best.fun:
+                best = sol
+        p = np.concatenate([np.zeros(N * N), best.x])
+        full.append(_accuracy(p, Xc, y, N, n_classes))
+        test.append(_accuracy(p, Xte, yte, N, n_classes))
+    return _spread(full, test)
+
+
+def logistic_baseline(seeds=range(10)):
+    """Plain multinomial logistic regression on the same features and the same splits.
+
+    A four-feature linear classifier is the threshold the photonic layer has to beat for
+    the demonstration to be about photonics rather than about Iris being easy.
+    """
+    full, test = [], []
+    for s in seeds:
+        Xs, y, Xtr, Xte, ytr, yte = _train_test(s, complex_features=False)
+        clf = LogisticRegression(max_iter=5000).fit(Xtr, ytr)
+        full.append(float(clf.score(Xs, y)))
+        test.append(float(clf.score(Xte, yte)))
+    return _spread(full, test)
+
+
+def _print_spread(label, d):
+    print(f"[Iris {label}] full-set {100*d['full_acc_mean']:.2f}% +/- "
+          f"{100*d['full_acc_std']:.2f}%,  held-out {100*d['test_acc_mean']:.2f}% +/- "
+          f"{100*d['test_acc_std']:.2f}%  (n={len(d['full_acc_per_seed'])} seeds)")
+
+
 def run(verbose=True):
     res = train(seed=0)
+    res["seed_sweep"] = seed_sweep()
+    res["identity_control"] = identity_control()
+    res["logistic_baseline"] = logistic_baseline()
     if verbose:
         print(f"[Iris unitary NN] offline train acc = {100*res['train_acc']:.2f}%  "
               f"(paper offline: 94.67%)")
@@ -116,6 +213,9 @@ def run(verbose=True):
         for i, n in enumerate(names):
             row = "  ".join(f"{v:9.1f}" for v in res["confusion_percent"][i])
             print(f"  pred {n:<6s} {row}")
+        _print_spread("across seeds     ", res["seed_sweep"])
+        _print_spread("identity control ", res["identity_control"])
+        _print_spread("logistic baseline", res["logistic_baseline"])
     return res
 
 

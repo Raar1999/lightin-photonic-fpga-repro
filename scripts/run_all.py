@@ -289,7 +289,10 @@ def main():
             "enob_at_sigma_0.0453": enob(0.0453),
         },
         "iris": {"offline_train_acc": ir["train_acc"], "test_acc": ir["test_acc"],
-                 "full_acc": ir["full_acc"]},
+                 "full_acc": ir["full_acc"],
+                 "seed_sweep": ir["seed_sweep"],
+                 "identity_control": ir["identity_control"],
+                 "logistic_baseline": ir["logistic_baseline"]},
         "mrm": {"lock_bias": mr["lock_bias"], "max_er_db": float(mr["er_db"].max())},
         "switching": {
             "cross_xtalk_center_db": sw["cross"]["xtalk_center_db"],
