@@ -51,15 +51,15 @@ All "reproduction" values below come from `scripts/run_all.py`.
 | Iris identity control (unitary frozen to I) | — | 85.60% ± 0.44% full set, 81.56% ± 4.67% held out | control |
 | Iris logistic baseline (same 4 features, same splits) | — | 96.53% ± 0.88% full set, 94.89% ± 3.45% held out | control |
 | On-chip latency | ~60 ps | n_g·L/c = **60.0 ps** | exact |
-| Energy | **1.875 pJ/MAC** | 1.8 W / 0.96 TMAC·s⁻¹ = **1.875** | exact* |
-| Throughput | **1.92 TOPS** | 96 ops × 2 dir × 10 GBaud = **1.92** | exact* |
+| Energy | **1.875 pJ/MAC** | 1.8 W / 0.96 TMAC·s⁻¹ = **1.875**. 3 V, 100 Ω, 90 mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
+| Throughput | **1.92 TOPS** | 96 ops × 2 dir × 10 GBaud = **1.92**. 3 V, 100 Ω, 90 mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
 | Switch crosstalk (Fig 4d,e) | −45 to <−20 dB | CMT model, fitted to Fig 4d | sim |
 | PUF uniqueness, 100 dies (Fig 5) | **49.97%** | **50.02%** | sim |
 | PUF uniformity, 100 dies (Fig 5) | **50.15%** | **49.91%** | sim |
 | Recirculating-mesh solver | — | ring/add-drop match analytic to **1e-15** | sim |
 
-`*` energy and throughput use the paper's **own derivation** (Supplementary Note 3), not a
-guessed op-count — see [`docs/REPRODUCTION_REPORT.md`](docs/REPRODUCTION_REPORT.md) §6.
+The energy and throughput rows use the paper's **own derivation** (Supplementary Note 3),
+not a guessed op-count — see [`docs/REPRODUCTION_REPORT.md`](docs/REPRODUCTION_REPORT.md) §6.
 
 **Not reproduced — hardware-only, left blank rather than faked:** measured eye-diagram SNR
 (17.10 / 17.83 dB) and Q factors (7.17–8.08), the raw measured crosstalk spectra, the
