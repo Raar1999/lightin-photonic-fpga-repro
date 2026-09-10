@@ -100,6 +100,22 @@ def test_coupler_dispersion_fit():
     assert abs(k0 - 0.5) < 0.05 and rms < 0.01                     # recovers parameters
 
 
+def test_demo_fit_recovers_generator_parameters():
+    """The fitted demo coupler parameters must match the ones the generator used.
+
+    Generator and fitter reference kappa0 to the same wavelength (DC_LAMBDA_3DB), so a
+    disagreement here is a real fit failure and not a change of reference wavelength.
+    Tolerances: 0.01 absolute on kappa0 (the data carry 0.004 noise on 25 points) and
+    10% relative on slope (the generator's quadratic term is outside the fit form).
+    """
+    from lightin import coupler
+    out = coupler.run(verbose=False)
+    demo_fit_kappa0, demo_true_kappa0 = out["fit_kappa0"], out["demo_true_kappa0"]
+    demo_fit_slope, demo_true_slope = out["fit_slope"], out["demo_true_slope"]
+    assert abs(demo_fit_kappa0 - demo_true_kappa0) < 0.01
+    assert abs(demo_fit_slope - demo_true_slope) / demo_true_slope < 0.10
+
+
 def test_expressivity_ladder():
     from lightin import expressivity
     dof = expressivity.dof_counts(4)

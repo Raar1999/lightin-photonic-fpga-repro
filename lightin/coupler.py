@@ -36,6 +36,13 @@ ARM_LENGTH_UM = 208.0  # MZI arm length (Methods)
 HEATER_LENGTH_UM = 100.0  # phase-shifter heater length (Methods)
 PROP_LOSS_DB_CM = 2.0  # strip-waveguide propagation loss (~2.14 dB/cm, arXiv:2111.01792)
 
+# --- Ground truth for the synthetic demo coupler dataset (_demo_measured_dataset) ---
+# Expressed at DC_LAMBDA_3DB, the same reference wavelength fit_dc_dispersion uses,
+# so the fitted kappa0 is directly comparable to DEMO_TRUE_KAPPA0.
+DEMO_TRUE_KAPPA0 = 0.5      # power coupling at DC_LAMBDA_3DB
+DEMO_TRUE_SLOPE = 0.0042    # rad/nm, linear coupling-phase dispersion
+DEMO_TRUE_QUAD = -8e-6      # rad/nm^2, higher-order term the CMT fit form cannot represent
+
 
 def dc_power_coupling(lam, kappa0=0.5, slope=0.0029, lam0=DC_LAMBDA_3DB):
     """Power cross-coupling ratio of a directional coupler, 50:50 at lam0.
@@ -127,15 +134,20 @@ def fit_dc_dispersion(lam_data, kpow_data, p0=(0.5, 0.004), lam0=DC_LAMBDA_3DB):
     return float(popt[0]), float(popt[1]), float(np.sqrt(np.mean(resid ** 2)))
 
 
-def _demo_measured_dataset(seed=0):
+def _demo_measured_dataset(seed=0, lam0=DC_LAMBDA_3DB, kappa0=DEMO_TRUE_KAPPA0,
+                           slope=DEMO_TRUE_SLOPE, quad=DEMO_TRUE_QUAD):
     """Synthetic-but-physical 'measured' coupler data (higher-order dispersion + noise).
 
     Stands in for real measurements; fit_dc_dispersion recovers the CMT parameters.
+    lam0 defaults to the same constant fit_dc_dispersion uses, so kappa0 here and the
+    fitted kappa0 are the power coupling at one and the same wavelength. Referencing
+    them to different wavelengths shifts the fitted kappa0 by roughly
+    slope * (lam0_fit - lam0_gen) without the fit itself changing.
     """
     rng = np.random.default_rng(seed)
     lam = np.linspace(1520, 1580, 25)
     # quadratic dispersion in the coupling phase + measurement noise
-    a = np.arcsin(np.sqrt(0.5)) + 0.0042 * (lam - LAMBDA0) - 8e-6 * (lam - LAMBDA0) ** 2
+    a = np.arcsin(np.sqrt(kappa0)) + slope * (lam - lam0) + quad * (lam - lam0) ** 2
     k = np.sin(a) ** 2 + rng.normal(0, 0.004, size=lam.shape)
     return lam, np.clip(k, 0, 1)
 
@@ -150,6 +162,9 @@ def run(verbose=True):
     lam, kdata = _demo_measured_dataset()
     k0, slope, rms = fit_dc_dispersion(lam, kdata)
     out["fit_kappa0"], out["fit_slope"], out["fit_rms"] = k0, slope, rms
+    out["demo_true_kappa0"] = DEMO_TRUE_KAPPA0
+    out["demo_true_slope"] = DEMO_TRUE_SLOPE
+    out["demo_fit_lam0_nm"] = DC_LAMBDA_3DB
     if verbose:
         def _db(v):
             return "unbounded (ideal null)" if v is None else f"{v:.1f} dB"
@@ -161,8 +176,10 @@ def run(verbose=True):
               f"(coupler-imbalance limited off 3-dB point)")
         print(f"[coupler] fibre-to-fibre link budget @1560nm = {out['link_budget_db']:.1f} dB "
               f"(2x grating ~4.4 dB + ~2 dB/cm prop + DC excess)")
-        print(f"[coupler] CMT dispersion fit to demo data: kappa0={k0:.3f}, "
-              f"slope={slope:.4f} rad/nm, RMS residual={rms:.4f}")
+        print(f"[coupler] CMT dispersion fit to demo data @{DC_LAMBDA_3DB:.0f}nm: "
+              f"kappa0={k0:.3f} (true {DEMO_TRUE_KAPPA0:.3f}), "
+              f"slope={slope:.4f} rad/nm (true {DEMO_TRUE_SLOPE:.4f}), "
+              f"RMS residual={rms:.4f}")
     return out
 
 

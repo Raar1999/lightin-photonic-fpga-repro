@@ -315,6 +315,9 @@ def main():
                                 "extinction_at_1520_db", "link_budget_db")},
             demo_fit_kappa0=cp["fit_kappa0"],
             demo_fit_slope=cp["fit_slope"],
+            demo_true_kappa0=cp["demo_true_kappa0"],
+            demo_true_slope=cp["demo_true_slope"],
+            demo_fit_lam0_nm=cp["demo_fit_lam0_nm"],
             demo_fit_note=("recovered from the synthetic _demo_measured_dataset, "
                            "not from chip data"),
             extinction_note=("ideal null: model contains no loss or coupler imbalance, "
