@@ -272,7 +272,6 @@ def main():
         },
         "nonunitary": {
             "modulus_corr": nu["modulus_corr"], "max_abs_err": nu["max_abs_err"],
-            "vector_correlation": nu["vector_correlation"],
             "enob_at_sigma_0.0453": enob(0.0453),
         },
         "iris": {"offline_train_acc": ir["train_acc"], "test_acc": ir["test_acc"],

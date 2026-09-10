@@ -44,7 +44,8 @@ All "reproduction" values below come from `scripts/run_all.py`.
 | PUC unitarity / cross-bar (Eq. 1) | unitary | err ≤ 1e-32 | exact |
 | 4×4 unitary realisation (Fig 2h,i) | high fidelity | fidelity **1.000000** | sim |
 | Effective bits @10 GBaud (Fig 2f) | σ=0.0269 → **6.22 bit** | log₂(2/σ)=**6.216** | exact |
-| Non-unitary 3×3 (Fig 2l,n) | modulus match | corr 1.0, err 5.6e-16 | sim |
+| Non-unitary 3×3 mesh (Fig 2l) | modulus match | corr 1.0, err 7.8e-16 | sim |
+| Non-unitary input/output correlation (Fig 2n) | measured on chip | not reproduced | hardware — not reproduced |
 | Iris unitary NN (Fig 2o,p) | 94.67% offline | **94.67% full-set** | sim |
 | On-chip latency | ~60 ps | n_g·L/c = **60.0 ps** | exact |
 | Energy | **1.875 pJ/MAC** | 1.8 W / 0.96 TMAC·s⁻¹ = **1.875** | exact* |
@@ -58,8 +59,9 @@ All "reproduction" values below come from `scripts/run_all.py`.
 guessed op-count — see [`docs/REPRODUCTION_REPORT.md`](docs/REPRODUCTION_REPORT.md) §6.
 
 **Not reproduced — hardware-only, left blank rather than faked:** measured eye-diagram SNR
-(17.10 / 17.83 dB) and Q factors (7.17–8.08), the raw measured crosstalk spectra, and the
-2-die experimental PUF numbers. These require the physical device.
+(17.10 / 17.83 dB) and Q factors (7.17–8.08), the raw measured crosstalk spectra, the
+measured non-unitary input/output correlation (Fig 2n), and the 2-die experimental PUF
+numbers. These require the physical device.
 
 ---
 

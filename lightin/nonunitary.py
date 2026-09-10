@@ -5,8 +5,9 @@ A general (non-unitary) matrix M factorises by SVD as  M = U @ S @ Vh, with U, V
 unitary and S diagonal non-negative. The paper's diamond mesh realises exactly this:
 two unitary sub-meshes around a layer of variable attenuators (the singular values).
 Passive optics cannot provide gain, so we realise M / s_max (singular values scaled to
-<= 1) and report the matrix up to that global scale -- the modulus pattern (Fig. 2l) and
-the input/output correlation (Fig. 2n) are scale-equivariant.
+<= 1) and report the matrix up to that global scale -- the modulus pattern (Fig. 2l) is
+scale-equivariant. The paper's input/output correlation (Fig. 2n) is measured on the
+chip, so the simulation check of this mesh is the modulus agreement alone.
 """
 
 import numpy as np
@@ -44,14 +45,16 @@ def svd_realise(M, fit_meshes=True, seed=0):
 
 
 def vector_test(M, n_trials=256, seed=0):
-    """Apply M (scaled) to many random input vectors; correlate out vs theory (Fig.2n)."""
+    """Apply M (scaled) to many random input vectors; return the theoretical outputs.
+
+    The measured counterpart of these outputs is the chip's, so no correlation between
+    theory and experiment can be computed here (paper Fig. 2n is a chip measurement).
+    """
     rng = np.random.default_rng(seed)
     s_max = np.linalg.svd(M, compute_uv=False).max()
     Ms = M / s_max
     X = rng.uniform(-1, 1, size=(M.shape[1], n_trials))
-    Y_theory = Ms @ X
-    Y_exp = Y_theory.copy()                      # ideal optics; HW roll-off is separate
-    return correlation(Y_theory, Y_exp), Y_theory
+    return Ms @ X
 
 
 def run(verbose=True):
@@ -59,14 +62,11 @@ def run(verbose=True):
     rng = np.random.default_rng(7)
     M = rng.uniform(-1, 1, size=(3, 3)) + 1j * rng.uniform(-1, 1, size=(3, 3))
     info = svd_realise(M, fit_meshes=True, seed=3)
-    corr, _ = vector_test(M, n_trials=256, seed=11)
-    info["vector_correlation"] = corr
     if verbose:
         print(f"[non-unitary 3x3] mesh fidelity U={info['mesh_fidelity_U']:.6f}, "
               f"Vh={info['mesh_fidelity_Vh']:.6f}")
         print(f"[non-unitary 3x3] element-modulus correlation = {info['modulus_corr']:.6f}, "
               f"max |.| error = {info['max_abs_err']:.2e}")
-        print(f"[non-unitary 3x3] 256-vector input/output correlation = {corr:.6f}")
     return info
 
 
