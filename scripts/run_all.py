@@ -177,7 +177,9 @@ def fig_coupler():
     fig, ax = plt.subplots(1, 3, figsize=(13, 3.8))
     ax[0].plot(lams, kpow, color="#4C72B0")
     ax[0].axhline(0.5, color="grey", ls=":")
-    ax[0].set_title("Directional-coupler dispersion\n(3-dB at 1550 nm only)", fontsize=9.5)
+    ax[0].set_title(f"Directional-coupler dispersion\n"
+                    f"(3-dB at {coupler.DC_LAMBDA_3DB:.0f} nm only; design is 1560 nm)",
+                    fontsize=9.5)
     ax[0].set_xlabel("Wavelength (nm)"); ax[0].set_ylabel("Power coupling κ")
 
     ax[1].plot(lam_e, ext, color="#55A868")

@@ -4,7 +4,7 @@
 The 4-stage planar (Spanke-Benes) switch is a rectangular mesh of nearest-neighbour 2x2
 switches. Each switch is a single-theta PUC built from two *dispersive* directional
 couplers (lightin.coupler). The switch phase is set to ideal cross/bar at the design
-wavelength (1550 nm) and held fixed; crosstalk vs wavelength then emerges from the real
+wavelength (1560 nm) and held fixed; crosstalk vs wavelength then emerges from the real
 coupler dispersion -- the physical mechanism behind Fig. 4d,e -- rather than a toy slope.
 
 Reproducible: topology, the crosstalk-vs-wavelength mechanism, the loss budget from
@@ -117,7 +117,7 @@ def crosstalk_summary(lambdas=None, N=4):
 
 
 def insertion_loss_budget(**kw):
-    """Backwards-compatible: fibre-to-fibre link budget at 1550 nm (dB)."""
+    """Backwards-compatible: fibre-to-fibre link budget at 1560 nm (dB)."""
     return link_budget_db(**kw)
 
 
@@ -127,10 +127,10 @@ def run(verbose=True):
     if verbose:
         for state in ("cross", "bar"):
             hi, lo = s[state]["xtalk_center_db"]
-            print(f"[switching/{state}] crosstalk @1550nm: {lo:.1f} to {hi:.1f} dB; "
+            print(f"[switching/{state}] crosstalk @1560nm: {lo:.1f} to {hi:.1f} dB; "
                   f"worst over C-band (1530-1565nm): {s[state]['worst_xtalk_over_cband_db']:.1f} dB; "
                   f"on-chip loss ~ {abs(s[state]['onchip_loss_center_db']):.1f} dB")
-        print(f"[switching] fibre-to-fibre link budget @1550nm ~ {fl:.1f} dB "
+        print(f"[switching] fibre-to-fibre link budget @1560nm ~ {fl:.1f} dB "
               f"(grating-coupler dominated)")
         print("[switching] paper measured: -45 to <-20 dB @1560nm; <-15/-20 dB over >20nm.")
         print("[switching] crosstalk now arises from CMT coupler dispersion; measured spectra are hardware-only.")
