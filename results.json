@@ -1,0 +1,82 @@
+{
+  "unitary": {
+    "perm_fidelity": [
+      1.0,
+      1.0
+    ],
+    "random_mean_fidelity": 0.9999999999999991,
+    "random_mean_modulus_corr": 1.0,
+    "enob_at_sigma_0.0269": 6.216250016992825
+  },
+  "nonunitary": {
+    "modulus_corr": 1.0,
+    "max_abs_err": 5.551115123125783e-16,
+    "vector_correlation": 0.9999999999999998,
+    "enob_at_sigma_0.0453": 5.464345139503214
+  },
+  "iris": {
+    "offline_train_acc": 0.9523809523809523,
+    "test_acc": 0.9333333333333333,
+    "full_acc": 0.9466666666666667
+  },
+  "mrm": {
+    "lock_bias": -0.4481203007518797,
+    "max_er_db": 18.460419942945222
+  },
+  "switching": {
+    "cross_xtalk_center_db": [
+      -30.241663943350133,
+      -42.59493083978819
+    ],
+    "bar_xtalk_center_db": [
+      -30.495756126551363,
+      -106.43204442848416
+    ],
+    "cross_worst_xtalk_cband_db": -14.557409260864025,
+    "bar_worst_xtalk_cband_db": -30.495756126551363,
+    "fibre_to_fibre_loss_db": 11.433333333333335
+  },
+  "ppuf": {
+    "uniqueness": 0.5002207623106061,
+    "uniformity": 0.499091796875,
+    "reliability_intra_die_HD": 0.008984375
+  },
+  "throughput_energy": {
+    "P_pi_mW": 90.0,
+    "P_avg_per_mzi_mW": 45.0,
+    "P_total_W": 1.7999999999999998,
+    "mac_rate": 960000000000.0,
+    "energy_pj_per_mac": 1.875,
+    "tops": 1.92
+  },
+  "coupler": {
+    "extinction_at_1560_db": 119.99995896231033,
+    "extinction_at_1520_db": 12.768259929884724,
+    "link_budget_db": 11.433333333333335,
+    "fit_kappa0": 0.4980373079579241,
+    "fit_slope": 0.0043703888958744365
+  },
+  "expressivity": {
+    "dof": {
+      "single_theta": 6,
+      "single_theta+output_phases": 10,
+      "two_dof_universal": 16,
+      "dim_U(N)": 16
+    },
+    "haar_fidelity_mean": {
+      "single_theta": 0.5605306162617332,
+      "single_theta+output_phases": 0.8263520609580731,
+      "two_dof_universal": 0.999999999999999
+    },
+    "realizable_unitary_fidelity": 1.0,
+    "coupler_ceiling_min_fidelity": 0.9700283146301468
+  },
+  "recirculating": {
+    "ring_rms": 2.829798564934062e-16,
+    "add_drop_rms": 8.369073390600119e-16,
+    "plaquette_unitarity_dev": 9.992007221626409e-16,
+    "n_pucs_big": 40,
+    "big_unitarity_dev": 3.1086244689504383e-15
+  },
+  "latency_on_chip_ps": 60.04153713566736
+}

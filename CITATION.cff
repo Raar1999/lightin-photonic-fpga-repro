@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: >-
+  This repository is an independent computational reproduction. If you use it, please
+  also cite the original paper it reproduces (see references below).
+title: "LightIN — computational reproduction of a silicon photonic FPGA"
+abstract: >-
+  An honesty-first simulation reproduction of the LightIN silicon photonic FPGA:
+  unitary/non-unitary matrix multiplication, an Iris unitary neural network, MRM
+  wavelength locking, a 4x4 optical switch, and a photonic PUF, plus a coupled-mode-theory
+  coupler fitted to the chip's measured crosstalk, a single-theta expressivity analysis,
+  and a scattering-matrix-network solver for the recirculating mesh. No fabricated numbers;
+  hardware-only measurements are explicitly not reproduced.
+version: 0.1.0
+license: Apache-2.0
+type: software
+keywords:
+  - silicon photonics
+  - photonic FPGA
+  - reproduction
+  - unitary mesh
+  - coupled-mode theory
+  - physical unclonable function
+references:
+  - type: article
+    title: >-
+      LightIN: a versatile silicon-integrated photonic field programmable gate array with
+      an intelligent configuration framework for next-generation AI clusters
+    authors:
+      - family-names: Zhu
+        given-names: Ying
+      - name: "et al."
+    journal: "Light: Science & Applications"
+    volume: 15
+    year: 2026
+    doi: 10.1038/s41377-026-02209-5

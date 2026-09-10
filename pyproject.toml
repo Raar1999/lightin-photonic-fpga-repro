@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lightin-repro"
+version = "0.1.0"
+description = "Honesty-first computational reproduction of the LightIN silicon photonic FPGA (Light: Sci. Appl. 15, 165, 2026)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+keywords = ["silicon-photonics", "photonic-fpga", "reproduction", "unitary-mesh",
+            "coupled-mode-theory", "physical-unclonable-function", "scattering-matrix"]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "scikit-learn>=1.2",
+    "matplotlib>=3.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools]
+packages = ["lightin"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
