@@ -166,7 +166,11 @@ def run(verbose=True):
     realiz = realizable_unitary_reachability()
     lam, ceil = coupler_imbalance_ceiling()
     out = {"dof": dof, "haar_gap": gap, "perms": perms, "realizable": realiz,
-           "coupler_ceiling_lambdas": lam, "coupler_ceiling_fidelity": ceil}
+           "coupler_ceiling_lambdas": lam, "coupler_ceiling_fidelity": ceil,
+           # the design wavelength is not on the default grid and is not where the
+           # coupler is 50:50, so the ceiling there is reported as its own number
+           "coupler_ceiling_at_1560": float(
+               coupler_imbalance_ceiling(np.array([1560.0]))[1][0])}
     if verbose:
         print(f"[expressivity] DOF for N=4: single-theta={dof['single_theta']}, "
               f"+output phases={dof['single_theta+output_phases']}, "
@@ -183,8 +187,11 @@ def run(verbose=True):
               f"{perms['perm_2']['gate_fidelity_with_output_phases']:.3f})")
         print(f"[expressivity] single-theta-realizable unitary recovered to "
               f"fidelity {realiz:.4f}")
-        print(f"[expressivity] coupler-imbalance fidelity ceiling (cross state): "
-              f"{ceil.max():.4f} @1550nm -> {ceil.min():.4f} at C-band edge")
+        print(f"[expressivity] coupler-imbalance fidelity ceiling (cross state) over "
+              f"{lam.min():.0f}-{lam.max():.0f}nm: "
+              f"{ceil.max():.4f} @{lam[ceil.argmax()]:.0f}nm -> "
+              f"{ceil.min():.4f} @{lam[ceil.argmin()]:.0f}nm; "
+              f"{out['coupler_ceiling_at_1560']:.4f} @1560nm (design)")
     return out
 
 
