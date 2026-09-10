@@ -96,12 +96,17 @@ def run(verbose=True):
     """Reproduce the unitary-matrix results; returns a dict of outcomes."""
     out = {}
 
-    # 1) Permutation matrices: realised exactly by routing (they are already unitary).
+    # 1) Permutation matrices: the routing fidelity is optimised over the single-theta
+    #    mesh phases, so it measures what the physical cells can actually deliver.
+    #    Imported here rather than at module scope: expressivity imports this module.
+    from .expressivity import _best_routing, _build_single
+
     for name, P in [("perm_1", PERM_1), (("perm_2"), PERM_2)]:
-        fid = matrix_fidelity(P, P)  # routing realises a permutation exactly
-        out[name] = {"fidelity": fid}
+        routing = _best_routing(_build_single, 6, P, restarts=10, seed=0)
+        out[name] = {"routing_fidelity": routing}
         if verbose:
-            print(f"[{name}] routing-realised permutation, fidelity = {fid:.6f}")
+            print(f"[{name}] single-theta routing realisation, "
+                  f"routing fidelity = {routing:.6f}")
 
     # 2) Two Haar-random 4x4 unitaries fitted onto the mesh (Fig. 2h,i).
     fids, corrs = [], []

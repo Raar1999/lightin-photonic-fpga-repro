@@ -264,7 +264,8 @@ def main():
 
     results = {
         "unitary": {
-            "perm_fidelity": [u["perm_1"]["fidelity"], u["perm_2"]["fidelity"]],
+            "perm_routing_fidelity": [u["perm_1"]["routing_fidelity"],
+                                      u["perm_2"]["routing_fidelity"]],
             "random_mean_fidelity": u["random_mean_fidelity"],
             "random_mean_modulus_corr": u["random_mean_modulus_corr"],
             "enob_at_sigma_0.0269": enob(0.0269),

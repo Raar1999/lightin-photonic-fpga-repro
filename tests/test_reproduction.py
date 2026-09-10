@@ -29,6 +29,12 @@ def test_unitary_fidelity():
     assert fid > 0.999
 
 
+def test_unitary_perm_routing_fidelity():
+    u = unitary.run(verbose=False)
+    assert u["perm_1"]["routing_fidelity"] >= 0.999
+    assert u["perm_2"]["routing_fidelity"] >= 0.999
+
+
 def test_nonunitary_modulus():
     info = nonunitary.run(verbose=False)
     assert info["modulus_corr"] > 0.999
