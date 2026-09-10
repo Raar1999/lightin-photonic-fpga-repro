@@ -106,6 +106,18 @@
         0.8888888888888888,
         0.9333333333333333
       ]
+    },
+    "paired_logistic_minus_photonic": {
+      "full_mean": 0.01066666666666668,
+      "full_std": 0.01303366959876907,
+      "full_n_logistic_higher": 7,
+      "full_n_equal": 2,
+      "full_n_photonic_higher": 1,
+      "test_mean": 0.05555555555555554,
+      "test_std": 0.03666479606152467,
+      "test_n_logistic_higher": 9,
+      "test_n_equal": 1,
+      "test_n_photonic_higher": 0
     }
   },
   "mrm": {
@@ -137,13 +149,71 @@
     ],
     "chip_crosstalk_floor_db": -26.2,
     "floor_note": "phenomenological floor fitted to Fig 4d; the mesh model has no floor term, so modelled crosstalk below this level is not reached on the chip",
-    "fibre_to_fibre_loss_db": 11.433333333333335
+    "fibre_to_fibre_loss_db": 11.433333333333335,
+    "onchip_il_min_db": -1.8000000000000065,
+    "onchip_il_max_db": -1.4000000000000052,
+    "onchip_il_paths": [
+      [
+        "cross",
+        0,
+        3,
+        -1.6762026917226793
+      ],
+      [
+        "cross",
+        1,
+        2,
+        -1.6838106401123853
+      ],
+      [
+        "cross",
+        2,
+        1,
+        -1.6838106401123853
+      ],
+      [
+        "cross",
+        3,
+        0,
+        -1.6762026917226793
+      ],
+      [
+        "bar",
+        0,
+        0,
+        -1.4000000000000052
+      ],
+      [
+        "bar",
+        1,
+        1,
+        -1.8000000000000065
+      ],
+      [
+        "bar",
+        2,
+        2,
+        -1.8000000000000065
+      ],
+      [
+        "bar",
+        3,
+        3,
+        -1.4000000000000052
+      ]
+    ],
+    "onchip_il_paper_range_db": [
+      -2.99,
+      -1.85
+    ]
   },
   "ppuf": {
     "uniqueness": 0.49005326704545454,
     "uniformity": 0.50119140625,
     "reliability_intra_die_HD": 0.00719140625,
     "tie_fraction": 0.0,
+    "measurement_noise_sigma": 0.01,
+    "measurement_noise_source": "assumed value, not taken from the paper; reliability scales with it",
     "sensitivity_sweep": [
       {
         "sigma_phase": 0.001,
@@ -202,11 +272,11 @@
     "extinction_at_1560_db": 22.342005997481344,
     "extinction_at_1520_db": 11.037589889855484,
     "link_budget_db": 11.433333333333335,
-    "demo_fit_kappa0": 0.5021956501451635,
-    "demo_fit_slope": 0.004602718933248416,
+    "demo_fit_kappa0": 0.49803730802390517,
+    "demo_fit_slope": 0.0043703889023811,
     "demo_true_kappa0": 0.5,
     "demo_true_slope": 0.0042,
-    "demo_fit_lam0_nm": 1574.7,
+    "demo_fit_lam0_nm": 1560.0,
     "demo_fit_note": "recovered from the synthetic _demo_measured_dataset, not from chip data",
     "extinction_note": "ideal null: model contains no loss or coupler imbalance, so the extinction is unbounded"
   },
