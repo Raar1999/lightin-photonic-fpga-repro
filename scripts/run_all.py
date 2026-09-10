@@ -5,7 +5,9 @@ results.json, and saves verification figures into figures/.
 
 import json
 import os
+import platform
 import sys
+from importlib.metadata import version
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -31,7 +33,19 @@ XTALK_FIT_RANGE_NM = [1549, 1565]           # inside the digitized Fig 4d wavele
 XTALK_EXTRAP_RANGE_NM = [1530, 1549]        # below the data; model only
 FLOOR_NOTE = ("phenomenological floor fitted to Fig 4d; the mesh model has no floor "
               "term, so modelled crosstalk below this level is not reached on the chip")
+ENV_PACKAGES = ("numpy", "scipy", "scikit-learn", "matplotlib")
 os.makedirs(FIGDIR, exist_ok=True)
+
+
+def environment():
+    """Interpreter and package versions that produced this results.json.
+
+    The Iris accuracies move slightly with the scipy and scikit-learn versions, so the
+    numbers below are only reproducible against the versions recorded here.
+    """
+    env = {"python_version": platform.python_version(), "platform": platform.platform()}
+    env.update({pkg: version(pkg) for pkg in ENV_PACKAGES})
+    return env
 
 
 def _heat(ax, M, title):
@@ -350,6 +364,7 @@ def main():
         "fig4d_mesh_fit": f4_mesh,
         "recirculating": rc,
         "latency_on_chip_ps": propagation_latency(4.5e-3) * 1e12,
+        "environment": environment(),
     }
     out = os.path.join(os.path.dirname(__file__), "..", "results.json")
     with open(out, "w") as f:

@@ -27,12 +27,14 @@ cd lightin-photonic-fpga-repro
 python -m venv .venv && source .venv/bin/activate
 pip install -e .                       # or: pip install -r requirements.txt
 python scripts/run_all.py              # runs everything, writes results.json + figures/
-pytest -q                              # 24 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
+pytest -q                              # 26 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
 ```
 
 On a typical laptop CPU, `scripts/run_all.py` takes about 7 minutes, most of which is
-the ten-seed Iris sweep, and the test suite takes about 40 seconds. No datasets to
+the ten-seed Iris sweep, and the test suite takes about 3 minutes. No datasets to
 download (Iris ships with scikit-learn; the one digitized curve is in `data/`).
+results.json was generated with the package versions in requirements-lock.txt; the Iris
+accuracies can differ slightly with other versions of scipy and scikit-learn.
 
 ---
 
