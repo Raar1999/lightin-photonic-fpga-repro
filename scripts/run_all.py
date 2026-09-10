@@ -308,6 +308,11 @@ def main(quick=False):
     mr = mrm.run()
     print("\n--- 5. Optical switching crosstalk ---")
     sw = switching.run()
+    onchip_il = switching.onchip_insertion_loss()
+    paper_lo, paper_hi = switching.ONCHIP_IL_PAPER_RANGE_DB
+    print(f"[switching] modelled on-chip insertion loss over 8 intended paths: "
+          f"{onchip_il['min_db']:.2f} to {onchip_il['max_db']:.2f} dB; "
+          f"paper measured {paper_lo:.2f} to {paper_hi:.2f} dB")
     print("\n--- 6. Photonic PUF ---")
     pp = ppuf.run(n_dies=100)
     print("\n--- 7. Throughput & energy ---")
@@ -365,6 +370,10 @@ def main(quick=False):
             "chip_crosstalk_floor_db": switching.FIG4D_FLOOR_DB,
             "floor_note": FLOOR_NOTE,
             "fibre_to_fibre_loss_db": switching.insertion_loss_budget(),
+            "onchip_il_min_db": onchip_il["min_db"],
+            "onchip_il_max_db": onchip_il["max_db"],
+            "onchip_il_paths": onchip_il["paths"],
+            "onchip_il_paper_range_db": switching.ONCHIP_IL_PAPER_RANGE_DB,
         },
         "ppuf": {"uniqueness": pp["uniqueness"], "uniformity": pp["uniformity"],
                  "reliability_intra_die_HD": pp["reliability_intra_die_HD"],

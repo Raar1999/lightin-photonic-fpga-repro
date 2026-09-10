@@ -169,6 +169,32 @@ def worst_cross_xtalk_db(lambdas):
     return crosstalk_summary(lambdas=np.asarray(lambdas, float))["cross"]["worst_xtalk_over_cband_db"]
 
 
+ONCHIP_IL_PAPER_RANGE_DB = [-2.99, -1.85]   # paper's measured on-chip insertion loss
+
+
+def onchip_insertion_loss(lam=1560.0, N=4):
+    """Transmission of each intended path through the fabric alone, in dB.
+
+    The fabric model carries the mesh's own losses -- propagation across four stages
+    and the directional-coupler excess loss -- and no grating couplers, so these
+    numbers are comparable with the paper's measured on-chip insertion loss rather
+    than with the fibre-to-fibre budget in link_budget_db().
+
+    Covers both all-cross and all-bar, four inputs each: eight intended paths.
+    Returns min_db, max_db and paths as [state, input, output, loss_db].
+    """
+    paths = []
+    for state in ("cross", "bar"):
+        U = fabric_matrix(state, lam, N)
+        T = np.abs(U) ** 2
+        for j in range(N):
+            i = int(np.argmax(T[:, j]))
+            paths.append([state, j, i, _db(T[i, j])])
+    losses = [p[3] for p in paths]
+    return {"min_db": float(min(losses)), "max_db": float(max(losses)),
+            "paths": paths}
+
+
 def insertion_loss_budget(**kw):
     """Backwards-compatible: fibre-to-fibre link budget at 1560 nm (dB)."""
     return link_budget_db(**kw)
