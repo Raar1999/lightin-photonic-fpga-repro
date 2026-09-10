@@ -279,6 +279,28 @@ def fig_recirculating():
     plt.close(fig)
 
 
+def paired_logistic_minus_photonic(seed_sweep, logistic_baseline):
+    """Per-seed logistic-minus-photonic accuracy difference, on the shared seeds.
+
+    Both sweeps run the same seeds in the same order, and the seed fixes the split, so
+    element k of one list and element k of the other describe the same train/test
+    partition. Differencing them seed by seed removes the split-to-split variation that
+    dominates the two separate means, and nothing is retrained here.
+
+    Reports the mean and standard deviation of the difference plus how many seeds fall
+    each way, so a difference smaller than the seed-to-seed spread is visible as such.
+    """
+    out = {}
+    for key, prefix in (("full_acc_per_seed", "full"), ("test_acc_per_seed", "test")):
+        d = np.array(logistic_baseline[key]) - np.array(seed_sweep[key])
+        out[f"{prefix}_mean"] = float(d.mean())
+        out[f"{prefix}_std"] = float(d.std(ddof=1)) if d.size > 1 else 0.0
+        out[f"{prefix}_n_logistic_higher"] = int((d > 0).sum())
+        out[f"{prefix}_n_equal"] = int((d == 0).sum())
+        out[f"{prefix}_n_photonic_higher"] = int((d < 0).sum())
+    return out
+
+
 def main(quick=False):
     """Run every module, write the results file, save the figures.
 
@@ -329,6 +351,15 @@ def main(quick=False):
     f4 = {k: v for k, v in f4_all.items() if k in FIG4D_KEYS}
     f4_mesh = f4_all["mesh"]
 
+    paired = paired_logistic_minus_photonic(ir["seed_sweep"], ir["logistic_baseline"])
+    print("\n--- Paired Iris comparison (logistic - photonic, same seeds) ---")
+    for pfx, label in (("full", "full-set"), ("test", "held-out")):
+        print(f"[Iris paired {label}] mean {100*paired[pfx + '_mean']:+.2f}% "
+              f"+/- {100*paired[pfx + '_std']:.2f}%  "
+              f"(logistic higher on {paired[pfx + '_n_logistic_higher']}, "
+              f"equal on {paired[pfx + '_n_equal']}, "
+              f"photonic higher on {paired[pfx + '_n_photonic_higher']} seeds)")
+
     print("\n--- Generating figures ---")
     fig_unitary(u); fig_nonunitary(nu); fig_iris(ir); fig_ppuf(pp)
     fig_mrm(mr); fig_switching(sw); fig_coupler(); fig_expressivity(ex)
@@ -352,7 +383,8 @@ def main(quick=False):
                  "full_acc": ir["full_acc"],
                  "seed_sweep": ir["seed_sweep"],
                  "identity_control": ir["identity_control"],
-                 "logistic_baseline": ir["logistic_baseline"]},
+                 "logistic_baseline": ir["logistic_baseline"],
+                 "paired_logistic_minus_photonic": paired},
         "mrm": {"lock_bias": mr["lock_bias"], "max_er_db": float(mr["er_db"].max())},
         "switching": {
             "cross_xtalk_center_db": sw["cross"]["xtalk_center_db"],
