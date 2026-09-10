@@ -71,8 +71,9 @@ def test_energy_exact():
 
 
 def test_switching_crosstalk_in_band():
-    s = switching.crosstalk_summary(lambdas=np.linspace(1545, 1555, 41))
-    assert s["cross"]["worst_xtalk_over_cband_db"] < -15.0
+    # the full C-band the paper claims, not a 10 nm window around the coupler's best point
+    s = switching.crosstalk_summary(lambdas=np.linspace(1530, 1565, 141))
+    assert s["cross"]["worst_xtalk_over_cband_db"] < -11.5
 
 
 def test_mrm_lock_high_er():
