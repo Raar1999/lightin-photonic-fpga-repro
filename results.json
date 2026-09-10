@@ -1,23 +1,22 @@
 {
   "unitary": {
-    "perm_fidelity": [
-      1.0,
-      1.0
+    "perm_routing_fidelity": [
+      0.9999999999987433,
+      0.9999999999989584
     ],
-    "random_mean_fidelity": 0.9999999999999991,
+    "random_mean_fidelity": 0.9999999999999988,
     "random_mean_modulus_corr": 1.0,
     "enob_at_sigma_0.0269": 6.216250016992825
   },
   "nonunitary": {
-    "modulus_corr": 1.0,
-    "max_abs_err": 5.551115123125783e-16,
-    "vector_correlation": 0.9999999999999998,
+    "modulus_corr": 0.9999999999999998,
+    "max_abs_err": 7.771561172376096e-16,
     "enob_at_sigma_0.0453": 5.464345139503214
   },
   "iris": {
-    "offline_train_acc": 0.9523809523809523,
+    "offline_train_acc": 0.9619047619047619,
     "test_acc": 0.9333333333333333,
-    "full_acc": 0.9466666666666667
+    "full_acc": 0.9533333333333334
   },
   "mrm": {
     "lock_bias": -0.4481203007518797,
@@ -25,21 +24,68 @@
   },
   "switching": {
     "cross_xtalk_center_db": [
-      -30.241663943350133,
-      -42.59493083978819
+      -22.315330835844215,
+      -29.153799250168365
     ],
     "bar_xtalk_center_db": [
-      -30.495756126551363,
-      -106.43204442848416
+      -30.498870060008887,
+      -106.65918075391457
     ],
-    "cross_worst_xtalk_cband_db": -14.557409260864025,
-    "bar_worst_xtalk_cband_db": -30.495756126551363,
+    "cross_worst_xtalk_cband_db": -11.553245266963359,
+    "bar_worst_xtalk_cband_db": -30.49666795007734,
+    "cross_structural_zeros": 0,
+    "bar_structural_zeros": 0,
     "fibre_to_fibre_loss_db": 11.433333333333335
   },
   "ppuf": {
-    "uniqueness": 0.5002207623106061,
-    "uniformity": 0.499091796875,
-    "reliability_intra_die_HD": 0.008984375
+    "uniqueness": 0.49005326704545454,
+    "uniformity": 0.50119140625,
+    "reliability_intra_die_HD": 0.00719140625,
+    "tie_fraction": 0.0,
+    "sensitivity_sweep": [
+      {
+        "sigma_phase": 0.001,
+        "uniqueness": 0.21635116185897435,
+        "uniformity": 0.51767578125,
+        "tie_fraction": 0.007421875,
+        "reliability": 0.2198046875
+      },
+      {
+        "sigma_phase": 0.01,
+        "uniqueness": 0.2192608173076923,
+        "uniformity": 0.51328125,
+        "tie_fraction": 0.0,
+        "reliability": 0.16232421875
+      },
+      {
+        "sigma_phase": 0.1,
+        "uniqueness": 0.22252103365384615,
+        "uniformity": 0.51259765625,
+        "tie_fraction": 0.0,
+        "reliability": 0.02576171875
+      },
+      {
+        "sigma_phase": 0.5,
+        "uniqueness": 0.28353866185897436,
+        "uniformity": 0.51513671875,
+        "tie_fraction": 0.0,
+        "reliability": 0.00728515625
+      },
+      {
+        "sigma_phase": 1.05,
+        "uniqueness": 0.48178585737179486,
+        "uniformity": 0.51025390625,
+        "tie_fraction": 0.0,
+        "reliability": 0.006875
+      },
+      {
+        "sigma_phase": 3.0,
+        "uniqueness": 0.4971003605769231,
+        "uniformity": 0.50400390625,
+        "tie_fraction": 0.0,
+        "reliability": 0.00693359375
+      }
+    ]
   },
   "throughput_energy": {
     "P_pi_mW": 90.0,
@@ -50,11 +96,13 @@
     "tops": 1.92
   },
   "coupler": {
-    "extinction_at_1560_db": 119.99995896231033,
-    "extinction_at_1520_db": 12.768259929884724,
+    "extinction_at_3db_db": null,
+    "extinction_at_1560_db": 23.909438919852718,
+    "extinction_at_1520_db": 10.70703636161425,
     "link_budget_db": 11.433333333333335,
-    "fit_kappa0": 0.4980373079579241,
-    "fit_slope": 0.0043703888958744365
+    "fit_kappa0": 0.5460462446701513,
+    "fit_slope": 0.004370388901549749,
+    "extinction_note": "ideal null: model contains no loss or coupler imbalance, so the extinction is unbounded"
   },
   "expressivity": {
     "dof": {
@@ -64,19 +112,33 @@
       "dim_U(N)": 16
     },
     "haar_fidelity_mean": {
-      "single_theta": 0.5605306162617332,
-      "single_theta+output_phases": 0.8263520609580731,
-      "two_dof_universal": 0.999999999999999
+      "single_theta": 0.5605306162617333,
+      "single_theta+output_phases": 0.8263520609580732,
+      "two_dof_universal": 0.9999999999999988
     },
     "realizable_unitary_fidelity": 1.0,
-    "coupler_ceiling_min_fidelity": 0.9700283146301468
+    "coupler_ceiling_min_fidelity": 0.9445090792493201
+  },
+  "fig4d_fit": {
+    "lambda0_median_nm": 1571.0154701756662,
+    "lambda0_p05_nm": 1570.0518930520402,
+    "lambda0_p95_nm": 1572.0228522167693,
+    "slope_median": 0.002957258814136076,
+    "slope_p05": 0.0026341184950151144,
+    "slope_p95": 0.0032962588902046373,
+    "n_boot": 500,
+    "n_failed": 0,
+    "fit_range_nm": [
+      1549,
+      1587
+    ]
   },
   "recirculating": {
-    "ring_rms": 2.829798564934062e-16,
-    "add_drop_rms": 8.369073390600119e-16,
-    "plaquette_unitarity_dev": 9.992007221626409e-16,
+    "ring_rms": 2.8792312954364084e-16,
+    "add_drop_rms": 8.399330011830736e-16,
+    "plaquette_unitarity_dev": 1.1102230246251565e-15,
     "n_pucs_big": 40,
-    "big_unitarity_dev": 3.1086244689504383e-15
+    "big_unitarity_dev": 8.881784197001252e-16
   },
   "latency_on_chip_ps": 60.04153713566736
 }

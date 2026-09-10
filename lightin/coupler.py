@@ -76,11 +76,19 @@ def mzi_single_theta(theta, lam, kappa0=0.5, slope=0.0029, excess_loss_db=0.1,
 
 
 def extinction_ratio_db(lam, kappa0=0.5, slope=0.0029, n=512):
-    """Max/min through-port transmission over theta -> achievable extinction (dB)."""
+    """Max/min through-port transmission over theta -> achievable extinction (dB).
+
+    Returns None when the minimum transmission is an ideal null (below 1e-15). The
+    model has no loss and no coupler imbalance at the 3-dB wavelength, so the ratio
+    diverges: reporting a floored number there would state a finite extinction the
+    model does not actually predict.
+    """
     thetas = np.linspace(0, 2 * np.pi, n)
     p = np.array([np.abs(mzi_single_theta(th, lam, kappa0, slope, 0.0)[0, 0]) ** 2
                   for th in thetas])
-    return 10 * np.log10((p.max() + 1e-12) / (p.min() + 1e-12))
+    if p.min() < 1e-15:
+        return None
+    return 10 * np.log10(p.max() / p.min())
 
 
 def grating_coupler_db(lam, peak_loss_db=4.4, lam_peak=1545.0, bw_1p5db=45.0):
@@ -134,6 +142,7 @@ def _demo_measured_dataset(seed=0):
 
 def run(verbose=True):
     out = {}
+    out["extinction_at_3db_db"] = extinction_ratio_db(DC_LAMBDA_3DB)
     out["extinction_at_1560_db"] = extinction_ratio_db(1560.0)
     out["extinction_at_1520_db"] = extinction_ratio_db(1520.0)
     out["extinction_at_1580_db"] = extinction_ratio_db(1580.0)
@@ -142,10 +151,13 @@ def run(verbose=True):
     k0, slope, rms = fit_dc_dispersion(lam, kdata)
     out["fit_kappa0"], out["fit_slope"], out["fit_rms"] = k0, slope, rms
     if verbose:
+        def _db(v):
+            return "unbounded (ideal null)" if v is None else f"{v:.1f} dB"
         print(f"[coupler] single-theta MZI extinction: "
-              f"{out['extinction_at_1560_db']:.1f} dB @1560nm, "
-              f"{out['extinction_at_1520_db']:.1f} dB @1520nm, "
-              f"{out['extinction_at_1580_db']:.1f} dB @1580nm "
+              f"{_db(out['extinction_at_3db_db'])} @{DC_LAMBDA_3DB:.0f}nm (3-dB point), "
+              f"{_db(out['extinction_at_1560_db'])} @1560nm, "
+              f"{_db(out['extinction_at_1520_db'])} @1520nm, "
+              f"{_db(out['extinction_at_1580_db'])} @1580nm "
               f"(coupler-imbalance limited off 3-dB point)")
         print(f"[coupler] fibre-to-fibre link budget @1560nm = {out['link_budget_db']:.1f} dB "
               f"(2x grating ~4.4 dB + ~2 dB/cm prop + DC excess)")

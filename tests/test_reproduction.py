@@ -87,8 +87,8 @@ def test_coupler_3db_at_fitted_wavelength():
     from lightin import coupler
     lam0 = coupler.DC_LAMBDA_3DB                                    # fitted, not 1560 nm
     assert abs(coupler.dc_power_coupling(lam0) - 0.5) < 1e-6        # 50:50 at lam0
-    # extinction is high at the 3-dB wavelength, degrades at band edges
-    assert coupler.extinction_ratio_db(lam0) > 40.0
+    # an ideal 3-dB coupler nulls exactly, so the extinction is unbounded, not a number
+    assert coupler.extinction_ratio_db(lam0) is None
     assert coupler.extinction_ratio_db(1520.0) < 30.0
 
 

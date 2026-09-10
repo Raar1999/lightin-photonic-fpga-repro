@@ -73,7 +73,11 @@ def transmission_spectra(state, lambdas, N=4, seed=0):
                 k += 1
             U = (amp * L) @ U
         T[:, :, li] = np.abs(U) ** 2
-    return 10 * np.log10(T + 1e-12), (kappa_a, kappa_b)
+    with np.errstate(divide="ignore"):
+        return 10 * np.log10(T), (kappa_a, kappa_b)
+
+
+ZERO_TOL = 1e-15    # linear transmission below this is a structural zero, not crosstalk
 
 
 def crosstalk_summary(lambdas=None, N=4):
@@ -85,19 +89,29 @@ def crosstalk_summary(lambdas=None, N=4):
         U0 = fabric_matrix(state, LAMBDA0, N)
         intended = np.argmax(np.abs(U0) ** 2, axis=0)
         center = np.argmin(np.abs(lambdas - LAMBDA0))
-        xt_center, il_center, xt_band = [], [], []
+        xt_center, il_center, xt_band, structural_zeros = [], [], [], 0
         for j in range(N):
             i_int = intended[j]
             il_center.append(Tdb[i_int, j, center])
             for i in range(N):
-                if i != i_int:
-                    xt_center.append(Tdb[i, j, center])
-                    xt_band.append(Tdb[i, j].max())
+                if i == i_int:
+                    continue
+                # A port pair the topology forbids carries no power at all. That is a
+                # structural zero, not a crosstalk level, so it is counted rather than
+                # allowed to set the reported best or worst case.
+                for value, bucket in ((Tdb[i, j, center], xt_center),
+                                      (Tdb[i, j].max(), xt_band)):
+                    if 10 ** (value / 10.0) < ZERO_TOL:
+                        structural_zeros += 1
+                    else:
+                        bucket.append(value)
         out[state] = {
             "spectra_db": Tdb, "lambdas": lambdas, "intended": intended,
-            "xtalk_center_db": (float(np.max(xt_center)), float(np.min(xt_center))),
+            "xtalk_center_db": ((float(np.max(xt_center)), float(np.min(xt_center)))
+                                if xt_center else None),
             "onchip_loss_center_db": float(np.mean(il_center)),
-            "worst_xtalk_over_cband_db": float(np.max(xt_band)),
+            "worst_xtalk_over_cband_db": float(np.max(xt_band)) if xt_band else None,
+            "structural_zeros": structural_zeros,
         }
     return out
 

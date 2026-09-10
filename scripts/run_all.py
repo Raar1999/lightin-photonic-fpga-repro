@@ -18,6 +18,11 @@ from lightin.metrics import enob, propagation_latency
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import fit_fig4                       # noqa: E402  (sibling script)
 
+# Several modules print Greek letters. The Windows console codepage is usually cp1252,
+# which cannot encode them, so the run dies partway through unless stdout is UTF-8.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 FIGDIR = os.path.join(os.path.dirname(__file__), "..", "figures")
 FIG4D_KEYS = ("lambda0_median_nm", "lambda0_p05_nm", "lambda0_p95_nm",
               "slope_median", "slope_p05", "slope_p95",
@@ -291,6 +296,8 @@ def main():
             "bar_xtalk_center_db": sw["bar"]["xtalk_center_db"],
             "cross_worst_xtalk_cband_db": sw["cross"]["worst_xtalk_over_cband_db"],
             "bar_worst_xtalk_cband_db": sw["bar"]["worst_xtalk_over_cband_db"],
+            "cross_structural_zeros": sw["cross"]["structural_zeros"],
+            "bar_structural_zeros": sw["bar"]["structural_zeros"],
             "fibre_to_fibre_loss_db": switching.insertion_loss_budget(),
         },
         "ppuf": {"uniqueness": pp["uniqueness"], "uniformity": pp["uniformity"],
@@ -298,8 +305,13 @@ def main():
                  "tie_fraction": pp["tie_fraction"],
                  "sensitivity_sweep": pp["sensitivity_sweep"]},
         "throughput_energy": te,
-        "coupler": {k: cp[k] for k in ("extinction_at_1560_db", "extinction_at_1520_db",
-                                       "link_budget_db", "fit_kappa0", "fit_slope")},
+        "coupler": dict(
+            {k: cp[k] for k in ("extinction_at_3db_db", "extinction_at_1560_db",
+                                "extinction_at_1520_db", "link_budget_db",
+                                "fit_kappa0", "fit_slope")},
+            extinction_note=("ideal null: model contains no loss or coupler imbalance, "
+                             "so the extinction is unbounded"),
+        ),
         "expressivity": {
             "dof": ex["dof"],
             "haar_fidelity_mean": {k: float(v.mean()) for k, v in ex["haar_gap"].items()},
