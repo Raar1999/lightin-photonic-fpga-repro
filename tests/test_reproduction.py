@@ -169,14 +169,24 @@ def test_recirc_feedback_creates_resonance():
 
 
 def test_fig4d_digitized_fit():
-    # the digitized chip crosstalk curve is present and the coupler fit is sensible
+    """Both Fig 4d models fit the digitized points, and the mesh fit is what ships.
+
+    Only the two single fits are run: the bootstraps in fit_fig4.main() cost minutes
+    and answer a different question (how wide the interval is), which the report takes
+    from results.json rather than from the suite. 2.0 dB is the digitization
+    uncertainty the CSV header states.
+    """
     import os, sys
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
     import fit_fig4
-    res = fit_fig4.main()
-    assert 1560 < res["lambda0_nm"] < 1580          # coupler 3-dB wavelength from Fig 4d
-    assert 0.001 < res["slope_rad_nm"] < 0.008       # dispersion slope, near literature
-    assert res["rms_db"] < 2.0                        # fit within digitization uncertainty
+    from lightin.coupler import DC_LAMBDA_3DB, DC_SLOPE
+    proxy = fit_fig4.fit_proxy()
+    mesh = fit_fig4.fit_mesh()
+    assert proxy["rms_db"] <= 2.0
+    assert mesh["rms_db"] <= 2.0
+    # the shipped constants are the mesh fit rounded, so they must still match it
+    assert abs(mesh["lambda0"] - DC_LAMBDA_3DB) <= 0.1
+    assert abs(mesh["slope"] - DC_SLOPE) / DC_SLOPE <= 0.05
 
 
 def test_mesh_model_matches_fig4d():

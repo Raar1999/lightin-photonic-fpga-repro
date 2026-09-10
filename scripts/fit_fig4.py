@@ -76,7 +76,7 @@ def fit(lam, db, p0=P0):
     return popt
 
 
-def fit_mesh(lam, db, p0=MESH_P0):
+def _curve_fit_mesh(lam, db, p0=MESH_P0):
     """Least-squares fit of mesh_t20_model; returns (popt, standard errors)."""
     popt, pcov = curve_fit(mesh_t20_model, lam, db, p0=list(p0), maxfev=40000)
     return popt, np.sqrt(np.diag(pcov))
@@ -85,6 +85,39 @@ def fit_mesh(lam, db, p0=MESH_P0):
 def rms_db(model, lam, db, *params):
     """Root-mean-square difference in dB between a model and the digitized points."""
     return float(np.sqrt(np.mean((db - model(lam, *params)) ** 2)))
+
+
+def fit_proxy(lam=None, db=None, p0=P0):
+    """Single fit of the single-coupler proxy model to the digitized Fig 4d points.
+
+    Returns lambda0 (nm), slope (rad/nm), floor_db and rms_db. Loads the CSV when lam
+    and db are not given. This is the fit on its own, without the bootstrap: one fit
+    costs milliseconds where 500 resampled refits cost minutes, so a caller that only
+    needs the fitted parameters -- the test suite in particular -- calls this.
+    """
+    if lam is None or db is None:
+        lam, db = load_points()
+    popt = fit(lam, db, p0)
+    return {"lambda0": float(popt[0]), "slope": float(popt[1]),
+            "floor_db": float(popt[2]),
+            "rms_db": rms_db(crosstalk_model, lam, db, *popt)}
+
+
+def fit_mesh(lam=None, db=None, p0=MESH_P0):
+    """Single fit of the 4x4 mesh T20 model to the same points.
+
+    Same four keys as fit_proxy, plus the curve_fit standard errors and the point
+    count. These lambda0 and slope are the couplers' own parameters, which is why
+    DC_LAMBDA_3DB and DC_SLOPE are taken from here and not from the proxy.
+    """
+    if lam is None or db is None:
+        lam, db = load_points()
+    popt, se = _curve_fit_mesh(lam, db, p0)
+    return {"lambda0": float(popt[0]), "slope": float(popt[1]),
+            "floor_db": float(popt[2]),
+            "rms_db": rms_db(mesh_t20_model, lam, db, *popt),
+            "lambda0_se_nm": float(se[0]), "slope_se": float(se[1]),
+            "floor_se_db": float(se[2]), "n_points": int(lam.size)}
 
 
 def _mesh_fit_samples(samples):
@@ -97,7 +130,7 @@ def _mesh_fit_samples(samples):
     lam0s, slopes, n_failed = [], [], 0
     for lam_i, db_i in samples:
         try:
-            popt, _ = fit_mesh(lam_i, db_i)
+            popt, _ = _curve_fit_mesh(lam_i, db_i)
         except (RuntimeError, ValueError, TypeError):
             n_failed += 1
             continue
@@ -181,15 +214,17 @@ def bootstrap(lam, db, n_boot=500, seed=0):
     }
 
 
-def main(verbose=True, n_boot=500, seed=0):
+def main(verbose=True, n_boot=500, seed=0, fig_path=FIG):
     lam, db = load_points()
-    popt = fit(lam, db)
-    lam0, slope, floor = popt
-    rms = rms_db(crosstalk_model, lam, db, *popt)
-    boot = bootstrap(lam, db, n_boot=n_boot, seed=seed)
+    pf = fit_proxy(lam, db)
+    mf = fit_mesh(lam, db)
+    lam0, slope, floor, rms = pf["lambda0"], pf["slope"], pf["floor_db"], pf["rms_db"]
+    popt = (lam0, slope, floor)
+    mopt = (mf["lambda0"], mf["slope"], mf["floor_db"])
+    mse = (mf["lambda0_se_nm"], mf["slope_se"], mf["floor_se_db"])
+    mrms = mf["rms_db"]
 
-    mopt, mse = fit_mesh(lam, db)
-    mrms = rms_db(mesh_t20_model, lam, db, *mopt)
+    boot = bootstrap(lam, db, n_boot=n_boot, seed=seed)
     mboot = bootstrap_mesh(lam, db, n_boot=n_boot, seed=seed)
 
     if verbose:
@@ -242,10 +277,10 @@ def main(verbose=True, n_boot=500, seed=0):
     ax.set_title("Coupler dispersion fitted to the chip's measured crosstalk\n"
                  "(LightIN Fig 4d, all-cross $T_{20}$; digitized)", fontsize=10)
     ax.legend(fontsize=8); ax.set_ylim(-27, -10)
-    fig.tight_layout(); fig.savefig(FIG, dpi=140)
+    fig.tight_layout(); fig.savefig(fig_path, dpi=140)
     plt.close(fig)
     if verbose:
-        print(f"  wrote {os.path.abspath(FIG)}")
+        print(f"  wrote {os.path.abspath(fig_path)}")
 
     out = dict(boot)
     out.update({"model": "single-coupler proxy",
@@ -253,11 +288,11 @@ def main(verbose=True, n_boot=500, seed=0):
                 "floor_db": float(floor), "rms_db": rms})
     out["mesh"] = {
         "model": "4x4 mesh T20 normalised to total output",
-        "lambda0_nm": float(mopt[0]), "slope": float(mopt[1]),
-        "floor_db": float(mopt[2]),
-        "lambda0_se_nm": float(mse[0]), "slope_se": float(mse[1]),
-        "floor_se_db": float(mse[2]),
-        "rms_db": mrms, "n_points": int(lam.size),
+        "lambda0_nm": mf["lambda0"], "slope": mf["slope"],
+        "floor_db": mf["floor_db"],
+        "lambda0_se_nm": mf["lambda0_se_nm"], "slope_se": mf["slope_se"],
+        "floor_se_db": mf["floor_se_db"],
+        "rms_db": mrms, "n_points": mf["n_points"],
         **mboot,
     }
     return out

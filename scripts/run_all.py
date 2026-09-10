@@ -1,8 +1,13 @@
 """
 Run the full LightIN reproduction: prints a consolidated results table, writes
 results.json, and saves verification figures into figures/.
+
+--quick runs the same pipeline with the seed sweeps and bootstraps cut down, and
+writes results_quick.json and figures_quick/ so a quick run never overwrites the
+full one. Its numbers are noisier and are not the ones the report quotes.
 """
 
+import argparse
 import json
 import os
 import platform
@@ -26,6 +31,20 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 FIGDIR = os.path.join(os.path.dirname(__file__), "..", "figures")
+QUICK_FIGDIR = os.path.join(os.path.dirname(__file__), "..", "figures_quick")
+_figdir = FIGDIR      # directory the current run writes figures to; main() sets it
+
+QUICK_SEEDS = range(2)      # Iris seed sweep and both controls
+QUICK_N_BOOT = 50           # both Fig 4d bootstraps
+FULL_SEEDS = range(10)
+FULL_N_BOOT = 500
+
+
+def figpath(name):
+    """Path of a figure inside the directory this run writes to."""
+    return os.path.join(_figdir, name)
+
+
 FIG4D_KEYS = ("model", "lambda0_median_nm", "lambda0_p05_nm", "lambda0_p95_nm",
               "slope_median", "slope_p05", "slope_p95",
               "n_boot", "n_failed", "fit_range_nm", "rms_db")
@@ -34,7 +53,6 @@ XTALK_EXTRAP_RANGE_NM = [1530, 1549]        # below the data; model only
 FLOOR_NOTE = ("phenomenological floor fitted to Fig 4d; the mesh model has no floor "
               "term, so modelled crosstalk below this level is not reached on the chip")
 ENV_PACKAGES = ("numpy", "scipy", "scikit-learn", "matplotlib")
-os.makedirs(FIGDIR, exist_ok=True)
 
 
 def environment():
@@ -66,7 +84,7 @@ def fig_unitary(u):
     _heat(ax[0], U, "|U| target (4x4 unitary)")
     _heat(ax[1], Ur, f"|U| realised on mesh\nfidelity = {fid:.5f}")
     fig.suptitle("Unitary matrix multiplication (Fig. 2h,i)", fontsize=11)
-    fig.tight_layout(); fig.savefig(os.path.join(FIGDIR, "unitary.png"), dpi=140)
+    fig.tight_layout(); fig.savefig(figpath("unitary.png"), dpi=140)
     plt.close(fig)
 
 
@@ -75,7 +93,7 @@ def fig_nonunitary(nu):
     _heat(ax[0], nu["target_scaled"], "|M| target (3x3 non-unitary)")
     _heat(ax[1], nu["realised"], f"|M| realised (SVD/diamond)\ncorr = {nu['modulus_corr']:.5f}")
     fig.suptitle("Non-unitary matrix multiplication (Fig. 2l,n)", fontsize=11)
-    fig.tight_layout(); fig.savefig(os.path.join(FIGDIR, "nonunitary.png"), dpi=140)
+    fig.tight_layout(); fig.savefig(figpath("nonunitary.png"), dpi=140)
     plt.close(fig)
 
 
@@ -93,7 +111,7 @@ def fig_iris(ir):
     ax.set_title(f"Iris unitary NN (Fig. 2o)\noffline acc = {100*ir['full_acc']:.2f}% "
                  f"(paper 94.67%)", fontsize=10)
     fig.colorbar(im, fraction=0.046, pad=0.04, label="% of true class")
-    fig.tight_layout(); fig.savefig(os.path.join(FIGDIR, "iris_confusion.png"), dpi=140)
+    fig.tight_layout(); fig.savefig(figpath("iris_confusion.png"), dpi=140)
     plt.close(fig)
 
 
@@ -107,7 +125,7 @@ def fig_ppuf(pp):
                  f"uniqueness = {100*pp['uniqueness']:.2f}% (paper 49.97%), "
                  f"uniformity = {100*pp['uniformity']:.2f}% (paper 50.15%)", fontsize=9.5)
     ax.legend()
-    fig.tight_layout(); fig.savefig(os.path.join(FIGDIR, "ppuf.png"), dpi=140)
+    fig.tight_layout(); fig.savefig(figpath("ppuf.png"), dpi=140)
     plt.close(fig)
 
 
@@ -133,7 +151,7 @@ def fig_mrm(sw):
     ax[1].set_title("Eye diagram: locked (green) vs unlocked (grey)\n(model only; SNR/Q are hardware)",
                     fontsize=9.5)
     ax[1].set_xlabel("Time (bit periods)"); ax[1].set_ylabel("Detected power (a.u.)")
-    fig.tight_layout(); fig.savefig(os.path.join(FIGDIR, "mrm.png"), dpi=140)
+    fig.tight_layout(); fig.savefig(figpath("mrm.png"), dpi=140)
     plt.close(fig)
 
 
@@ -154,7 +172,7 @@ def fig_switching(sw):
     ax.set_title("Switch transmission spectra, all-cross (Fig. 4d)\n(model; measured spectra are hardware)",
                  fontsize=9.5)
     ax.legend(fontsize=7, ncol=2)
-    fig.tight_layout(); fig.savefig(os.path.join(FIGDIR, "switching.png"), dpi=140)
+    fig.tight_layout(); fig.savefig(figpath("switching.png"), dpi=140)
     plt.close(fig)
 
 
@@ -179,7 +197,7 @@ def fig_expressivity(ex):
     ax.set_title("Single-θ PUC expressivity limit (paper Discussion)\n"
                  "dim U(4) = 16; universality needs the full 2-DOF mesh", fontsize=10)
     ax.legend(loc="center right")
-    fig.tight_layout(); fig.savefig(os.path.join(FIGDIR, "expressivity.png"), dpi=140)
+    fig.tight_layout(); fig.savefig(figpath("expressivity.png"), dpi=140)
     plt.close(fig)
 
 
@@ -211,7 +229,7 @@ def fig_coupler():
     ax[2].set_title("CMT dispersion fit to data", fontsize=9.5)
     ax[2].set_xlabel("Wavelength (nm)"); ax[2].set_ylabel("Power coupling κ")
     ax[2].legend(fontsize=8)
-    fig.tight_layout(); fig.savefig(os.path.join(FIGDIR, "coupler.png"), dpi=140)
+    fig.tight_layout(); fig.savefig(figpath("coupler.png"), dpi=140)
     plt.close(fig)
 
 
@@ -257,13 +275,27 @@ def fig_recirculating():
 
     fig.suptitle("Recirculating mesh with feedback loops (paper: 4×4 square recirculating mesh)",
                  fontsize=11)
-    fig.tight_layout(); fig.savefig(os.path.join(FIGDIR, "recirculating.png"), dpi=140)
+    fig.tight_layout(); fig.savefig(figpath("recirculating.png"), dpi=140)
     plt.close(fig)
 
 
-def main():
+def main(quick=False):
+    """Run every module, write the results file, save the figures.
+
+    quick=True cuts the Iris seed sweep to QUICK_SEEDS and both Fig 4d bootstraps to
+    QUICK_N_BOOT, and redirects the outputs to results_quick.json and figures_quick/.
+    Everything else, including the single fits, is identical to a full run.
+    """
+    global _figdir
+    seeds = QUICK_SEEDS if quick else FULL_SEEDS
+    n_boot = QUICK_N_BOOT if quick else FULL_N_BOOT
+    _figdir = QUICK_FIGDIR if quick else FIGDIR
+    results_name = "results_quick.json" if quick else "results.json"
+    os.makedirs(_figdir, exist_ok=True)
+
     print("=" * 72)
-    print("LightIN reproduction — running all modules")
+    print("LightIN reproduction — running all modules"
+          + ("  [quick mode]" if quick else ""))
     print("=" * 72)
 
     print("\n--- 1. Unitary matrix multiplication ---")
@@ -271,7 +303,7 @@ def main():
     print("\n--- 2. Non-unitary matrix multiplication ---")
     nu = nonunitary.run()
     print("\n--- 3. Iris unitary neural network ---")
-    ir = nn_iris.run()
+    ir = nn_iris.run(seeds=seeds)
     print("\n--- 4. MRM wavelength locking (differentiator) ---")
     mr = mrm.run()
     print("\n--- 5. Optical switching crosstalk ---")
@@ -287,7 +319,8 @@ def main():
     print("\n--- 10. Recirculating mesh with feedback loops ---")
     rc = recirculating.run()
     print("\n--- 11. Fig 4d coupler dispersion fit (bootstrapped) ---")
-    f4_all = fit_fig4.main()
+    f4_all = fit_fig4.main(n_boot=n_boot,
+                           fig_path=figpath("fig4_digitized.png"))
     f4 = {k: v for k, v in f4_all.items() if k in FIG4D_KEYS}
     f4_mesh = f4_all["mesh"]
 
@@ -295,7 +328,7 @@ def main():
     fig_unitary(u); fig_nonunitary(nu); fig_iris(ir); fig_ppuf(pp)
     fig_mrm(mr); fig_switching(sw); fig_coupler(); fig_expressivity(ex)
     fig_recirculating()
-    figs = sorted(os.listdir(FIGDIR))
+    figs = sorted(os.listdir(_figdir))
     print("Saved:", ", ".join(figs))
 
     results = {
@@ -366,7 +399,7 @@ def main():
         "latency_on_chip_ps": propagation_latency(4.5e-3) * 1e12,
         "environment": environment(),
     }
-    out = os.path.join(os.path.dirname(__file__), "..", "results.json")
+    out = os.path.join(os.path.dirname(__file__), "..", results_name)
     with open(out, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nWrote {os.path.abspath(out)}")
@@ -374,4 +407,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--quick", action="store_true",
+                    help="reduced seed sweep and bootstraps; writes results_quick.json "
+                         "and figures_quick/")
+    main(quick=ap.parse_args().quick)

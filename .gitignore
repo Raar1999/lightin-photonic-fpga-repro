@@ -23,3 +23,7 @@ env/
 # Notes:
 # results.json and figures/ ARE tracked on purpose (they are the reproduction output).
 # Regenerate them with: python scripts/run_all.py
+
+# Quick-mode output: reduced seed sweep and bootstraps, not the reported numbers
+results_quick.json
+figures_quick/

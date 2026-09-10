@@ -196,11 +196,16 @@ def _print_spread(label, d):
           f"{100*d['test_acc_std']:.2f}%  (n={len(d['full_acc_per_seed'])} seeds)")
 
 
-def run(verbose=True):
+def run(verbose=True, seeds=range(10)):
+    """Train once at seed 0, then sweep the photonic layer and both controls over seeds.
+
+    seeds is shared by the sweep and the two controls so their per-seed lists line up
+    element by element and can be compared seed against seed.
+    """
     res = train(seed=0)
-    res["seed_sweep"] = seed_sweep()
-    res["identity_control"] = identity_control()
-    res["logistic_baseline"] = logistic_baseline()
+    res["seed_sweep"] = seed_sweep(seeds)
+    res["identity_control"] = identity_control(seeds)
+    res["logistic_baseline"] = logistic_baseline(seeds)
     if verbose:
         print(f"[Iris unitary NN] offline train acc = {100*res['train_acc']:.2f}%  "
               f"(paper offline: 94.67%)")
