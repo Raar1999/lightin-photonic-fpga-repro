@@ -29,6 +29,7 @@ FIG = os.path.join(HERE, "..", "figures", "fig4_digitized.png")
 FIT_RANGE_NM = [1549, 1587]     # wavelength span of the digitized points
 P0 = (1568.0, 0.0045, -25.0)      # proxy: lambda0 (nm), slope (rad/nm), floor (dB)
 MESH_P0 = (1571.0, 0.0029, -25.0)  # mesh: same three parameters
+DIGITIZATION_SD_DB = 2.0           # CSV header's "~+/-2 dB", taken as one sigma
 
 
 def crosstalk_model(lam, lam0, slope, floor_db):
@@ -86,6 +87,65 @@ def rms_db(model, lam, db, *params):
     return float(np.sqrt(np.mean((db - model(lam, *params)) ** 2)))
 
 
+def _mesh_fit_samples(samples):
+    """Fit the mesh model to each (lam, db) resample; return lam0s, slopes, n_failed.
+
+    A resample whose fit does not converge, or which returns a non-finite parameter, is
+    discarded and counted rather than retried with a different seed, so the reported
+    interval is over the fits that actually succeeded.
+    """
+    lam0s, slopes, n_failed = [], [], 0
+    for lam_i, db_i in samples:
+        try:
+            popt, _ = fit_mesh(lam_i, db_i)
+        except (RuntimeError, ValueError, TypeError):
+            n_failed += 1
+            continue
+        if not np.all(np.isfinite(popt[:2])):
+            n_failed += 1
+            continue
+        lam0s.append(float(popt[0]))
+        slopes.append(float(popt[1]))
+    return np.array(lam0s), np.array(slopes), n_failed
+
+
+def bootstrap_mesh(lam, db, n_boot=500, seed=0, param_seed=1,
+                   noise_sd_db=DIGITIZATION_SD_DB):
+    """Pairs and parametric bootstrap of the mesh T20 fit.
+
+    The pairs bootstrap resamples the (lambda, dB) points with replacement, so its
+    interval reflects only the scatter of the digitized points about the model. The
+    parametric bootstrap keeps all 25 wavelengths and perturbs each dB value by
+    N(0, noise_sd_db), so its interval also carries the digitization uncertainty the
+    CSV header states. The second is the wider and the more honest of the two.
+    """
+    n = lam.size
+    rng_pairs = np.random.default_rng(seed)
+    pairs = []
+    for _ in range(n_boot):
+        idx = rng_pairs.integers(0, n, size=n)
+        pairs.append((lam[idx], db[idx]))
+    l_pairs, s_pairs, f_pairs = _mesh_fit_samples(pairs)
+
+    rng_param = np.random.default_rng(param_seed)
+    param = [(lam, db + rng_param.normal(0.0, noise_sd_db, size=n))
+             for _ in range(n_boot)]
+    l_param, s_param, f_param = _mesh_fit_samples(param)
+
+    return {
+        "lambda0_pairs_p05_nm": float(np.percentile(l_pairs, 5)),
+        "lambda0_pairs_p95_nm": float(np.percentile(l_pairs, 95)),
+        "slope_pairs_p05": float(np.percentile(s_pairs, 5)),
+        "slope_pairs_p95": float(np.percentile(s_pairs, 95)),
+        "lambda0_param_p05_nm": float(np.percentile(l_param, 5)),
+        "lambda0_param_p95_nm": float(np.percentile(l_param, 95)),
+        "slope_param_p05": float(np.percentile(s_param, 5)),
+        "slope_param_p95": float(np.percentile(s_param, 95)),
+        "n_pairs_failed": int(f_pairs),
+        "n_param_failed": int(f_param),
+    }
+
+
 def bootstrap(lam, db, n_boot=500, seed=0):
     """Pairs bootstrap: resample the points with replacement, refit, tabulate.
 
@@ -130,6 +190,7 @@ def main(verbose=True, n_boot=500, seed=0):
 
     mopt, mse = fit_mesh(lam, db)
     mrms = rms_db(mesh_t20_model, lam, db, *mopt)
+    mboot = bootstrap_mesh(lam, db, n_boot=n_boot, seed=seed)
 
     if verbose:
         print("Fit to digitized Fig 4d T20 crosstalk:")
@@ -152,6 +213,15 @@ def main(verbose=True, n_boot=500, seed=0):
         print(f"  crosstalk floor                 = {mopt[2]:.1f} +/- {mse[2]:.1f} dB")
         print(f"  fit RMS                         = {mrms:.2f} dB "
               f"(single-coupler proxy: {rms:.2f} dB)")
+        print(f"  pairs bootstrap ({mboot['n_pairs_failed']} failed): "
+              f"lambda0 [{mboot['lambda0_pairs_p05_nm']:.1f}, "
+              f"{mboot['lambda0_pairs_p95_nm']:.1f}] nm, "
+              f"slope [{mboot['slope_pairs_p05']:.4f}, {mboot['slope_pairs_p95']:.4f}]")
+        print(f"  parametric bootstrap, +/-{DIGITIZATION_SD_DB:.0f} dB "
+              f"({mboot['n_param_failed']} failed): "
+              f"lambda0 [{mboot['lambda0_param_p05_nm']:.1f}, "
+              f"{mboot['lambda0_param_p95_nm']:.1f}] nm, "
+              f"slope [{mboot['slope_param_p05']:.4f}, {mboot['slope_param_p95']:.4f}]")
 
     lf = np.linspace(lam.min(), lam.max(), 400)
     fig, ax = plt.subplots(figsize=(7, 4.4))
@@ -188,6 +258,7 @@ def main(verbose=True, n_boot=500, seed=0):
         "lambda0_se_nm": float(mse[0]), "slope_se": float(mse[1]),
         "floor_se_db": float(mse[2]),
         "rms_db": mrms, "n_points": int(lam.size),
+        **mboot,
     }
     return out
 
