@@ -22,7 +22,7 @@ emitted by running the code, with the paper's value shown alongside only for com
 ## TL;DR
 
 ```bash
-git clone https://github.com/<user>/lightin-photonic-fpga-repro.git
+git clone https://github.com/Raar1999/lightin-photonic-fpga-repro.git
 cd lightin-photonic-fpga-repro
 python -m venv .venv && source .venv/bin/activate
 pip install -e .                       # or: pip install -r requirements.txt
@@ -30,8 +30,9 @@ python scripts/run_all.py              # runs everything, writes results.json + 
 pytest -q                              # 22 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
 ```
 
-Everything runs on CPU in well under a minute. No datasets to download (Iris ships with
-scikit-learn; the one digitized curve is in `data/`).
+On a typical laptop CPU, `scripts/run_all.py` takes about 7 minutes, most of which is
+the ten-seed Iris sweep, and the test suite takes about 40 seconds. No datasets to
+download (Iris ships with scikit-learn; the one digitized curve is in `data/`).
 
 ---
 

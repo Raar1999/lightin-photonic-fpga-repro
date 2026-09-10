@@ -312,8 +312,11 @@ def main():
         "throughput_energy": te,
         "coupler": dict(
             {k: cp[k] for k in ("extinction_at_3db_db", "extinction_at_1560_db",
-                                "extinction_at_1520_db", "link_budget_db",
-                                "fit_kappa0", "fit_slope")},
+                                "extinction_at_1520_db", "link_budget_db")},
+            demo_fit_kappa0=cp["fit_kappa0"],
+            demo_fit_slope=cp["fit_slope"],
+            demo_fit_note=("recovered from the synthetic _demo_measured_dataset, "
+                           "not from chip data"),
             extinction_note=("ideal null: model contains no loss or coupler imbalance, "
                              "so the extinction is unbounded"),
         ),
