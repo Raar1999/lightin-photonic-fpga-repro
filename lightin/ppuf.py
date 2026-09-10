@@ -27,6 +27,10 @@ from .metrics import hamming_distance
 
 TIE_TOL = 1e-12     # intensity difference below this is a tie, not a decided bit
 
+MEAS_NOISE_SIGMA = 0.01   # rad, per-MZI phase noise added on each re-measurement
+MEAS_NOISE_SOURCE = ("assumed value, not taken from the paper; "
+                     "reliability scales with it")
+
 
 def _layer_pairs(N, layer):
     start = layer % 2
@@ -93,7 +97,7 @@ def phase_stats_from_arm_length(mu_um=0.08, sigma_um=0.11, n_eff=2.36, lam_nm=15
 
 
 def evaluate(n_dies=100, n_challenges=128, N=8, sigma_phase=None, mu_phase=None,
-             meas_noise=0.01, n_meas=5, seed=0):
+             meas_noise=MEAS_NOISE_SIGMA, n_meas=5, seed=0):
     """Compute uniqueness, uniformity, reliability and tie fraction over simulated dies.
 
     Defaults derive the per-MZI phase Gaussian from the paper's arm-length-difference
@@ -204,6 +208,8 @@ def sensitivity_sweep(sigmas=(0.001, 0.01, 0.1, 0.5, 1.05, 3.0), n_dies=40,
 def run(verbose=True, n_dies=100):
     mu_p, sig_p = phase_stats_from_arm_length()
     res = evaluate(n_dies=n_dies)
+    res["measurement_noise_sigma"] = MEAS_NOISE_SIGMA
+    res["measurement_noise_source"] = MEAS_NOISE_SOURCE
     res["sensitivity_sweep"] = sensitivity_sweep()
     res["pair_classes"] = [pair_class_fractions(s) for s in (0.001, 1.05)]
     if verbose:
@@ -217,6 +223,8 @@ def run(verbose=True, n_dies=100):
               f"(paper exp: 2.55%; lower is better)")
         print(f"[PPUF] tie fraction              = {100*res['tie_fraction']:.2f}%   "
               f"(undecided pairs, resolved as 1)")
+        print(f"[PPUF] measurement noise sigma    = {MEAS_NOISE_SIGMA} rad per MZI "
+              f"({MEAS_NOISE_SOURCE})")
         print("[PPUF] sensitivity to per-MZI phase spread (mu_phase = 0):")
         print(f"       {'sigma_phase':>12s}  {'uniqueness':>11s}  {'uniformity':>11s}"
               f"  {'tie_fraction':>13s}  {'reliability':>12s}")

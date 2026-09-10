@@ -410,6 +410,8 @@ def main(quick=False):
         "ppuf": {"uniqueness": pp["uniqueness"], "uniformity": pp["uniformity"],
                  "reliability_intra_die_HD": pp["reliability_intra_die_HD"],
                  "tie_fraction": pp["tie_fraction"],
+                 "measurement_noise_sigma": pp["measurement_noise_sigma"],
+                 "measurement_noise_source": pp["measurement_noise_source"],
                  "sensitivity_sweep": pp["sensitivity_sweep"]},
         "throughput_energy": te,
         "coupler": dict(
