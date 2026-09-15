@@ -64,7 +64,7 @@ All "reproduction" values below come from `scripts/run_all.py`.
 | On-chip latency | ~60 ps | n_g·L/c = **60.0 ps** | exact |
 | Energy | **1.875 pJ/MAC** | 1.8 W / 0.96 TMAC·s⁻¹ = **1.875**. 3 V, 100 Ω, 90 mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
 | Throughput | **1.92 TOPS** | 96 ops × 2 dir × 10 GBaud = **1.92**. 3 V, 100 Ω, 90 mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
-| Switch crosstalk (Fig 4d,e) | −45 to <−20 dB | mesh model fitted to Fig 4d: −27.2 to −21.1 dB at 1560 nm; worst −16.8 dB over the fitted 1549–1565 nm, −11.8 dB extrapolated over 1530–1549 nm | model vs measurement |
+| Switch crosstalk (Fig 4d,e) | −45 to <−20 dB | mesh model fitted to Fig 4d: −27.2 to −21.1 dB at 1560 nm; worst −16.8 dB over the fitted 1549–1565 nm, −11.8 dB extrapolated over 1530–1549 nm; bar-state values rest on assumed fabrication spreads (report §6.3) | model vs measurement |
 | On-chip insertion loss | −1.85 to −2.99 dB (8 paths) | **−1.40 to −1.80 dB** (8 modelled paths) | model vs measurement |
 | PUF uniqueness, 100 dies (Fig 5) | **49.97%** | **49.01%** | sim |
 | PUF uniformity, 100 dies (Fig 5) | **50.15%** | **50.12%** | sim |

@@ -73,7 +73,7 @@ The design wavelength is 1560 nm throughout (matrix multiplication, coupler, swi
 | 14 | Energy | **1.875 pJ/MAC** | 1.8 W ÷ 9.6e11 MAC·s⁻¹ = **1.875 pJ/MAC** | **consistency check** |
 | 15 | MRM locking (Fig. 3c) | monitoring peaks at high-ER lock | monitoring peak at bias **−0.448**; ER up to **18.46 dB** | **B** (model) |
 | 16 | Eye-diagram SNR / Q (Fig. 3d–f) | ~17–18 dB SNR, Q ~7–8 | illustrative model eye only | **hardware — not reproduced** |
-| 17 | Switch crosstalk at 1560 nm (Fig. 4d,e) | −45 to <−20 dB | cross **−27.16 to −21.06 dB**; bar **−106.67 to −30.50 dB** | **model vs measurement** |
+| 17 | Switch crosstalk at 1560 nm (Fig. 4d,e) | −45 to <−20 dB | cross **−27.16 to −21.06 dB**; bar **−106.67 to −30.50 dB**; the bar-state values follow from the assumed fabrication spreads of §6.3, not from the coupler fit | **model vs measurement** |
 | 18 | Switch crosstalk, worst inside the fitted range | <−15/−20 dB over >20 nm | cross **−16.77 dB** over 1549–1565 nm | **model vs measurement** |
 | 19 | Switch crosstalk, worst extrapolated below the data | <−15/−20 dB over >20 nm | cross **−11.80 dB** over 1530–1549 nm | **model vs measurement** |
 | 20 | Mesh T20 model vs digitized Fig 4d | — | RMS **0.79 dB** over 25 points (single-coupler proxy **1.05 dB**) | **fit to measurement** |
@@ -221,7 +221,9 @@ leaks −29.81 dB (`bar_cell_leak_db_model`); ideal 50:50 couplers, which remove
 imbalance but leave the phase error, give −32.87 dB (`bar_cell_leak_db_ideal_coupler`).
 The modelled bar-state crosstalk is therefore a statement about those two assumed spreads.
 It is not constrained by anything the paper published, and it would move with any other
-choice of them.
+choice of them. The bar-state numbers therefore test the two assumed spreads rather than
+anything the paper supplies, and their comparison with the paper's measured range carries
+no weight.
 
 Two mechanisms are ruled out by the same three cases. Unequal arm loss cannot produce
 either state's leakage: the phase section is diag(e^(i(θ+ε)), 1), both entries of modulus
@@ -248,7 +250,8 @@ a numerical artefact. It is a prediction about the assumed spreads, though, not 
 chip: each of those three couplings is one factor of the coupler-imbalance and arm-phase
 terms above, so −106.67 dB is roughly three times as far from the paper's data as the
 −30.50 dB entry is, and neither should be read as a bar-state crosstalk the chip would
-show. The paper publishes no bar-state figure to compare it against.
+show. The paper's bar-state spectra are Fig. 4e, and no curve from that panel was digitized
+here, so nothing in this reproduction constrains the bar state against measurement.
 
 The fitted crosstalk floor of −26.2 dB (`chip_crosstalk_floor_db`) is recorded in
 `switching.py` as `FIG4D_FLOOR_DB` and is deliberately not added to any crosstalk this
