@@ -220,9 +220,9 @@
     }
   },
   "ppuf": {
-    "uniqueness": 0.49005326704545454,
-    "uniformity": 0.50119140625,
-    "reliability_intra_die_HD": 0.00719140625,
+    "uniqueness": 0.489168639520202,
+    "uniformity": 0.49388671875,
+    "reliability_intra_die_HD": 0.0073515625,
     "tie_fraction": 0.0,
     "tie_tol": 1e-12,
     "measurement_noise_sigma": 0.01,
@@ -271,6 +271,215 @@
         "reliability": 0.00693359375
       }
     ]
+  },
+  "ppuf_recirc": {
+    "uniqueness": 0.49973239337822817,
+    "uniformity": 0.4932465277777778,
+    "reliability_intra_die_HD": 0.00728877314814818,
+    "tie_fraction": 0.0,
+    "tie_tol": 1e-12,
+    "measurement_noise_sigma": 0.01,
+    "measurement_noise_source": "assumed value, not taken from the paper; reliability scales with it",
+    "sensitivity_sweep": [
+      {
+        "sigma_phase": 0.001,
+        "uniqueness": 0.24115497076023384,
+        "uniformity": 0.7604166666666666,
+        "tie_fraction": 0.5140625,
+        "reliability": 0.4345486111111103,
+        "live_pairs": 9
+      },
+      {
+        "sigma_phase": 0.01,
+        "uniqueness": 0.4408442982456141,
+        "uniformity": 0.5668402777777778,
+        "tie_fraction": 0.1203125,
+        "reliability": 0.3352430555555546,
+        "live_pairs": 9
+      },
+      {
+        "sigma_phase": 0.1,
+        "uniqueness": 0.4937134502923974,
+        "uniformity": 0.5059027777777778,
+        "tie_fraction": 0.0109375,
+        "reliability": 0.06724537037037133,
+        "live_pairs": 9
+      },
+      {
+        "sigma_phase": 0.5,
+        "uniqueness": 0.49923245614035106,
+        "uniformity": 0.5020833333333333,
+        "tie_fraction": 0.0,
+        "reliability": 0.012037037037037004,
+        "live_pairs": 9
+      },
+      {
+        "sigma_phase": 1.05,
+        "uniqueness": 0.5002558479532163,
+        "uniformity": 0.5013888888888889,
+        "tie_fraction": 0.0,
+        "reliability": 0.008564814814814794,
+        "live_pairs": 9
+      },
+      {
+        "sigma_phase": 3.0,
+        "uniqueness": 0.5010599415204676,
+        "uniformity": 0.5201388888888889,
+        "tie_fraction": 0.0,
+        "reliability": 0.006192129629629616,
+        "live_pairs": 9
+      }
+    ],
+    "challenge_bits": 20,
+    "response_bits": 9,
+    "live_pairs": 9,
+    "n_meas": 3,
+    "n_dies": 100,
+    "n_challenges": 128,
+    "sweep_n_dies": 20,
+    "sweep_n_challenges": 32,
+    "topology": "4x4 square recirculating mesh, 40 cells, stated wiring (not the paper's), rotational challenge grouping per preprint",
+    "primary_wiring": "C4_FREE_1",
+    "wirings": {
+      "C4_FREE_1": {
+        "uniqueness": 0.49973239337822817,
+        "uniformity": 0.4932465277777778,
+        "reliability_intra_die_HD": 0.00728877314814818,
+        "tie_fraction": 0.0,
+        "tie_tol": 1e-12,
+        "measurement_noise_sigma": 0.01,
+        "measurement_noise_source": "assumed value, not taken from the paper; reliability scales with it",
+        "sensitivity_sweep": [
+          {
+            "sigma_phase": 0.001,
+            "uniqueness": 0.24115497076023384,
+            "uniformity": 0.7604166666666666,
+            "tie_fraction": 0.5140625,
+            "reliability": 0.4345486111111103,
+            "live_pairs": 9
+          },
+          {
+            "sigma_phase": 0.01,
+            "uniqueness": 0.4408442982456141,
+            "uniformity": 0.5668402777777778,
+            "tie_fraction": 0.1203125,
+            "reliability": 0.3352430555555546,
+            "live_pairs": 9
+          },
+          {
+            "sigma_phase": 0.1,
+            "uniqueness": 0.4937134502923974,
+            "uniformity": 0.5059027777777778,
+            "tie_fraction": 0.0109375,
+            "reliability": 0.06724537037037133,
+            "live_pairs": 9
+          },
+          {
+            "sigma_phase": 0.5,
+            "uniqueness": 0.49923245614035106,
+            "uniformity": 0.5020833333333333,
+            "tie_fraction": 0.0,
+            "reliability": 0.012037037037037004,
+            "live_pairs": 9
+          },
+          {
+            "sigma_phase": 1.05,
+            "uniqueness": 0.5002558479532163,
+            "uniformity": 0.5013888888888889,
+            "tie_fraction": 0.0,
+            "reliability": 0.008564814814814794,
+            "live_pairs": 9
+          },
+          {
+            "sigma_phase": 3.0,
+            "uniqueness": 0.5010599415204676,
+            "uniformity": 0.5201388888888889,
+            "tie_fraction": 0.0,
+            "reliability": 0.006192129629629616,
+            "live_pairs": 9
+          }
+        ],
+        "challenge_bits": 20,
+        "response_bits": 9,
+        "live_pairs": 9,
+        "n_meas": 3
+      },
+      "C4_FREE_2": {
+        "uniqueness": 0.4999470398428721,
+        "uniformity": 0.49387152777777776,
+        "reliability_intra_die_HD": 0.0074594907407407275,
+        "tie_fraction": 0.0,
+        "tie_tol": 1e-12,
+        "measurement_noise_sigma": 0.01,
+        "measurement_noise_source": "assumed value, not taken from the paper; reliability scales with it",
+        "sensitivity_sweep": [
+          {
+            "sigma_phase": 0.001,
+            "uniqueness": 0.25864400584795294,
+            "uniformity": 0.7484375,
+            "tie_fraction": 0.4855902777777778,
+            "reliability": 0.45451388888888883,
+            "live_pairs": 9
+          },
+          {
+            "sigma_phase": 0.01,
+            "uniqueness": 0.4593384502923974,
+            "uniformity": 0.5550347222222223,
+            "tie_fraction": 0.09131944444444444,
+            "reliability": 0.3544560185185172,
+            "live_pairs": 9
+          },
+          {
+            "sigma_phase": 0.1,
+            "uniqueness": 0.49906798245614037,
+            "uniformity": 0.5116319444444445,
+            "tie_fraction": 0.012152777777777778,
+            "reliability": 0.06730324074074176,
+            "live_pairs": 9
+          },
+          {
+            "sigma_phase": 0.5,
+            "uniqueness": 0.501626461988304,
+            "uniformity": 0.4970486111111111,
+            "tie_fraction": 0.0,
+            "reliability": 0.013194444444444406,
+            "live_pairs": 9
+          },
+          {
+            "sigma_phase": 1.05,
+            "uniqueness": 0.49727704678362566,
+            "uniformity": 0.5012152777777777,
+            "tie_fraction": 0.0,
+            "reliability": 0.008969907407407385,
+            "live_pairs": 9
+          },
+          {
+            "sigma_phase": 3.0,
+            "uniqueness": 0.502065058479532,
+            "uniformity": 0.5255208333333333,
+            "tie_fraction": 0.0,
+            "reliability": 0.006539351851851837,
+            "live_pairs": 9
+          }
+        ],
+        "challenge_bits": 20,
+        "response_bits": 9,
+        "live_pairs": 9,
+        "n_meas": 3
+      }
+    },
+    "wiring_note": "the vertex wiring is a stated choice, not the paper's; both selected wirings are reported and required to agree",
+    "wiring_robustness": {
+      "uniqueness_difference": 0.00021464646464391945,
+      "tolerance": 0.05,
+      "wirings_agree": true
+    },
+    "vs_feedforward": {
+      "uniqueness": 0.01056375385802616,
+      "uniformity": -0.0006401909722222321,
+      "reliability_intra_die_HD": -6.278935185181998e-05,
+      "note": "recirculating minus feed-forward, both at the arm-length-derived spread N(-0.08 um, 0.11 um)"
+    }
   },
   "throughput_energy": {
     "P_pi_mW": 90.0,
@@ -360,7 +569,7 @@
     "add_drop_rms": 8.399330011830736e-16,
     "plaquette_unitarity_dev": 1.1102230246251565e-15,
     "n_pucs_big": 40,
-    "big_unitarity_dev": 8.881784197001252e-16
+    "big_unitarity_dev": 2.6645352591003757e-15
   },
   "latency_on_chip_ps": 60.04153713566736,
   "environment": {
