@@ -122,7 +122,7 @@
   },
   "mrm": {
     "lock_bias": -0.4481203007518797,
-    "max_er_db": 18.460419942945222
+    "max_er_db": 18.460420257302882
   },
   "switching": {
     "cross_xtalk_center_db": [
