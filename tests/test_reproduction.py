@@ -418,6 +418,19 @@ def test_recirc_puf_wirings_agree():
     assert abs(a["uniqueness"] - b["uniqueness"]) < 0.05
 
 
+def test_population_sweep_reports_a_spread():
+    # a PUF metric on a finite die sample has a sampling spread; the sweep must report it
+    # rather than hand back one seed's value
+    from lightin import ppuf, ppuf_recirc
+    ff = ppuf.population_sweep(seeds=range(3), n_dies=8, n_challenges=8)
+    assert ff["n_seeds"] == 3 and len(ff["uniqueness_per_seed"]) == 3
+    assert ff["uniqueness_std"] > 0.0
+    for key in ("uniqueness", "uniformity", "reliability"):
+        assert abs(ff[key + "_mean"] - np.mean(ff[key + "_per_seed"])) < 1e-12
+    rc = ppuf_recirc.population_sweep(seeds=range(3), n_dies=6, n_challenges=6)
+    assert rc["n_seeds"] == 3 and rc["uniqueness_std"] > 0.0
+
+
 def test_ppuf_real_arm_length_distribution():
     # N(-0.08, 0.11) um -> rad. The mean is negative: the preprint
     # (arXiv:2504.01463v2 section 2.5) gives mu = -0.08 um, and the sign is pinned here so

@@ -294,6 +294,59 @@ def sensitivity_sweep(sigmas=(0.001, 0.01, 0.1, 0.5, 1.05, 3.0), n_dies=40,
     return rows
 
 
+def population_sweep(seeds=range(10), n_dies=40, n_challenges=64, wiring=None):
+    """Uniqueness, uniformity and reliability over several independent die populations.
+
+    The vertex wiring is a stated choice, not the paper's. The paper's Fig. 1 layout was
+    not available, so results from this mesh are conditional on the wiring.
+
+    One `evaluate` per seed. The seed drives the whole draw -- the challenges, each die's
+    fixed per-cell phase error and the measurement noise -- so the seeds give independent
+    populations rather than re-measurements of one, and the spread across them is the
+    sampling spread of a metric computed on n_dies dies, not an uncertainty of the model.
+
+    Returns the per-seed lists and the mean and sample standard deviation of each metric.
+    """
+    wiring = default_wiring() if wiring is None else wiring
+    seeds = list(seeds)
+    rows = [evaluate(n_dies=n_dies, n_challenges=n_challenges, seed=s, wiring=wiring)
+            for s in seeds]
+    out = {"seeds": seeds, "n_seeds": len(seeds),
+           "n_dies": n_dies, "n_challenges": n_challenges}
+    for key in ("uniqueness", "uniformity", "reliability"):
+        vals = [float(r[key]) for r in rows]
+        arr = np.asarray(vals)
+        out[f"{key}_per_seed"] = vals
+        out[f"{key}_mean"] = float(arr.mean())
+        out[f"{key}_std"] = float(arr.std(ddof=1)) if arr.size > 1 else 0.0
+    return out
+
+
+def noise_sweep(sigmas=(0.002, 0.005, 0.01, 0.02, 0.05), n_dies=40, n_challenges=64,
+                seed=1, wiring=None):
+    """The PUF metrics against the assumed per-cell measurement noise.
+
+    The vertex wiring is a stated choice, not the paper's. The paper's Fig. 1 layout was
+    not available, so results from this mesh are conditional on the wiring.
+
+    `MEAS_NOISE_SIGMA` is an assumed value with no recorded source, and reliability is the
+    metric it drives: a larger assumed noise flips more bits between re-measurements of one
+    die. Uniqueness, uniformity and the tie fraction are computed from the noise-free
+    reference response and should not move with it, which this sweep also checks.
+    """
+    wiring = default_wiring() if wiring is None else wiring
+    rows = []
+    for s in sigmas:
+        res = evaluate(n_dies=n_dies, n_challenges=n_challenges, meas_noise=float(s),
+                       seed=seed, wiring=wiring)
+        rows.append({"meas_noise_sigma": float(s),
+                     "uniqueness": res["uniqueness"],
+                     "uniformity": res["uniformity"],
+                     "reliability": res["reliability"],
+                     "tie_fraction": res["tie_fraction"]})
+    return rows
+
+
 def run(verbose=True, n_dies=40, n_challenges=64, wiring=None, name=None):
     """Evaluate the recirculating PUF and print a summary.
 

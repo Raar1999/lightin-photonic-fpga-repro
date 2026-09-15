@@ -206,6 +206,29 @@ def sensitivity_sweep(sigmas=(0.001, 0.01, 0.1, 0.5, 1.05, 3.0), n_dies=40,
     return rows
 
 
+def population_sweep(seeds=range(10), n_dies=40, n_challenges=64):
+    """Uniqueness, uniformity and reliability over several independent die populations.
+
+    One `evaluate` per seed. The seed drives the whole draw -- the challenges, each die's
+    fixed per-MZI phase error and the measurement noise -- so the seeds give independent
+    populations rather than re-measurements of one, and the spread across them is the
+    sampling spread of a metric computed on n_dies dies, not an uncertainty of the model.
+
+    Returns the per-seed lists and the mean and sample standard deviation of each metric.
+    """
+    seeds = list(seeds)
+    rows = [evaluate(n_dies=n_dies, n_challenges=n_challenges, seed=s) for s in seeds]
+    out = {"seeds": seeds, "n_seeds": len(seeds),
+           "n_dies": n_dies, "n_challenges": n_challenges}
+    for key in ("uniqueness", "uniformity", "reliability"):
+        vals = [float(r[key]) for r in rows]
+        arr = np.asarray(vals)
+        out[f"{key}_per_seed"] = vals
+        out[f"{key}_mean"] = float(arr.mean())
+        out[f"{key}_std"] = float(arr.std(ddof=1)) if arr.size > 1 else 0.0
+    return out
+
+
 def run(verbose=True, n_dies=100):
     mu_p, sig_p = phase_stats_from_arm_length()
     res = evaluate(n_dies=n_dies)

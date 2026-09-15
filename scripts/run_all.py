@@ -53,6 +53,18 @@ RECIRC_TOPOLOGY = ("4x4 square recirculating mesh, 40 cells, stated wiring "
                    "(not the paper's), rotational challenge grouping per preprint")
 WIRING_AGREEMENT_TOL = 0.05
 
+# Population sweeps. A PUF metric computed on a finite die sample has a sampling
+# spread; ten independent populations measure it. 40 dies x 64 challenges x 10 seeds
+# is about thirteen minutes across the three models, which is most of this script's
+# runtime.
+POP_SEEDS = range(10)
+POP_DIES, POP_CHALLENGES = 40, 64
+QUICK_POP_SEEDS = range(3)
+QUICK_POP_DIES, QUICK_POP_CHALLENGES = 10, 16
+NOISE_SIGMAS = (0.002, 0.005, 0.01, 0.02, 0.05)
+QUICK_NOISE_SIGMAS = (0.01, 0.05)
+PAPER_PUF_UNIQUENESS = 0.4997      # paper's 100-die simulated uniqueness
+
 
 def figpath(name):
     """Path of a figure inside the directory this run writes to."""
@@ -319,6 +331,65 @@ def paired_logistic_minus_photonic(seed_sweep, logistic_baseline):
 PUF_RECIRC_HEADING = "\n--- 6b. Photonic PUF on the recirculating mesh ---"
 
 
+def print_population_sweep(label, sweep):
+    """One line per metric: mean, sample standard deviation and the per-seed range."""
+    print(f"[PUF population/{label}] {sweep['n_seeds']} seeds x {sweep['n_dies']} dies "
+          f"x {sweep['n_challenges']} challenges")
+    for key in ("uniqueness", "uniformity", "reliability"):
+        vals = sweep[f"{key}_per_seed"]
+        print(f"[PUF population/{label}]   {key:<12} "
+              f"{100*sweep[key + '_mean']:6.2f}% +/- {100*sweep[key + '_std']:.2f}%  "
+              f"(min {100*min(vals):.2f}%, max {100*max(vals):.2f}%)")
+
+
+def print_noise_sweep(label, rows):
+    print(f"[PUF noise/{label}] metrics vs the assumed per-cell measurement noise")
+    print(f"[PUF noise/{label}]   {'sigma':>7} {'uniqueness':>11} {'uniformity':>11} "
+          f"{'reliability':>12} {'ties':>8}")
+    for r in rows:
+        print(f"[PUF noise/{label}]   {r['meas_noise_sigma']:>7.3f} "
+              f"{r['uniqueness']:>11.4f} {r['uniformity']:>11.4f} "
+              f"{r['reliability']:>12.4f} {r['tie_fraction']:>8.4f}")
+
+
+def paired_uniqueness(ff_sweep, rc_sweep, paper=PAPER_PUF_UNIQUENESS):
+    """Per-seed uniqueness difference, recirculating minus feed-forward.
+
+    Matched by population seed rather than by die: the two models have different cell
+    counts, so one seed gives corresponding draws, not identical dies. The verdict follows
+    the rule used for the Iris comparison -- within the seed-to-seed spread when the
+    absolute paired mean is smaller than the paired standard deviation, a consistent
+    difference otherwise.
+    """
+    ff = np.asarray(ff_sweep["uniqueness_per_seed"], dtype=float)
+    rc = np.asarray(rc_sweep["uniqueness_per_seed"], dtype=float)
+    d = rc - ff
+    std = float(d.std(ddof=1)) if d.size > 1 else 0.0
+    out = {
+        "difference_per_seed": [float(x) for x in d],
+        "mean": float(d.mean()),
+        "std": std,
+        "paper_uniqueness": paper,
+        "n_seeds_recirc_closer": int((np.abs(rc - paper) < np.abs(ff - paper)).sum()),
+        "n_seeds_feedforward_closer": int((np.abs(ff - paper) < np.abs(rc - paper)).sum()),
+        "n_seeds_equal": int((np.abs(rc - paper) == np.abs(ff - paper)).sum()),
+        "within_seed_spread": bool(abs(float(d.mean())) < std),
+        "note": ("recirculating C4_FREE_1 minus feed-forward, matched by population seed; "
+                 "the two models have different cell counts, so a seed gives corresponding "
+                 "draws rather than identical dies"),
+    }
+    verdict = ("within the seed-to-seed spread" if out["within_seed_spread"]
+               else "a consistent difference")
+    print(f"[PUF paired] recirculating minus feed-forward uniqueness: "
+          f"{100*out['mean']:+.2f}% +/- {100*out['std']:.2f}% over "
+          f"{len(d)} seeds -> {verdict}")
+    print(f"[PUF paired] closer to the paper's {100*paper:.2f}%: "
+          f"recirculating on {out['n_seeds_recirc_closer']} seeds, "
+          f"feed-forward on {out['n_seeds_feedforward_closer']}, "
+          f"tied on {out['n_seeds_equal']}")
+    return out
+
+
 def recirc_puf_block(quick=False, feedforward=None):
     """The ppuf_recirc results block: both wirings, their comparison, the robustness check.
 
@@ -330,13 +401,20 @@ def recirc_puf_block(quick=False, feedforward=None):
     sw_dies = QUICK_RECIRC_DIES if quick else RECIRC_SWEEP_DIES
     sw_ch = QUICK_RECIRC_CHALLENGES if quick else RECIRC_SWEEP_CHALLENGES
     sigmas = QUICK_RECIRC_SIGMAS if quick else FULL_RECIRC_SIGMAS
+    pop_seeds = QUICK_POP_SEEDS if quick else POP_SEEDS
+    pop_dies = QUICK_POP_DIES if quick else POP_DIES
+    pop_ch = QUICK_POP_CHALLENGES if quick else POP_CHALLENGES
+    noise_sigmas = QUICK_NOISE_SIGMAS if quick else NOISE_SIGMAS
 
     per_wiring = {}
     for name, rule in ppuf_recirc.wirings():
         res = ppuf_recirc.evaluate(n_dies=n_dies, n_challenges=n_ch, wiring=rule)
         sweep = ppuf_recirc.sensitivity_sweep(sigmas=sigmas, n_dies=sw_dies,
                                               n_challenges=sw_ch, wiring=rule)
+        pop = ppuf_recirc.population_sweep(seeds=pop_seeds, n_dies=pop_dies,
+                                           n_challenges=pop_ch, wiring=rule)
         per_wiring[name] = {
+            "population_sweep": pop,
             "uniqueness": res["uniqueness"],
             "uniformity": res["uniformity"],
             "reliability_intra_die_HD": res["reliability_intra_die_HD"],
@@ -357,6 +435,13 @@ def recirc_puf_block(quick=False, feedforward=None):
               f"ties {100*res['tie_fraction']:.2f}%  "
               f"({res['challenge_bits']}-bit challenge, "
               f"{res['response_bits']}-bit response, {res['live_pairs']} live pairs)")
+        print_population_sweep(f"recirculating {name}", pop)
+
+    first = list(per_wiring)[0]
+    per_wiring[first]["noise_sweep"] = ppuf_recirc.noise_sweep(
+        sigmas=noise_sigmas, n_dies=sw_dies, n_challenges=sw_ch,
+        wiring=dict(ppuf_recirc.wirings())[first])
+    print_noise_sweep(first, per_wiring[first]["noise_sweep"])
 
     names = list(per_wiring)
     primary = per_wiring[names[0]]
@@ -366,10 +451,11 @@ def recirc_puf_block(quick=False, feedforward=None):
         "sweep_n_dies": sw_dies, "sweep_n_challenges": sw_ch,
         "topology": RECIRC_TOPOLOGY,
         "primary_wiring": names[0],
-        "wirings": per_wiring,
+        "wiring_names": names,
         "wiring_note": ("the vertex wiring is a stated choice, not the paper's; both "
                         "selected wirings are reported and required to agree"),
     })
+    block.update(per_wiring)
     d_uq = abs(per_wiring[names[0]]["uniqueness"] - per_wiring[names[1]]["uniqueness"])
     block["wiring_robustness"] = {
         "uniqueness_difference": float(d_uq),
@@ -386,6 +472,8 @@ def recirc_puf_block(quick=False, feedforward=None):
                                               - feedforward["reliability_intra_die_HD"]),
             "note": ("recirculating minus feed-forward, both at the arm-length-derived "
                      "spread N(-0.08 um, 0.11 um)"),
+            "paired_uniqueness": paired_uniqueness(
+                feedforward["population_sweep"], per_wiring[names[0]]["population_sweep"]),
         }
         hdr = f"{'metric':<28}{'feed-forward':>14}{'recirculating':>15}{'difference':>13}"
         print("[PPUF compare] " + hdr)
@@ -433,6 +521,12 @@ def main(quick=False):
           f"paper measured {paper_lo:.2f} to {paper_hi:.2f} dB")
     print("\n--- 6. Photonic PUF ---")
     pp = ppuf.run(n_dies=100)
+    pop_seeds = QUICK_POP_SEEDS if quick else POP_SEEDS
+    pop_dies = QUICK_POP_DIES if quick else POP_DIES
+    pop_ch = QUICK_POP_CHALLENGES if quick else POP_CHALLENGES
+    pp["population_sweep"] = ppuf.population_sweep(seeds=pop_seeds, n_dies=pop_dies,
+                                                   n_challenges=pop_ch)
+    print_population_sweep("feed-forward", pp["population_sweep"])
     print(PUF_RECIRC_HEADING)
     pr = recirc_puf_block(quick=quick, feedforward=pp)
     print("\n--- 7. Throughput & energy ---")
@@ -507,6 +601,7 @@ def main(quick=False):
             "leak_mechanism_check": switching.leak_mechanism_check(),
         },
         "ppuf": {"uniqueness": pp["uniqueness"], "uniformity": pp["uniformity"],
+                 "population_sweep": pp["population_sweep"],
                  "reliability_intra_die_HD": pp["reliability_intra_die_HD"],
                  "tie_fraction": pp["tie_fraction"],
                  "tie_tol": ppuf.TIE_TOL,

@@ -270,7 +270,66 @@
         "tie_fraction": 0.0,
         "reliability": 0.00693359375
       }
-    ]
+    ],
+    "population_sweep": {
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "n_seeds": 10,
+      "n_dies": 40,
+      "n_challenges": 64,
+      "uniqueness_per_seed": [
+        0.4907752403846154,
+        0.49189202724358977,
+        0.49477664262820514,
+        0.49048978365384616,
+        0.48739983974358975,
+        0.4835386618589744,
+        0.4891426282051282,
+        0.49268329326923077,
+        0.4926782852564103,
+        0.48673878205128207
+      ],
+      "uniqueness_mean": 0.4900115184294872,
+      "uniqueness_std": 0.003358062740896583,
+      "uniformity_per_seed": [
+        0.502734375,
+        0.50966796875,
+        0.50732421875,
+        0.49541015625,
+        0.5033203125,
+        0.50712890625,
+        0.5048828125,
+        0.50458984375,
+        0.4935546875,
+        0.5029296875
+      ],
+      "uniformity_mean": 0.5031542968749999,
+      "uniformity_std": 0.0050885580759555,
+      "reliability_per_seed": [
+        0.00716796875,
+        0.00728515625,
+        0.0059765625,
+        0.0075,
+        0.00591796875,
+        0.0070703125,
+        0.0083203125,
+        0.00810546875,
+        0.006875,
+        0.0078125
+      ],
+      "reliability_mean": 0.007203125,
+      "reliability_std": 0.0008035447319749674
+    }
   },
   "ppuf_recirc": {
     "uniqueness": 0.49973239337822817,
@@ -340,134 +399,6 @@
     "sweep_n_challenges": 32,
     "topology": "4x4 square recirculating mesh, 40 cells, stated wiring (not the paper's), rotational challenge grouping per preprint",
     "primary_wiring": "C4_FREE_1",
-    "wirings": {
-      "C4_FREE_1": {
-        "uniqueness": 0.49973239337822817,
-        "uniformity": 0.4932465277777778,
-        "reliability_intra_die_HD": 0.00728877314814818,
-        "tie_fraction": 0.0,
-        "tie_tol": 1e-12,
-        "measurement_noise_sigma": 0.01,
-        "measurement_noise_source": "assumed value, not taken from the paper; reliability scales with it",
-        "sensitivity_sweep": [
-          {
-            "sigma_phase": 0.001,
-            "uniqueness": 0.24115497076023384,
-            "uniformity": 0.7604166666666666,
-            "tie_fraction": 0.5140625,
-            "reliability": 0.4345486111111103,
-            "live_pairs": 9
-          },
-          {
-            "sigma_phase": 0.01,
-            "uniqueness": 0.4408442982456141,
-            "uniformity": 0.5668402777777778,
-            "tie_fraction": 0.1203125,
-            "reliability": 0.3352430555555546,
-            "live_pairs": 9
-          },
-          {
-            "sigma_phase": 0.1,
-            "uniqueness": 0.4937134502923974,
-            "uniformity": 0.5059027777777778,
-            "tie_fraction": 0.0109375,
-            "reliability": 0.06724537037037133,
-            "live_pairs": 9
-          },
-          {
-            "sigma_phase": 0.5,
-            "uniqueness": 0.49923245614035106,
-            "uniformity": 0.5020833333333333,
-            "tie_fraction": 0.0,
-            "reliability": 0.012037037037037004,
-            "live_pairs": 9
-          },
-          {
-            "sigma_phase": 1.05,
-            "uniqueness": 0.5002558479532163,
-            "uniformity": 0.5013888888888889,
-            "tie_fraction": 0.0,
-            "reliability": 0.008564814814814794,
-            "live_pairs": 9
-          },
-          {
-            "sigma_phase": 3.0,
-            "uniqueness": 0.5010599415204676,
-            "uniformity": 0.5201388888888889,
-            "tie_fraction": 0.0,
-            "reliability": 0.006192129629629616,
-            "live_pairs": 9
-          }
-        ],
-        "challenge_bits": 20,
-        "response_bits": 9,
-        "live_pairs": 9,
-        "n_meas": 3
-      },
-      "C4_FREE_2": {
-        "uniqueness": 0.4999470398428721,
-        "uniformity": 0.49387152777777776,
-        "reliability_intra_die_HD": 0.0074594907407407275,
-        "tie_fraction": 0.0,
-        "tie_tol": 1e-12,
-        "measurement_noise_sigma": 0.01,
-        "measurement_noise_source": "assumed value, not taken from the paper; reliability scales with it",
-        "sensitivity_sweep": [
-          {
-            "sigma_phase": 0.001,
-            "uniqueness": 0.25864400584795294,
-            "uniformity": 0.7484375,
-            "tie_fraction": 0.4855902777777778,
-            "reliability": 0.45451388888888883,
-            "live_pairs": 9
-          },
-          {
-            "sigma_phase": 0.01,
-            "uniqueness": 0.4593384502923974,
-            "uniformity": 0.5550347222222223,
-            "tie_fraction": 0.09131944444444444,
-            "reliability": 0.3544560185185172,
-            "live_pairs": 9
-          },
-          {
-            "sigma_phase": 0.1,
-            "uniqueness": 0.49906798245614037,
-            "uniformity": 0.5116319444444445,
-            "tie_fraction": 0.012152777777777778,
-            "reliability": 0.06730324074074176,
-            "live_pairs": 9
-          },
-          {
-            "sigma_phase": 0.5,
-            "uniqueness": 0.501626461988304,
-            "uniformity": 0.4970486111111111,
-            "tie_fraction": 0.0,
-            "reliability": 0.013194444444444406,
-            "live_pairs": 9
-          },
-          {
-            "sigma_phase": 1.05,
-            "uniqueness": 0.49727704678362566,
-            "uniformity": 0.5012152777777777,
-            "tie_fraction": 0.0,
-            "reliability": 0.008969907407407385,
-            "live_pairs": 9
-          },
-          {
-            "sigma_phase": 3.0,
-            "uniqueness": 0.502065058479532,
-            "uniformity": 0.5255208333333333,
-            "tie_fraction": 0.0,
-            "reliability": 0.006539351851851837,
-            "live_pairs": 9
-          }
-        ],
-        "challenge_bits": 20,
-        "response_bits": 9,
-        "live_pairs": 9,
-        "n_meas": 3
-      }
-    },
     "wiring_note": "the vertex wiring is a stated choice, not the paper's; both selected wirings are reported and required to agree",
     "wiring_robustness": {
       "uniqueness_difference": 0.00021464646464391945,
@@ -478,7 +409,336 @@
       "uniqueness": 0.01056375385802616,
       "uniformity": -0.0006401909722222321,
       "reliability_intra_die_HD": -6.278935185181998e-05,
-      "note": "recirculating minus feed-forward, both at the arm-length-derived spread N(-0.08 um, 0.11 um)"
+      "note": "recirculating minus feed-forward, both at the arm-length-derived spread N(-0.08 um, 0.11 um)",
+      "paired_uniqueness": {
+        "note": "recirculating C4_FREE_1 minus feed-forward, matched by population seed; the two models have different cell counts so a seed gives corresponding draws, not identical dies",
+        "difference_per_seed": [
+          0.006128694800569212,
+          0.0014862669159544928,
+          0.005063100961537836,
+          0.008987157229345122,
+          0.011113336894587544,
+          0.017407296118233606,
+          0.010786146723646972,
+          0.008048989494302217,
+          0.00904669693732224,
+          0.010374376780626526
+        ],
+        "mean": 0.008844206285612577,
+        "std": 0.004230732201628253,
+        "paper_uniqueness": 0.4997,
+        "n_seeds_recirc_closer": 10,
+        "n_seeds_feedforward_closer": 0,
+        "n_seeds_equal": 0,
+        "within_seed_spread": false
+      }
+    },
+    "C4_FREE_1": {
+      "uniqueness": 0.49973239337822817,
+      "uniformity": 0.4932465277777778,
+      "reliability_intra_die_HD": 0.00728877314814818,
+      "tie_fraction": 0.0,
+      "tie_tol": 1e-12,
+      "measurement_noise_sigma": 0.01,
+      "measurement_noise_source": "assumed value, not taken from the paper; reliability scales with it",
+      "sensitivity_sweep": [
+        {
+          "sigma_phase": 0.001,
+          "uniqueness": 0.24115497076023384,
+          "uniformity": 0.7604166666666666,
+          "tie_fraction": 0.5140625,
+          "reliability": 0.4345486111111103,
+          "live_pairs": 9
+        },
+        {
+          "sigma_phase": 0.01,
+          "uniqueness": 0.4408442982456141,
+          "uniformity": 0.5668402777777778,
+          "tie_fraction": 0.1203125,
+          "reliability": 0.3352430555555546,
+          "live_pairs": 9
+        },
+        {
+          "sigma_phase": 0.1,
+          "uniqueness": 0.4937134502923974,
+          "uniformity": 0.5059027777777778,
+          "tie_fraction": 0.0109375,
+          "reliability": 0.06724537037037133,
+          "live_pairs": 9
+        },
+        {
+          "sigma_phase": 0.5,
+          "uniqueness": 0.49923245614035106,
+          "uniformity": 0.5020833333333333,
+          "tie_fraction": 0.0,
+          "reliability": 0.012037037037037004,
+          "live_pairs": 9
+        },
+        {
+          "sigma_phase": 1.05,
+          "uniqueness": 0.5002558479532163,
+          "uniformity": 0.5013888888888889,
+          "tie_fraction": 0.0,
+          "reliability": 0.008564814814814794,
+          "live_pairs": 9
+        },
+        {
+          "sigma_phase": 3.0,
+          "uniqueness": 0.5010599415204676,
+          "uniformity": 0.5201388888888889,
+          "tie_fraction": 0.0,
+          "reliability": 0.006192129629629616,
+          "live_pairs": 9
+        }
+      ],
+      "challenge_bits": 20,
+      "response_bits": 9,
+      "live_pairs": 9,
+      "n_meas": 3,
+      "population_sweep": {
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "n_seeds": 10,
+        "n_dies": 40,
+        "n_challenges": 64,
+        "uniqueness_per_seed": [
+          0.4969039351851846,
+          0.49337829415954426,
+          0.499839743589743,
+          0.4994769408831913,
+          0.4985131766381773,
+          0.500945957977208,
+          0.4999287749287752,
+          0.500732282763533,
+          0.5017249821937325,
+          0.4971131588319086
+        ],
+        "uniqueness_mean": 0.49885572471509976,
+        "uniqueness_std": 0.0024853889929022936,
+        "uniformity_per_seed": [
+          0.5003038194444445,
+          0.48051215277777776,
+          0.4995659722222222,
+          0.5016927083333333,
+          0.5081597222222223,
+          0.4914496527777778,
+          0.5045138888888889,
+          0.5015190972222222,
+          0.501171875,
+          0.5121961805555556
+        ],
+        "uniformity_mean": 0.5001085069444444,
+        "uniformity_std": 0.008789494135682141,
+        "reliability_per_seed": [
+          0.006987847222222283,
+          0.008362268518518618,
+          0.008506944444444544,
+          0.00720486111111118,
+          0.008174189814814907,
+          0.007711226851851935,
+          0.008015046296296386,
+          0.0073929398148148895,
+          0.006553819444444498,
+          0.007335069444444516
+        ],
+        "reliability_mean": 0.007624421296296377,
+        "reliability_std": 0.000636866281605694
+      }
+    },
+    "C4_FREE_2": {
+      "uniqueness": 0.4999470398428721,
+      "uniformity": 0.49387152777777776,
+      "reliability_intra_die_HD": 0.0074594907407407275,
+      "tie_fraction": 0.0,
+      "tie_tol": 1e-12,
+      "measurement_noise_sigma": 0.01,
+      "measurement_noise_source": "assumed value, not taken from the paper; reliability scales with it",
+      "sensitivity_sweep": [
+        {
+          "sigma_phase": 0.001,
+          "uniqueness": 0.25864400584795294,
+          "uniformity": 0.7484375,
+          "tie_fraction": 0.4855902777777778,
+          "reliability": 0.45451388888888883,
+          "live_pairs": 9
+        },
+        {
+          "sigma_phase": 0.01,
+          "uniqueness": 0.4593384502923974,
+          "uniformity": 0.5550347222222223,
+          "tie_fraction": 0.09131944444444444,
+          "reliability": 0.3544560185185172,
+          "live_pairs": 9
+        },
+        {
+          "sigma_phase": 0.1,
+          "uniqueness": 0.49906798245614037,
+          "uniformity": 0.5116319444444445,
+          "tie_fraction": 0.012152777777777778,
+          "reliability": 0.06730324074074176,
+          "live_pairs": 9
+        },
+        {
+          "sigma_phase": 0.5,
+          "uniqueness": 0.501626461988304,
+          "uniformity": 0.4970486111111111,
+          "tie_fraction": 0.0,
+          "reliability": 0.013194444444444406,
+          "live_pairs": 9
+        },
+        {
+          "sigma_phase": 1.05,
+          "uniqueness": 0.49727704678362566,
+          "uniformity": 0.5012152777777777,
+          "tie_fraction": 0.0,
+          "reliability": 0.008969907407407385,
+          "live_pairs": 9
+        },
+        {
+          "sigma_phase": 3.0,
+          "uniqueness": 0.502065058479532,
+          "uniformity": 0.5255208333333333,
+          "tie_fraction": 0.0,
+          "reliability": 0.006539351851851837,
+          "live_pairs": 9
+        }
+      ],
+      "challenge_bits": 20,
+      "response_bits": 9,
+      "live_pairs": 9,
+      "n_meas": 3,
+      "population_sweep": {
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "n_seeds": 10,
+        "n_dies": 40,
+        "n_challenges": 64,
+        "uniqueness_per_seed": [
+          0.49862669159544176,
+          0.4920895655270662,
+          0.5005586716524212,
+          0.49912081552706566,
+          0.499924323361824,
+          0.4998976139601141,
+          0.49994435541310533,
+          0.5020054309116809,
+          0.502152332621083,
+          0.4988381410256412
+        ],
+        "uniqueness_mean": 0.49931579415954436,
+        "uniqueness_std": 0.0028065036346260524,
+        "uniformity_per_seed": [
+          0.49908854166666666,
+          0.4796006944444444,
+          0.49856770833333336,
+          0.501171875,
+          0.5032986111111111,
+          0.49192708333333335,
+          0.49908854166666666,
+          0.5017795138888889,
+          0.4959635416666667,
+          0.5172743055555555
+        ],
+        "uniformity_mean": 0.4987760416666666,
+        "uniformity_std": 0.009428981958160606,
+        "reliability_per_seed": [
+          0.007826967592592677,
+          0.008130787037037132,
+          0.007870370370370453,
+          0.007537615740740818,
+          0.008217592592592688,
+          0.008651620370370478,
+          0.0076533564814815595,
+          0.007581018518518589,
+          0.006597222222222272,
+          0.007407407407407478
+        ],
+        "reliability_mean": 0.007747395833333413,
+        "reliability_std": 0.00055037100474702
+      }
+    },
+    "wiring_names": [
+      "C4_FREE_1",
+      "C4_FREE_2"
+    ],
+    "population_sweep": {
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "n_seeds": 10,
+      "n_dies": 40,
+      "n_challenges": 64,
+      "uniqueness_per_seed": [
+        0.4969039351851846,
+        0.49337829415954426,
+        0.499839743589743,
+        0.4994769408831913,
+        0.4985131766381773,
+        0.500945957977208,
+        0.4999287749287752,
+        0.500732282763533,
+        0.5017249821937325,
+        0.4971131588319086
+      ],
+      "uniqueness_mean": 0.49885572471509976,
+      "uniqueness_std": 0.0024853889929022936,
+      "uniformity_per_seed": [
+        0.5003038194444445,
+        0.48051215277777776,
+        0.4995659722222222,
+        0.5016927083333333,
+        0.5081597222222223,
+        0.4914496527777778,
+        0.5045138888888889,
+        0.5015190972222222,
+        0.501171875,
+        0.5121961805555556
+      ],
+      "uniformity_mean": 0.5001085069444444,
+      "uniformity_std": 0.008789494135682141,
+      "reliability_per_seed": [
+        0.006987847222222283,
+        0.008362268518518618,
+        0.008506944444444544,
+        0.00720486111111118,
+        0.008174189814814907,
+        0.007711226851851935,
+        0.008015046296296386,
+        0.0073929398148148895,
+        0.006553819444444498,
+        0.007335069444444516
+      ],
+      "reliability_mean": 0.007624421296296377,
+      "reliability_std": 0.000636866281605694
     }
   },
   "throughput_energy": {
