@@ -5,6 +5,7 @@ Or with pytest: PYTHONPATH=. pytest -q
 """
 
 import numpy as np
+import pytest
 from lightin import (puc, metrics, unitary, nonunitary, nn_iris, ppuf, mrm, switching,
                      throughput, coupler)
 
@@ -246,6 +247,43 @@ def test_energy_paper_derivation():
     te = throughput.reproduce(verbose=False)
     assert abs(te["P_total_W"] - 1.8) < 1e-6          # 40 MZIs x 45 mW
     assert abs(te["energy_pj_per_mac"] - 1.875) < 1e-3
+
+
+def test_square_mesh_wirings_conserve_energy():
+    # the wiring is a stated guess, so energy conservation is the one check that would
+    # catch a mis-wired vertex: a node joining three ports leaks or creates power
+    import numpy as _np
+    from lightin import square_mesh
+    from lightin.recirculating import unitarity_check
+    for wiring in (square_mesh.WIRING_A, square_mesh.WIRING_B):
+        mesh = square_mesh.build_mesh(_np.zeros(40), wiring)
+        assert unitarity_check(mesh, 1560.0) < 1e-12
+
+
+def test_connect_rejects_reused_port():
+    from lightin import recirculating
+    c = recirculating.Circuit()
+    for k in range(3):
+        c.add_puc(k, recirculating.textbook_coupler(0.7))
+    c.connect((0, "R", 0), (1, "L", 0), 100.0)
+    with pytest.raises(ValueError, match=r"already connected"):
+        c.connect((0, "R", 0), (2, "L", 0), 100.0)
+
+
+def test_square_mesh_orbits_partition_the_cells():
+    from lightin import square_mesh
+    orbits = square_mesh.edge_orbits()
+    assert sum(len(o) for o in orbits) == 40
+    assert sorted(k for o in orbits for k in o) == list(range(40))
+    assert all(len(o) == 4 for o in orbits)          # no edge is fixed by a quarter turn
+
+
+def test_only_wiring_a_is_rotation_equivariant():
+    # the PUF design needs the quarter-turn symmetry; no turn-first rule can have it,
+    # because the rotation swaps the two all-turn matchings at a degree-4 vertex
+    from lightin import square_mesh
+    assert square_mesh.wiring_is_rotation_equivariant(square_mesh.WIRING_A)
+    assert not square_mesh.wiring_is_rotation_equivariant(square_mesh.WIRING_B)
 
 
 def test_ppuf_real_arm_length_distribution():

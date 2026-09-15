@@ -51,6 +51,7 @@ class Circuit:
         self.connections = []           # (portA, portB, length_um)
         self.inputs = []                # external input ports
         self.outputs = []               # external output ports
+        self._connected = {}            # port -> the one port it is joined to
         self.n_eff = n_eff
         self.loss_db_cm = loss_db_cm
 
@@ -64,6 +65,22 @@ class Circuit:
                 self.ports.append(p)
 
     def connect(self, portA, portB, length_um):
+        """Join two PUC ports with a waveguide segment.
+
+        A port may take part in exactly one connection. Attaching a third port to an
+        existing node is rejected: the solver models a connection as a pairwise transfer
+        in C, so a multi-way node would silently add fields without a splitter and break
+        energy conservation rather than raise.
+        """
+        for p in (portA, portB):
+            if p in self._connected:
+                other = self._connected[p]
+                raise ValueError(
+                    f"port {p} is already connected to {other}; cannot also connect "
+                    f"{portA} to {portB}. A node joins exactly two ports."
+                )
+        self._connected[portA] = portB
+        self._connected[portB] = portA
         self.connections.append((portA, portB, float(length_um)))
 
     def set_io(self, inputs, outputs):
