@@ -242,6 +242,106 @@ def wiring_is_rotation_equivariant(wiring):
     return True
 
 
+# ------------------------------------------------------------------- port-level rules
+OPP = {"N": "S", "S": "N", "E": "W", "W": "E"}   # half-turn action on directions
+
+
+def slots():
+    """The eight (direction, waveguide) slots an interior vertex carries."""
+    return [(d, w) for d in DIRECTIONS for w in (0, 1)]
+
+
+def half_turn_slot(slot):
+    """Image of a (direction, waveguide) slot under the half turn (r,c) -> (4-r, 4-c)."""
+    d, w = slot
+    return (OPP[d], w)
+
+
+def perfect_matchings(items):
+    """Every perfect matching of an even-length list, as lists of pairs."""
+    if not items:
+        yield []
+        return
+    a, rest0 = items[0], items[1:]
+    for i, b in enumerate(rest0):
+        rest = rest0[:i] + rest0[i + 1:]
+        for m in perfect_matchings(rest):
+            yield [(a, b)] + m
+
+
+def rule_from_matching(matching):
+    """{slot: partner slot} involution from a list of slot pairs."""
+    rule = {}
+    for a, b in matching:
+        rule[a] = b
+        rule[b] = a
+    return rule
+
+
+def rule_is_half_turn_invariant(rule):
+    """True when the matching is unchanged by the half-turn relabelling of directions."""
+    pairs = {frozenset((a, b)) for a, b in rule.items()}
+    img = {frozenset((half_turn_slot(a), half_turn_slot(b))) for a, b in rule.items()}
+    return pairs == img
+
+
+def build_port_mesh(thetas, rule, side_um=SIDE_UM, n_eff=2.36, loss_db_cm=2.0,
+                    inputs=None, outputs=None, extra_io=None):
+    """The 40-cell mesh wired by a port-level rule rather than a direction preference.
+
+    The vertex wiring is a stated choice, not the paper's. The paper's Fig. 1 layout was
+    not available, so results from this mesh are conditional on the wiring.
+
+    `rule` maps each (direction, waveguide) slot to the slot it is joined to at every
+    vertex; a slot whose partner's direction is absent at a given vertex leaves that port
+    unconnected, and it becomes external. `extra_io` is an optional list of
+    (port, length_um) grating waveguides; each named port is then reached only through its
+    own waveguide and the far end is the external port.
+    """
+    thetas = np.asarray(thetas, dtype=float)
+    if thetas.shape != (40,):
+        raise ValueError(f"expected 40 phases, got shape {thetas.shape}")
+    c = Circuit(n_eff=n_eff, loss_db_cm=loss_db_cm)
+    for k in range(40):
+        c.add_puc(k, puc_matrix(thetas[k]))
+    for r in range(N_SIDE):
+        for cc in range(N_SIDE):
+            ends = incident_ends(r, cc)
+            done = set()
+            for slot in slots():
+                if slot in done:
+                    continue
+                partner = rule[slot]
+                d, w = slot
+                d2, w2 = partner
+                if d not in ends or d2 not in ends:
+                    continue
+                pid, side = ends[d]
+                pid2, side2 = ends[d2]
+                pa, pb = (pid, side, w), (pid2, side2, w2)
+                done.update((slot, partner))
+                if pa == pb:
+                    continue
+                c.connect(pa, pb, side_um)
+    ports = unconnected_ports(c)
+    c.set_io(inputs=list(ports) if inputs is None else list(inputs),
+             outputs=list(ports) if outputs is None else list(outputs))
+    return c
+
+
+def unconnected_ports(circuit):
+    """Every port of a built circuit that no connection touches, in port order."""
+    used = set()
+    for (a, b, _length) in circuit.connections:
+        used.update((a, b))
+    return [p for p in circuit.ports if p not in used]
+
+
+def boundary_ports_for_rule(rule):
+    """External ports a port-level rule leaves, without solving anything."""
+    return unconnected_ports(build_port_mesh(np.zeros(40), rule))
+
+
 # --------------------------------------------------------------------------- build
 def build_mesh(thetas, wiring=WIRING_A, side_um=SIDE_UM, n_eff=2.36, loss_db_cm=2.0,
                inputs=None, outputs=None):

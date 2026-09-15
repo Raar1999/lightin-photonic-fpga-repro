@@ -305,13 +305,15 @@ def test_ppuf_recirc_wiring_b_has_no_rotational_pairing():
 
 
 def test_square_mesh_straight_wiring_decouples_the_mesh():
-    """Records a known limitation, not a desired property.
+    """Records why the straight-through rule fails, not a property of the lattice.
 
-    The only quarter-turn-invariant matching at a degree-4 vertex is the straight one, so
-    a rotation-equivariant wiring sends light straight through every interior vertex and
-    the mesh falls apart into independent rows and columns. WIRING_A reaches 4 of 40 cells
-    from one boundary port. If a future wiring fixes this, this test fails and should be
-    replaced rather than relaxed.
+    WIRING_A joins two edge-ends only waveguide-0-to-waveguide-0 and 1-to-1, which treats
+    a vertex as having one port per incident edge. An interior vertex really has eight
+    ports, two per end, and the matchings that mix the waveguides are exactly the ones
+    that connect the mesh (`lightin/wiring_search.py`). Under the four-port simplification
+    the straight rule sends light straight through every interior vertex, so the mesh
+    falls into independent rows and columns and WIRING_A reaches 4 of 40 cells. This
+    records that simplification; it is not evidence about wirings in general.
     """
     import numpy as _np
     from lightin import square_mesh
@@ -332,6 +334,30 @@ def test_square_mesh_straight_wiring_decouples_the_mesh():
             if x not in seen:
                 seen.add(x); stack.append(x)
     assert len({q[0] for q in seen}) == 4
+
+
+def test_interior_vertex_has_eight_ports():
+    # the count the earlier enumeration got wrong: each incident PUC end carries two
+    # waveguides, so a vertex matching is over 8 ports and there are 7!! = 105 of them
+    from lightin import square_mesh
+    ends = square_mesh.incident_ends(2, 2)
+    assert len(ends) == 4
+    assert len({(pid, side, wg) for (pid, side) in ends.values() for wg in (0, 1)}) == 8
+    assert len(list(square_mesh.perfect_matchings(square_mesh.slots()))) == 105
+
+
+def test_half_turn_invariant_wirings_connect_the_mesh():
+    # 12 of the 25 half-turn-invariant rules reach every cell with both beams able to
+    # interfere, which is what the four-port simplification had hidden
+    from lightin import wiring_search
+    rows = wiring_search.search_report()
+    assert len(rows) == 25
+    good = [info for (_i, _r, info) in rows
+            if info["n_cells_reachable"] == 40 and info["beams_interfere"]]
+    assert len(good) >= 2
+    best = rows[0][2]
+    assert best["n_cells_reachable"] == 40 and best["beams_interfere"]
+    assert best["unitarity_dev"] < 1e-12
 
 
 def test_ppuf_real_arm_length_distribution():
