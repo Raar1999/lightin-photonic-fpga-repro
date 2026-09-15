@@ -11,11 +11,13 @@ A from-scratch simulation reproduction of
 > gate array with an intelligent configuration framework for next-generation AI clusters,"
 > *Light: Science & Applications* **15**, 165 (2026). doi:10.1038/s41377-026-02209-5
 
-This repository reproduces every result in the paper that is reproducible **without the
-fabricated silicon-photonic chip** — i.e. (i) definitions and arithmetic, and (ii) the
-simulations the paper itself ran — and it clearly marks the measured hardware quantities
-that are *not* reproducible from a PDF. No numbers are fabricated: every reported value is
-emitted by running the code, with the paper's value shown alongside only for comparison.
+This repository aims to reproduce each result in the paper that can be reproduced
+**without the fabricated silicon-photonic chip** — i.e. (i) definitions and arithmetic, and
+(ii) the simulations the paper itself ran — and it clearly marks the measured hardware
+quantities that are *not* reproducible from a PDF. No numbers are fabricated: every
+reported value is emitted by running the code, with the paper's value shown alongside only
+for comparison. The PUF is simulated on a feed-forward mesh rather than on the chip's
+recirculating mesh; see the report's open items.
 
 ---
 
@@ -28,15 +30,15 @@ python -m venv .venv && source .venv/bin/activate
 # Windows: .venv\Scripts\activate
 pip install -e .                       # or: pip install -r requirements.txt
 python scripts/run_all.py              # runs everything, writes results.json + figures/
-pytest -q                              # 26 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
+pytest -q                              # 29 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
 ```
 
 On a typical laptop CPU, `scripts/run_all.py` takes about 15 minutes, most of which is
 the ten-seed Iris sweep and the Fig 4d bootstraps, and the test suite takes about
-90 seconds. `python scripts/run_all.py --quick` runs a reduced version in about
-5 minutes and writes results_quick.json — the Iris sweep drops to two seeds and both
-Fig 4d bootstraps to 50 resamples, and the outputs go to `results_quick.json` and
-`figures_quick/` so a quick run never overwrites the reported ones. No datasets to
+22 seconds. `python scripts/run_all.py --quick` runs a reduced version in about
+5 minutes — the Iris sweep drops to two seeds and both Fig 4d bootstraps to 50 resamples,
+and the outputs go to `results_quick.json` and `figures_quick/` so a quick run never
+overwrites the reported ones. No datasets to
 download (Iris ships with scikit-learn; the one digitized curve is in `data/`).
 results.json was generated with the package versions in requirements-lock.txt; the Iris
 accuracies can differ slightly with other versions of scipy and scikit-learn.
@@ -55,21 +57,21 @@ All "reproduction" values below come from `scripts/run_all.py`.
 | Effective bits @10 GBaud (Fig 2f) | σ=0.0269 → **6.22 bit** | log₂(2/σ)=**6.216** | exact |
 | Non-unitary 3×3 mesh (Fig 2l) | modulus match | corr 1.0, err 7.8e-16 | sim |
 | Non-unitary input/output correlation (Fig 2n) | measured on chip | not reproduced | hardware — not reproduced |
-| Iris unitary NN, full set (Fig 2o,p) | 94.67% offline | **95.47% ± 1.26%** (10 seeds) | sim |
+| Iris unitary NN, full set (Fig 2o,p) | 94.67% offline (evaluation set not stated) | **95.47% ± 1.26%** (10 seeds) | sim |
 | Iris unitary NN, held out | — (paper's 93.33% is on-chip) | 89.33% ± 5.14% (10 seeds) | sim |
 | Iris identity control (unitary frozen to I) | — | 85.60% ± 0.44% full set, 81.56% ± 4.67% held out | control |
 | Iris logistic baseline (same 4 features, same splits) | — | 96.53% ± 0.88% full set, 94.89% ± 3.45% held out | control |
 | On-chip latency | ~60 ps | n_g·L/c = **60.0 ps** | exact |
 | Energy | **1.875 pJ/MAC** | 1.8 W / 0.96 TMAC·s⁻¹ = **1.875**. 3 V, 100 Ω, 90 mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
 | Throughput | **1.92 TOPS** | 96 ops × 2 dir × 10 GBaud = **1.92**. 3 V, 100 Ω, 90 mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
-| Switch crosstalk (Fig 4d,e) | −45 to <−20 dB | mesh model fitted to Fig 4d: −27.2 to −21.1 dB at 1560 nm; worst −16.8 dB over the fitted 1549–1565 nm, −11.8 dB extrapolated over 1530–1549 nm | sim |
-| On-chip insertion loss | −1.85 to −2.99 dB (8 paths) | **−1.40 to −1.80 dB** (8 modelled paths) | sim |
+| Switch crosstalk (Fig 4d,e) | −45 to <−20 dB | mesh model fitted to Fig 4d: −27.2 to −21.1 dB at 1560 nm; worst −16.8 dB over the fitted 1549–1565 nm, −11.8 dB extrapolated over 1530–1549 nm | model vs measurement |
+| On-chip insertion loss | −1.85 to −2.99 dB (8 paths) | **−1.40 to −1.80 dB** (8 modelled paths) | model vs measurement |
 | PUF uniqueness, 100 dies (Fig 5) | **49.97%** | **49.01%** | sim |
 | PUF uniformity, 100 dies (Fig 5) | **50.15%** | **50.12%** | sim |
 | Recirculating-mesh solver | — | ring/add-drop match analytic to **1e-15** | sim |
 
 The energy and throughput rows use the paper's **own derivation** (Supplementary Note 3),
-not a guessed op-count — see [`docs/REPRODUCTION_REPORT_v4.md`](docs/REPRODUCTION_REPORT_v4.md) §6.
+not a guessed op-count — see [`docs/REPRODUCTION_REPORT_v5.md`](docs/REPRODUCTION_REPORT_v5.md) §6.
 
 **Not reproduced — hardware-only, left blank rather than faked:** measured eye-diagram SNR
 (17.10 / 17.83 dB) and Q factors (7.17–8.08), the raw measured crosstalk spectra, the
@@ -159,16 +161,17 @@ lightin-photonic-fpga-repro/
 │   ├── run_all.py                    run every module, write results.json + figures/
 │   └── fit_fig4.py                   fit the coupler to the digitized Fig 4d crosstalk
 ├── tests/
-│   └── test_reproduction.py          26 checks (pytest or standalone)
+│   └── test_reproduction.py          29 checks (pytest or standalone)
 ├── data/
 │   └── fig4d_T20_digitized.csv       colour-digitized chip crosstalk (with provenance header)
 ├── .github/
 │   └── workflows/tests.yml           CI: the test suite on Python 3.11, 3.12 and 3.13
 ├── figures/                          10 generated figures (regenerated by run_all.py)
 └── docs/
-    ├── REPRODUCTION_REPORT_v4.md     full scope map, per-result table, parameter provenance
-    ├── REPRODUCTION_REPORT_v3.md     the previous report
-    ├── REPRODUCTION_REPORT_v2.md     the report before that
+    ├── REPRODUCTION_REPORT_v5.md     full scope map, per-result table, parameter provenance
+    ├── REPRODUCTION_REPORT_v4.md     the previous report
+    ├── REPRODUCTION_REPORT_v3.md     the report before that
+    ├── REPRODUCTION_REPORT_v2.md     earlier report, kept for history
     ├── REPRODUCTION_REPORT.md        the first-pass report
     └── DOCUMENT_SEARCH_LIST_superseded.md   superseded; kept for history
 ```
@@ -225,8 +228,10 @@ PYTHONPATH=. python tests/test_reproduction.py
 
 ## Parameter provenance (chip-grounded)
 
-The parameters were taken from the paper's Methods + Supplementary, not assumed
-(details in [`docs/REPRODUCTION_REPORT_v4.md`](docs/REPRODUCTION_REPORT_v4.md) §6):
+The chip parameters below were taken from the paper's Methods and Supplementary
+(details in [`docs/REPRODUCTION_REPORT_v5.md`](docs/REPRODUCTION_REPORT_v5.md) §6). The
+parameters that are not from the paper, with their sources where recorded, are listed in
+docs/REPRODUCTION_REPORT_v5.md §6.3:
 
 - group index **n_g = 4.0** (stated); phase index **n_eff ≈ 2.36** (450×220 nm SOI TE)
 - directional coupler **11.5 µm long, 200 nm gap**; square-mesh unit **500 µm**; arm **208 µm**
@@ -235,25 +240,26 @@ The parameters were taken from the paper's Methods + Supplementary, not assumed
 - coupler dispersion **fitted to the digitized Fig 4d crosstalk** (`scripts/fit_fig4.py`)
 
 The superseded document search list is kept for history only; current parameter
-provenance is in docs/REPRODUCTION_REPORT_v4.md §6.
+provenance is in docs/REPRODUCTION_REPORT_v5.md §6.
 
 ---
 
 ## Scope
 
-Three buckets (full table in the report):
+Four categories (full table in the report):
 
 - **Exact** — definitions/arithmetic reproduced to machine precision: PUC, 6.22/5.47-bit,
   60 ps latency.
 - **Simulation** — the paper's own simulations, re-implemented on independent code:
-  unitary/non-unitary fidelity, Iris across seeds, PUF ~49%/~50%, ring solver, switch
-  crosstalk.
+  unitary/non-unitary fidelity, Iris across seeds, PUF ~49%/~50%, ring solver.
+- **Model vs measurement** — the switch crosstalk and on-chip insertion loss, where a model
+  in this code is compared with a quantity measured on the chip.
 - **Hardware-only** — left unreproduced rather than fabricated: measured eye SNR/Q, raw
   measured spectra, 2-die experimental PUF.
 - **Consistency check** — energy (1.875 pJ/MAC) and throughput (1.92 TOPS), reproduced
   arithmetically from inputs stated only in Supplementary Note 3.
 
-Two honest caveats carried in the code: (1) the plain real-op throughput is 0.32 TOPS —
+Two caveats carried in the code: (1) the plain real-op throughput is 0.32 TOPS —
 the 1.92 TOPS figure follows the paper's stated complex + bidirectional + PD-squared-add
 convention; (2) the Iris readout adds a small learned linear layer on the detected
 intensities (standard for photonic classifiers), because a single-θ mesh alone has limited
@@ -266,9 +272,9 @@ unitary expressivity, as the paper's Discussion concedes and `expressivity.py` q
 - Zhu *et al.*, *Light: Sci. Appl.* **15**, 165 (2026) — the reproduced paper.
 - Directional-coupler dispersion, propagation loss, grating-coupler references and the
   provenance of each borrowed parameter are listed in
-  [`docs/REPRODUCTION_REPORT_v4.md`](docs/REPRODUCTION_REPORT_v4.md) §4.2. The superseded
+  [`docs/REPRODUCTION_REPORT_v5.md`](docs/REPRODUCTION_REPORT_v5.md) §6.3. The superseded
   document search list is kept for history only; current parameter provenance is in
-  docs/REPRODUCTION_REPORT_v4.md §6.
+  docs/REPRODUCTION_REPORT_v5.md §6.
 
 ## License
 
