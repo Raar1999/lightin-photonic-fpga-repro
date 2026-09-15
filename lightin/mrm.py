@@ -34,10 +34,18 @@ def symbol_fields(bias, data_swing=0.9, r=0.92, a=0.90):
 
 
 def extinction_ratio(bias, **kw):
+    """Extinction ratio between the two symbol levels, in dB.
+
+    Returns None when the low level is an exact null (below 1e-20), where the ratio
+    diverges: a floored number there would state a finite extinction the model does
+    not predict.
+    """
     E1, E0 = symbol_fields(bias, **kw)
     p1, p0 = abs(E1) ** 2, abs(E0) ** 2
     hi, lo = max(p1, p0), min(p1, p0)
-    return 10 * np.log10((hi + 1e-9) / (lo + 1e-9))
+    if lo < 1e-20:
+        return None
+    return 10 * np.log10(hi / lo)
 
 
 def monitoring_signal(bias, transition_prob=0.5, **kw):
