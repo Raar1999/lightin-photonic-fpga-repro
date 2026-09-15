@@ -3,6 +3,10 @@ message: >-
   This repository is an independent computational reproduction. If you use it, please
   also cite the original paper it reproduces (see references below).
 title: "LightIN — computational reproduction of a silicon photonic FPGA"
+authors:
+  - family-names: Das
+    given-names: Abhishek
+repository-code: "https://github.com/Raar1999/lightin-photonic-fpga-repro"
 abstract: >-
   An honesty-first simulation reproduction of the LightIN silicon photonic FPGA:
   unitary/non-unitary matrix multiplication, an Iris unitary neural network, MRM
