@@ -342,6 +342,92 @@ def boundary_ports_for_rule(rule):
     return unconnected_ports(build_port_mesh(np.zeros(40), rule))
 
 
+# ------------------------------------------------------- boundary grating waveguides
+N_OPTICAL_PORTS = 20        # preprint section 4.1: 20 gratings, ten per opposite edge
+GRATING_WG_UM = 250.0       # stated length of one grating-to-MZI waveguide
+GRATING_SPACING_UM = 222.22  # preprint section 4.1, recorded; not used by the solver
+
+
+def vertex_of_port(port):
+    """The lattice vertex (r, c) a port sits at."""
+    pid, side, _wg = port
+    kind, r, c = edge_of_index(pid)
+    if kind == "H":
+        return (r, c) if side == "L" else (r, c + 1)
+    return (r, c) if side == "L" else (r + 1, c)
+
+
+def grating_ports(rule, n_ports=N_OPTICAL_PORTS):
+    """The boundary ends that carry a grating waveguide: half on top, half on the bottom.
+
+    The preprint fixes the count and the placement -- 20 ports, ten on each of two
+    opposite edges (section 4.1). Which boundary end each one attaches to is a stated
+    choice: the first n/2 unconnected ports at a top-edge vertex, in the fixed port order
+    of this module, and their half-turn images on the bottom edge. Choosing the bottom set
+    as the image of the top set is what makes the whole 20 map onto itself under the half
+    turn, which the PUF design needs.
+    """
+    free = unconnected_ports(build_port_mesh(np.zeros(40), rule))
+    top = [p for p in free if vertex_of_port(p)[0] == 0]
+    if len(top) < n_ports // 2:
+        raise ValueError(f"only {len(top)} free top-edge ports, need {n_ports // 2}")
+    chosen_top = top[:n_ports // 2]
+    chosen_bottom = [half_turn_port(p) for p in chosen_top]
+    missing = [p for p in chosen_bottom if p not in set(free)]
+    if missing:
+        raise ValueError(f"half-turn images not free boundary ends: {missing}")
+    return chosen_top + chosen_bottom
+
+
+def grating_amplitude(lam_nm, length_um=GRATING_WG_UM, n_eff=2.36, loss_db_cm=2.0):
+    """Complex transmission of one grating-to-MZI waveguide.
+
+    Every port is given the same length, which keeps the half-turn symmetry exact. The
+    preprint says the real sections are *not* uniform and carry no phase shifter
+    (section 3); that non-uniformity is not modelled here. Under equal lengths this factor
+    is common to all 20 ports, so it cancels out of every response-bit comparison and out
+    of the relative phase of the two injected beams: it is carried for completeness rather
+    than because it changes a result.
+    """
+    L_m = length_um * 1e-6
+    phase = 2 * np.pi * n_eff * L_m / (lam_nm * 1e-9)
+    amp = 10 ** (-(loss_db_cm * (length_um * 1e-4)) / 20.0)
+    return amp * np.exp(-1j * phase)
+
+
+def build_io_mesh(thetas, rule, n_ports=N_OPTICAL_PORTS, side_um=SIDE_UM,
+                  n_eff=2.36, loss_db_cm=2.0, inputs=None):
+    """The 40-cell mesh with exactly `n_ports` external optical ports.
+
+    The vertex wiring is a stated choice, not the paper's. The paper's Fig. 1 layout was
+    not available, so results from this mesh are conditional on the wiring.
+
+    Boundary ends that do not carry a grating waveguide are left terminated: they are not
+    declared external, so their power leaves the accounting the way an unused, absorbed
+    waveguide end does on a chip. `energy_audit` adds the two halves back up.
+    """
+    gp = grating_ports(rule, n_ports)
+    mesh = build_port_mesh(thetas, rule, side_um=side_um, n_eff=n_eff,
+                           loss_db_cm=loss_db_cm,
+                           inputs=list(gp) if inputs is None else list(inputs),
+                           outputs=list(gp))
+    mesh.optical_ports = list(gp)
+    mesh.terminated_ports = [p for p in unconnected_ports(mesh) if p not in set(gp)]
+    return mesh
+
+
+def energy_audit(mesh, lam_nm, injection, lossless=True):
+    """(power out of the optical ports, power into terminated ends, their total).
+
+    For a lossless build the total must be 1 per unit injected: it is the check that the
+    vertex wiring neither loses nor creates power once the terminated ends are counted.
+    """
+    o = mesh.solve(lam_nm, injection, lossless=lossless)
+    p_opt = sum(abs(o[mesh.pidx[p]]) ** 2 for p in mesh.optical_ports)
+    p_term = sum(abs(o[mesh.pidx[p]]) ** 2 for p in mesh.terminated_ports)
+    return float(p_opt), float(p_term), float(p_opt + p_term)
+
+
 # --------------------------------------------------------------------------- build
 def build_mesh(thetas, wiring=WIRING_A, side_um=SIDE_UM, n_eff=2.36, loss_db_cm=2.0,
                inputs=None, outputs=None):

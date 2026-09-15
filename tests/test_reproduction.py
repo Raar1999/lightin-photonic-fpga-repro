@@ -360,6 +360,32 @@ def test_half_turn_invariant_wirings_connect_the_mesh():
     assert best["unitarity_dev"] < 1e-12
 
 
+def test_io_mesh_has_twenty_half_turn_symmetric_ports():
+    # the preprint's port count and placement: 20 gratings, ten on each opposite edge,
+    # and the set must map onto itself under the half turn or the PUF pairing cannot form
+    import numpy as _np
+    from lightin import square_mesh, wiring_search
+    for _name, rule in wiring_search.selected():
+        gp = square_mesh.grating_ports(rule)
+        assert len(gp) == 20
+        top = [q for q in gp if square_mesh.vertex_of_port(q)[0] == 0]
+        bot = [q for q in gp if square_mesh.vertex_of_port(q)[0] == square_mesh.N_CELLS]
+        assert len(top) == 10 and len(bot) == 10
+        assert {square_mesh.half_turn_port(q) for q in gp} == set(gp)
+        mesh = square_mesh.build_io_mesh(_np.zeros(40), rule)
+        assert len(mesh.optical_ports) == 20
+
+
+def test_io_mesh_conserves_energy_once_terminations_are_counted():
+    import numpy as _np
+    from lightin import square_mesh, wiring_search
+    for _name, rule in wiring_search.selected():
+        mesh = square_mesh.build_io_mesh(_np.zeros(40), rule, loss_db_cm=0.0)
+        inj = {mesh.optical_ports[0]: 1.0}
+        _opt, _term, total = square_mesh.energy_audit(mesh, 1560.0, inj)
+        assert abs(total - 1.0) < 1e-12
+
+
 def test_ppuf_real_arm_length_distribution():
     # N(-0.08, 0.11) um -> rad. The mean is negative: the preprint
     # (arXiv:2504.01463v2 section 2.5) gives mu = -0.08 um, and the sign is pinned here so
