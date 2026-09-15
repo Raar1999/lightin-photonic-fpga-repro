@@ -145,6 +145,31 @@ def rotate_edge(k):
     return index_of_edge("H", c, N_CELLS - 1 - r)
 
 
+def rotate_end(pid, side):
+    """Image of one edge-end (puc index, side) under the quarter turn.
+
+    A horizontal edge keeps its side, because H[r][c] maps to V[c][4-r] with the lower
+    vertex going to the lower vertex. A vertical edge flips: V[r][c] maps to H[c][3-r],
+    and its L end at (r, c) lands on that edge's R end.
+    """
+    kind, _, _ = edge_of_index(pid)
+    if kind == "H":
+        return rotate_edge(pid), side
+    return rotate_edge(pid), ("R" if side == "L" else "L")
+
+
+def rotate_port(port):
+    """Image of a Circuit port tuple (puc, side, wg) under the quarter turn."""
+    pid, side, wg = port
+    rp, rs = rotate_end(pid, side)
+    return (rp, rs, wg)
+
+
+def half_turn_port(port):
+    """Image of a Circuit port tuple under the half turn, i.e. the quarter turn twice."""
+    return rotate_port(rotate_port(port))
+
+
 def edge_orbits():
     """The 40 PUC indices grouped into orbits of the quarter turn, each orbit sorted.
 

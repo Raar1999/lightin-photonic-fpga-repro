@@ -286,6 +286,54 @@ def test_only_wiring_a_is_rotation_equivariant():
     assert not square_mesh.wiring_is_rotation_equivariant(square_mesh.WIRING_B)
 
 
+def test_ppuf_recirc_nominal_pairs_are_degenerate():
+    # the symmetry the preprint's PUF rests on: with no fabrication error every compared
+    # output pair is exactly equal, so the response comes only from the spread
+    import numpy as _np
+    from lightin import ppuf_recirc, square_mesh
+    rng = _np.random.default_rng(0)
+    for _ in range(3):
+        ch = rng.integers(0, 2, ppuf_recirc.n_challenge_bits())
+        bits, ties = ppuf_recirc.response(ch, _np.zeros(40), wiring=square_mesh.WIRING_A)
+        assert ties == len(bits)
+
+
+def test_ppuf_recirc_wiring_b_has_no_rotational_pairing():
+    from lightin import ppuf_recirc, square_mesh
+    assert ppuf_recirc.pairing_is_rotational(square_mesh.WIRING_A)
+    assert not ppuf_recirc.pairing_is_rotational(square_mesh.WIRING_B)
+
+
+def test_square_mesh_straight_wiring_decouples_the_mesh():
+    """Records a known limitation, not a desired property.
+
+    The only quarter-turn-invariant matching at a degree-4 vertex is the straight one, so
+    a rotation-equivariant wiring sends light straight through every interior vertex and
+    the mesh falls apart into independent rows and columns. WIRING_A reaches 4 of 40 cells
+    from one boundary port. If a future wiring fixes this, this test fails and should be
+    replaced rather than relaxed.
+    """
+    import numpy as _np
+    from lightin import square_mesh
+    mesh = square_mesh.build_mesh(_np.zeros(40), square_mesh.WIRING_A)
+    adj = {}
+    for (a, b, _length) in mesh.connections:
+        adj.setdefault(a, []).append(b)
+        adj.setdefault(b, []).append(a)
+    for k in range(40):
+        ps = [(k, sd, wg) for sd in ("L", "R") for wg in (0, 1)]
+        for q in ps:
+            adj.setdefault(q, []).extend(x for x in ps if x != q)
+    start = square_mesh.boundary_ports(square_mesh.WIRING_A)[0]
+    seen, stack = {start}, [start]
+    while stack:
+        q = stack.pop()
+        for x in adj.get(q, []):
+            if x not in seen:
+                seen.add(x); stack.append(x)
+    assert len({q[0] for q in seen}) == 4
+
+
 def test_ppuf_real_arm_length_distribution():
     # N(-0.08, 0.11) um -> rad. The mean is negative: the preprint
     # (arXiv:2504.01463v2 section 2.5) gives mu = -0.08 um, and the sign is pinned here so
