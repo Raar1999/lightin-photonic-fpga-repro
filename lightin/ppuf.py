@@ -86,11 +86,12 @@ def response(challenge, eps, N=8, meas_noise=0.0, rng=None):
     return bits, int(tied.sum())
 
 
-def phase_stats_from_arm_length(mu_um=0.08, sigma_um=0.11, n_eff=2.36, lam_nm=1560.0):
+def phase_stats_from_arm_length(mu_um=-0.08, sigma_um=0.11, n_eff=2.36, lam_nm=1560.0):
     """Convert the paper's per-MZI arm-length-difference Gaussian to a phase Gaussian.
 
     Paper (Methods/Supp Note 8): the initial length difference between the two arms in
-    every MZI follows N(mu = 0.08 um, sigma = 0.11 um). Phase = 2*pi*n_eff*dL/lambda.
+    every MZI follows N(mu = -0.08 um, sigma = 0.11 um). Phase = 2*pi*n_eff*dL/lambda.
+    The sign is the preprint's (arXiv:2504.01463v2 section 2.5); see docs/PREPRINT_NOTES.md.
     """
     rad_per_um = 2 * np.pi * n_eff / (lam_nm * 1e-3)   # lam in um
     return mu_um * rad_per_um, sigma_um * rad_per_um
@@ -101,7 +102,7 @@ def evaluate(n_dies=100, n_challenges=128, N=8, sigma_phase=None, mu_phase=None,
     """Compute uniqueness, uniformity, reliability and tie fraction over simulated dies.
 
     Defaults derive the per-MZI phase Gaussian from the paper's arm-length-difference
-    distribution N(0.08 um, 0.11 um) via phase_stats_from_arm_length().
+    distribution N(-0.08 um, 0.11 um) via phase_stats_from_arm_length().
 
     Uniqueness, uniformity and tie_fraction are computed from the noise-free reference
     response of each (die, challenge). Reliability is the mean fractional Hamming
@@ -213,7 +214,7 @@ def run(verbose=True, n_dies=100):
     res["sensitivity_sweep"] = sensitivity_sweep()
     res["pair_classes"] = [pair_class_fractions(s) for s in (0.001, 1.05)]
     if verbose:
-        print(f"[PPUF] per-MZI arm-length diff N(0.08, 0.11) um -> phase "
+        print(f"[PPUF] per-MZI arm-length diff N(-0.08, 0.11) um -> phase "
               f"N(mu={mu_p:.2f}, sigma={sig_p:.2f}) rad (via n_eff=2.36)")
         print(f"[PPUF] uniqueness (inter-die HD) = {100*res['uniqueness']:.2f}%   "
               f"(paper sim: 49.97%; exp 2-die: 57.71%; ideal 50%)")

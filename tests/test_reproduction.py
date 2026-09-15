@@ -249,9 +249,12 @@ def test_energy_paper_derivation():
 
 
 def test_ppuf_real_arm_length_distribution():
+    # N(-0.08, 0.11) um -> rad. The mean is negative: the preprint
+    # (arXiv:2504.01463v2 section 2.5) gives mu = -0.08 um, and the sign is pinned here so
+    # that losing it again fails rather than shifting the metrics quietly.
     from lightin import ppuf
-    mu, sig = ppuf.phase_stats_from_arm_length()      # N(0.08, 0.11) um -> rad
-    assert 0.6 < mu < 0.9 and 0.9 < sig < 1.2
+    mu, sig = ppuf.phase_stats_from_arm_length()
+    assert -0.9 < mu < -0.6 and 0.9 < sig < 1.2
 
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
