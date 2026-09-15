@@ -29,3 +29,5 @@ results_quick.json
 figures_quick/
 sweep_cache.json
 noise_test.stash
+runtime.txt
+testtime.txt

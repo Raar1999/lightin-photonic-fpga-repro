@@ -439,7 +439,7 @@ def recirc_puf_block(quick=False, feedforward=None):
 
     first = list(per_wiring)[0]
     per_wiring[first]["noise_sweep"] = ppuf_recirc.noise_sweep(
-        sigmas=noise_sigmas, n_dies=sw_dies, n_challenges=sw_ch,
+        sigmas=noise_sigmas, n_dies=pop_dies, n_challenges=pop_ch,
         wiring=dict(ppuf_recirc.wirings())[first])
     print_noise_sweep(first, per_wiring[first]["noise_sweep"])
 
@@ -449,6 +449,7 @@ def recirc_puf_block(quick=False, feedforward=None):
     block.update({
         "n_dies": n_dies, "n_challenges": n_ch,
         "sweep_n_dies": sw_dies, "sweep_n_challenges": sw_ch,
+        "noise_sweep_n_dies": pop_dies, "noise_sweep_n_challenges": pop_ch,
         "topology": RECIRC_TOPOLOGY,
         "primary_wiring": names[0],
         "wiring_names": names,
