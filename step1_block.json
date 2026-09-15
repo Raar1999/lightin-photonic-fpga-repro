@@ -1,0 +1,12 @@
+{
+  "bar_cell_leak_db_model": -29.806945985145695,
+  "bar_cell_leak_db_equal_arm_loss": -29.806945985145695,
+  "bar_cell_leak_db_ideal_coupler": -32.87220846548636,
+  "cross_cell_leak_db_model": -25.689436227959874,
+  "cross_cell_leak_db_equal_arm_loss": -25.689436227959874,
+  "cross_cell_leak_db_ideal_coupler": -32.87220846548639,
+  "bar_center_db_equal_arm_loss": [
+    -30.500238841570884,
+    -106.67211074284721
+  ]
+}

@@ -5,7 +5,8 @@ Or with pytest: PYTHONPATH=. pytest -q
 """
 
 import numpy as np
-from lightin import puc, metrics, unitary, nonunitary, nn_iris, ppuf, mrm, switching, throughput
+from lightin import (puc, metrics, unitary, nonunitary, nn_iris, ppuf, mrm, switching,
+                     throughput, coupler)
 
 
 def test_puc_unitary():
@@ -74,6 +75,36 @@ def test_switching_crosstalk_in_band():
     # the full C-band the paper claims, not a 10 nm window around the coupler's best point
     s = switching.crosstalk_summary(lambdas=np.linspace(1530, 1565, 141))
     assert s["cross"]["worst_xtalk_over_cband_db"] < -11.5
+
+
+def test_cell_variant_matches_shipped_mzi():
+    # the leakage diagnostic re-implements one cell; under its defaults it must be the
+    # model, or the three cases it compares are not comparisons of this model
+    ka, kb, ae = switching._cell_draws()
+    for theta in (switching.THETA_BAR, switching.THETA_CROSS):
+        ref = coupler.mzi_single_theta(theta, 1560.0, kappa0=ka[0], kappa0_b=kb[0],
+                                       arm_phase_err=ae[0], excess_loss_db=0.1)
+        got = switching._cell_variant(theta, 1560.0, ka[0], kb[0], ae[0])
+        assert np.allclose(ref, got, atol=1e-15)
+
+
+def test_arm_losses_are_equal_so_cannot_leak():
+    # case (b) of the leakage diagnostic is a no-op by construction; if a per-arm loss
+    # is ever added to the model this test fails and the attribution must be redone
+    assert switching.ARM_LOSS_DB[0] == switching.ARM_LOSS_DB[1]
+    lk = switching.leak_mechanism_check()
+    for state in ("bar", "cross"):
+        assert (lk[f"{state}_cell_leak_db_model"]
+                == lk[f"{state}_cell_leak_db_equal_arm_loss"])
+
+
+def test_bar_leak_needs_both_fabrication_terms():
+    # with identical couplers and no arm phase error the bar state nulls exactly,
+    # which is what makes the modelled bar crosstalk a statement about assumed spreads
+    ka, kb, ae = switching._cell_draws()
+    kmean = 0.5 * (ka[0] + kb[0])
+    M = switching._cell_variant(switching.THETA_BAR, 1560.0, kmean, kmean, 0.0)
+    assert abs(M[1, 0]) ** 2 < switching.ZERO_TOL
 
 
 def test_mrm_lock_high_er():

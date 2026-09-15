@@ -407,6 +407,7 @@ def main(quick=False):
             "onchip_il_max_db": onchip_il["max_db"],
             "onchip_il_paths": onchip_il["paths"],
             "onchip_il_paper_range_db": switching.ONCHIP_IL_PAPER_RANGE_DB,
+            "leak_mechanism_check": switching.leak_mechanism_check(),
         },
         "ppuf": {"uniqueness": pp["uniqueness"], "uniformity": pp["uniformity"],
                  "reliability_intra_die_HD": pp["reliability_intra_die_HD"],
