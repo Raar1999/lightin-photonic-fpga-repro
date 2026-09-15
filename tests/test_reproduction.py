@@ -405,6 +405,19 @@ def test_io_mesh_conserves_energy_once_terminations_are_counted():
         assert abs(total - 1.0) < 1e-12
 
 
+def test_recirc_puf_wirings_agree():
+    """The two stated wirings must not disagree about the PUF.
+
+    Every number from this mesh is conditional on a wiring nobody has the layout for, so
+    the honest check is that the conclusion does not depend on which of the two is used.
+    """
+    from lightin import ppuf_recirc
+    (_n1, w1), (_n2, w2) = ppuf_recirc.wirings()
+    a = ppuf_recirc.evaluate(n_dies=10, n_challenges=16, wiring=w1)
+    b = ppuf_recirc.evaluate(n_dies=10, n_challenges=16, wiring=w2)
+    assert abs(a["uniqueness"] - b["uniqueness"]) < 0.05
+
+
 def test_ppuf_real_arm_length_distribution():
     # N(-0.08, 0.11) um -> rad. The mean is negative: the preprint
     # (arXiv:2504.01463v2 section 2.5) gives mu = -0.08 um, and the sign is pinned here so

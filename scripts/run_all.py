@@ -19,7 +19,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from lightin import (unitary, nonunitary, nn_iris, ppuf, mrm, switching, throughput,
-                     coupler, expressivity, recirculating)
+                     coupler, expressivity, recirculating, ppuf_recirc)
 from lightin.metrics import enob, propagation_latency
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -38,6 +38,20 @@ QUICK_SEEDS = range(2)      # Iris seed sweep and both controls
 QUICK_N_BOOT = 50           # both Fig 4d bootstraps
 FULL_SEEDS = range(10)
 FULL_N_BOOT = 500
+
+# Recirculating PUF. One solve of the 40-cell mesh costs about 2 ms against a fraction
+# of a microsecond for the feed-forward matrix product, so the die and challenge counts
+# are chosen to keep this block near five minutes. The headline evaluation uses the
+# paper's own 100-die simulation size; the spread sweep, six more evaluations, is cut to
+# 20 dies x 32 challenges and that reduction is recorded in the block.
+RECIRC_DIES, RECIRC_CHALLENGES = 100, 128
+RECIRC_SWEEP_DIES, RECIRC_SWEEP_CHALLENGES = 20, 32
+QUICK_RECIRC_DIES, QUICK_RECIRC_CHALLENGES = 10, 16
+QUICK_RECIRC_SIGMAS = (0.001, 1.05)
+FULL_RECIRC_SIGMAS = (0.001, 0.01, 0.1, 0.5, 1.05, 3.0)
+RECIRC_TOPOLOGY = ("4x4 square recirculating mesh, 40 cells, stated wiring "
+                   "(not the paper's), rotational challenge grouping per preprint")
+WIRING_AGREEMENT_TOL = 0.05
 
 
 def figpath(name):
@@ -302,6 +316,87 @@ def paired_logistic_minus_photonic(seed_sweep, logistic_baseline):
     return out
 
 
+PUF_RECIRC_HEADING = "\n--- 6b. Photonic PUF on the recirculating mesh ---"
+
+
+def recirc_puf_block(quick=False, feedforward=None):
+    """The ppuf_recirc results block: both wirings, their comparison, the robustness check.
+
+    The vertex wiring is a stated choice, not the paper's, so every number here is
+    reported for both selected wirings and the two are required to agree on uniqueness.
+    """
+    n_dies = QUICK_RECIRC_DIES if quick else RECIRC_DIES
+    n_ch = QUICK_RECIRC_CHALLENGES if quick else RECIRC_CHALLENGES
+    sw_dies = QUICK_RECIRC_DIES if quick else RECIRC_SWEEP_DIES
+    sw_ch = QUICK_RECIRC_CHALLENGES if quick else RECIRC_SWEEP_CHALLENGES
+    sigmas = QUICK_RECIRC_SIGMAS if quick else FULL_RECIRC_SIGMAS
+
+    per_wiring = {}
+    for name, rule in ppuf_recirc.wirings():
+        res = ppuf_recirc.evaluate(n_dies=n_dies, n_challenges=n_ch, wiring=rule)
+        sweep = ppuf_recirc.sensitivity_sweep(sigmas=sigmas, n_dies=sw_dies,
+                                              n_challenges=sw_ch, wiring=rule)
+        per_wiring[name] = {
+            "uniqueness": res["uniqueness"],
+            "uniformity": res["uniformity"],
+            "reliability_intra_die_HD": res["reliability_intra_die_HD"],
+            "tie_fraction": res["tie_fraction"],
+            "tie_tol": ppuf.TIE_TOL,
+            "measurement_noise_sigma": ppuf.MEAS_NOISE_SIGMA,
+            "measurement_noise_source": ppuf.MEAS_NOISE_SOURCE,
+            "sensitivity_sweep": sweep,
+            "challenge_bits": res["challenge_bits"],
+            "response_bits": res["response_bits"],
+            "live_pairs": res["live_pairs"],
+            "n_meas": ppuf_recirc.N_MEAS_DEFAULT,
+        }
+        print(f"[PPUF-recirc/{name}] {n_dies} dies x {n_ch} challenges: "
+              f"uniqueness {100*res['uniqueness']:.2f}%, "
+              f"uniformity {100*res['uniformity']:.2f}%, "
+              f"reliability {100*res['reliability']:.2f}%, "
+              f"ties {100*res['tie_fraction']:.2f}%  "
+              f"({res['challenge_bits']}-bit challenge, "
+              f"{res['response_bits']}-bit response, {res['live_pairs']} live pairs)")
+
+    names = list(per_wiring)
+    primary = per_wiring[names[0]]
+    block = dict(primary)
+    block.update({
+        "n_dies": n_dies, "n_challenges": n_ch,
+        "sweep_n_dies": sw_dies, "sweep_n_challenges": sw_ch,
+        "topology": RECIRC_TOPOLOGY,
+        "primary_wiring": names[0],
+        "wirings": per_wiring,
+        "wiring_note": ("the vertex wiring is a stated choice, not the paper's; both "
+                        "selected wirings are reported and required to agree"),
+    })
+    d_uq = abs(per_wiring[names[0]]["uniqueness"] - per_wiring[names[1]]["uniqueness"])
+    block["wiring_robustness"] = {
+        "uniqueness_difference": float(d_uq),
+        "tolerance": WIRING_AGREEMENT_TOL,
+        "wirings_agree": bool(d_uq < WIRING_AGREEMENT_TOL),
+    }
+    print(f"[PPUF-recirc] the two wirings agree on uniqueness to {d_uq:.4f} "
+          f"(tolerance {WIRING_AGREEMENT_TOL})")
+    if feedforward is not None:
+        block["vs_feedforward"] = {
+            "uniqueness": float(primary["uniqueness"] - feedforward["uniqueness"]),
+            "uniformity": float(primary["uniformity"] - feedforward["uniformity"]),
+            "reliability_intra_die_HD": float(primary["reliability_intra_die_HD"]
+                                              - feedforward["reliability_intra_die_HD"]),
+            "note": ("recirculating minus feed-forward, both at the arm-length-derived "
+                     "spread N(-0.08 um, 0.11 um)"),
+        }
+        hdr = f"{'metric':<28}{'feed-forward':>14}{'recirculating':>15}{'difference':>13}"
+        print("[PPUF compare] " + hdr)
+        for key, lab in (("uniqueness", "uniqueness"),
+                         ("uniformity", "uniformity"),
+                         ("reliability_intra_die_HD", "reliability (intra-die HD)")):
+            print(f"[PPUF compare] {lab:<28}{100*feedforward[key]:>13.2f}%"
+                  f"{100*primary[key]:>14.2f}%{100*block['vs_feedforward'][key]:>12.2f}%")
+    return block
+
+
 def main(quick=False):
     """Run every module, write the results file, save the figures.
 
@@ -338,6 +433,8 @@ def main(quick=False):
           f"paper measured {paper_lo:.2f} to {paper_hi:.2f} dB")
     print("\n--- 6. Photonic PUF ---")
     pp = ppuf.run(n_dies=100)
+    print(PUF_RECIRC_HEADING)
+    pr = recirc_puf_block(quick=quick, feedforward=pp)
     print("\n--- 7. Throughput & energy ---")
     te = throughput.reproduce()
     print("\n--- 8. CMT directional coupler (physical model) ---")
@@ -416,6 +513,7 @@ def main(quick=False):
                  "measurement_noise_sigma": pp["measurement_noise_sigma"],
                  "measurement_noise_source": pp["measurement_noise_source"],
                  "sensitivity_sweep": pp["sensitivity_sweep"]},
+        "ppuf_recirc": pr,
         "throughput_energy": te,
         "coupler": dict(
             {k: cp[k] for k in ("extinction_at_3db_db", "extinction_at_1560_db",
