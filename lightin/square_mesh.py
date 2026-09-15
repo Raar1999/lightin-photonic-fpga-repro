@@ -170,6 +170,32 @@ def half_turn_port(port):
     return rotate_port(rotate_port(port))
 
 
+def half_turn_edge(k):
+    """PUC index of the image of edge k under the half turn (r, c) -> (4-r, 4-c)."""
+    kind, r, c = edge_of_index(k)
+    if kind == "H":
+        return index_of_edge("H", N_CELLS - r, N_CELLS - 1 - c)
+    return index_of_edge("V", N_CELLS - 1 - r, N_CELLS - c)
+
+
+def half_turn_orbits():
+    """The 40 PUC indices grouped into half-turn orbits, each sorted, in fixed order.
+
+    The half turn fixes no edge, so every orbit has size 2 and there are 20 of them.
+    """
+    seen, orbits = set(), []
+    for k in range(40):
+        if k in seen:
+            continue
+        orb, j = [], k
+        while j not in seen:
+            seen.add(j)
+            orb.append(j)
+            j = half_turn_edge(j)
+        orbits.append(sorted(orb))
+    return sorted(orbits, key=lambda o: o[0])
+
+
 def edge_orbits():
     """The 40 PUC indices grouped into orbits of the quarter turn, each orbit sorted.
 
@@ -393,6 +419,24 @@ def grating_amplitude(lam_nm, length_um=GRATING_WG_UM, n_eff=2.36, loss_db_cm=2.
     phase = 2 * np.pi * n_eff * L_m / (lam_nm * 1e-9)
     amp = 10 ** (-(loss_db_cm * (length_um * 1e-4)) / 20.0)
     return amp * np.exp(-1j * phase)
+
+
+def free_top_ends(rule):
+    """Unconnected boundary ports at a top-edge vertex, in fixed port order."""
+    free = unconnected_ports(build_port_mesh(np.zeros(40), rule))
+    return [p for p in free if vertex_of_port(p)[0] == 0]
+
+
+def io_mesh_from_ports(thetas, rule, ports, side_um=SIDE_UM, n_eff=2.36,
+                       loss_db_cm=2.0, inputs=None):
+    """`build_io_mesh` with the 20 optical ports supplied rather than chosen here."""
+    mesh = build_port_mesh(thetas, rule, side_um=side_um, n_eff=n_eff,
+                           loss_db_cm=loss_db_cm,
+                           inputs=list(ports) if inputs is None else list(inputs),
+                           outputs=list(ports))
+    mesh.optical_ports = list(ports)
+    mesh.terminated_ports = [p for p in unconnected_ports(mesh) if p not in set(ports)]
+    return mesh
 
 
 def build_io_mesh(thetas, rule, n_ports=N_OPTICAL_PORTS, side_um=SIDE_UM,

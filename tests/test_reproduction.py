@@ -290,18 +290,37 @@ def test_ppuf_recirc_nominal_pairs_are_degenerate():
     # the symmetry the preprint's PUF rests on: with no fabrication error every compared
     # output pair is exactly equal, so the response comes only from the spread
     import numpy as _np
-    from lightin import ppuf_recirc, square_mesh
+    from lightin import ppuf_recirc
     rng = _np.random.default_rng(0)
-    for _ in range(3):
-        ch = rng.integers(0, 2, ppuf_recirc.n_challenge_bits())
-        bits, ties = ppuf_recirc.response(ch, _np.zeros(40), wiring=square_mesh.WIRING_A)
-        assert ties == len(bits)
+    for _name, wiring in ppuf_recirc.wirings():
+        for _ in range(3):
+            ch = rng.integers(0, 2, ppuf_recirc.n_challenge_bits())
+            bits, ties = ppuf_recirc.response(ch, _np.zeros(40), wiring=wiring)
+            assert ties == len(bits)
 
 
-def test_ppuf_recirc_wiring_b_has_no_rotational_pairing():
+def test_ppuf_recirc_uses_half_turn_orbits():
+    # the quarter turn cannot preserve a port set on two opposite edges, so the design is
+    # built on the half turn: 20 orbits of two cells, 20 challenge bits, 9 response bits
     from lightin import ppuf_recirc, square_mesh
-    assert ppuf_recirc.pairing_is_rotational(square_mesh.WIRING_A)
-    assert not ppuf_recirc.pairing_is_rotational(square_mesh.WIRING_B)
+    orbs = square_mesh.half_turn_orbits()
+    assert len(orbs) == 20 and all(len(o) == 2 for o in orbs)
+    assert sorted(k for o in orbs for k in o) == list(range(40))
+    assert ppuf_recirc.n_challenge_bits() == 20
+    for _name, wiring in ppuf_recirc.wirings():
+        assert ppuf_recirc.n_response_bits(wiring) == 9
+        assert ppuf_recirc.live_pairs(wiring) == 9
+
+
+def test_ppuf_recirc_responds_to_manufacturing_spread():
+    """Same three assertions as the feed-forward PUF test, on the recirculating mesh."""
+    from lightin import ppuf_recirc
+    for _name, wiring in ppuf_recirc.wirings():
+        lo, hi = ppuf_recirc.sensitivity_sweep(sigmas=(0.001, 1.05), n_dies=20,
+                                               n_challenges=32, wiring=wiring)
+        assert 0.40 <= hi["uniqueness"] <= 0.60
+        assert hi["tie_fraction"] < 0.05
+        assert lo["uniqueness"] < 0.20 or lo["reliability"] >= 0.5 * lo["uniqueness"]
 
 
 def test_square_mesh_straight_wiring_decouples_the_mesh():

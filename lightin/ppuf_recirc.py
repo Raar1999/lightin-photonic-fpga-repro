@@ -3,7 +3,7 @@ Photonic PUF on the 4x4 square *recirculating* mesh (40 cells), following the pr
 
 The vertex wiring is a stated choice, not the paper's. The paper's Fig. 1 layout was not
 available, so results from this mesh are conditional on the wiring and are reported for
-both WIRING_A and WIRING_B.
+both WIRING_C4_FREE_1 and WIRING_C4_FREE_2.
 
 `lightin/ppuf.py` runs the same PUF on a feed-forward rectangular mesh and is left alone;
 this module is the topologically faithful version, and the two are compared in the report.
@@ -11,53 +11,46 @@ Signatures, defaults and returned keys match `ppuf.py` key for key so the two ca
 side by side, with two stated exceptions: a `wiring` argument, and `n_meas` defaulting to 3
 re-measurements per (die, challenge) rather than 5.
 
-Design, taken from the preprint (arXiv:2504.01463v2 section 2.5) rather than invented
--------------------------------------------------------------------------------------
-The preprint states that the PUF is rotationally symmetric, that the same programming
-voltage is applied to the MZIs at equivalent logical positions under that rotation, that two
-nominally equal-power beams enter diagonally opposite input ports, and that a response bit
-is 1 when the first output of a corresponding pair is at least as large as the second. Each
-of those becomes one element of this model.
+Which rotation, and why it is the half turn
+-------------------------------------------
+The preprint puts 20 optical ports on two opposite edges (section 4.1) and says the PUF is
+rotationally symmetric with two equal-power beams entering diagonally opposite ports
+(section 2.5). A quarter turn of the lattice carries {top, bottom} to {left, right}, so it
+maps the port-bearing edges onto the two that carry no ports and cannot preserve the stated
+port set. The half turn (r, c) -> (4-r, 4-c) does preserve it. The half turn is therefore
+the rotation this design can actually be built on, and everything below uses it.
 
-* **Orbits.** The quarter turn (r, c) -> (c, 4-r) of `square_mesh` permutes the 40 cells in
-  10 orbits of 4. No cell is fixed, because the rotation carries horizontal edges to
-  vertical ones. The orbits are listed by `square_mesh.edge_orbits()` in a fixed,
-  die-independent order.
-* **Challenge.** One bit per orbit, so a challenge is **10 bits**, not 40. Every cell in an
-  orbit gets the same phase, pi for a bit of 1 and 0 for a bit of 0, which is the preprint's
-  "same voltage at equivalent logical positions". That die's fixed per-cell error and fresh
-  per-call measurement noise are then added per cell, and it is only those that break the
-  symmetry.
-* **Injection.** Equal amplitude, equal phase, at one pair of external ports exchanged by
-  the half turn: the first such pair in `square_mesh.boundary_ports` order. Those are the
-  diagonally opposite ports of the preprint.
-* **Output pairing.** Each remaining external port is paired with its half-turn image,
-  giving **11 response bits** from the 24 external ports once the 2 injection ports are set
-  aside. Bit i is 1 when the first port of the pair carries at least as much power as the
-  second, with the `1e-12` tie tolerance and tie counting of `ppuf.py`.
+Design, taken from the preprint rather than invented
+----------------------------------------------------
+* **Orbits.** The half turn permutes the 40 cells in **20 orbits of size 2**; no cell is
+  fixed. `square_mesh.half_turn_orbits()` lists them in a fixed, die-independent order.
+* **Challenge.** One bit per orbit, so a challenge is **20 bits**. Both cells of an orbit
+  take the same phase, pi for a bit of 1 and 0 for a bit of 0 -- the preprint's "same
+  voltage at equivalent logical positions under the rotation" (section 2.5). The die's
+  fixed per-cell error and fresh per-call measurement noise are added per cell afterwards,
+  and only those break the symmetry.
+* **Injection.** Equal amplitude and equal phase at one pair of optical ports exchanged by
+  the half turn, which is what "diagonally opposite" means here: one on the top edge and
+  its image on the bottom.
+* **Output pairing.** Each remaining optical port is paired with its half-turn image,
+  giving **9 response bits** from the 20 ports once the 2 injection ports are set aside.
+  Bit i is 1 when the first port of the pair carries at least as much power as the second,
+  with the `1e-12` tie tolerance and tie counting of `ppuf.py`. All 9 pairs carry light;
+  see `io_plan` for how the ports and the injected pair are chosen.
 
 Because the phases are constant on orbits and the injection is half-turn symmetric, the
-whole nominal configuration is invariant under the half turn, so every compared pair is
-*exactly* equal in a die with no fabrication error and every bit is a tie. The response is
-therefore produced entirely by the manufacturing spread, which is the same property the
-feed-forward model has and what makes uniqueness a function of that spread.
+nominal configuration is invariant under the half turn, so every compared pair is exactly
+equal in a die with no fabrication error and every bit is a tie. The response is produced
+entirely by the manufacturing spread, which is the property that makes uniqueness a
+function of that spread.
 
-Wiring caveat
--------------
-This construction needs the boundary port set to be closed under the rotation. It is, for
-WIRING_A. It is not for WIRING_B, which cannot be rotation-equivariant at all (see
-`square_mesh`), and whose unmatched ends are not carried into one another by the quarter
-turn. WIRING_B therefore cannot express the preprint's design; it is still accepted here,
-with its output ports paired consecutively in boundary order instead, so that the two
-wirings can be compared, but its numbers are not an instance of the preprint's PUF and the
-symmetry the design rests on does not hold for it. `pairing_is_rotational(wiring)` reports
-which case applies.
+Reliability uses 3 re-measurements per (die, challenge).
 """
 
 import numpy as np
 
 from . import square_mesh as SM
-from .square_mesh import WIRING_A, WIRING_B                      # noqa: F401  (re-exported)
+from . import wiring_search as WS
 from .metrics import hamming_distance
 from .ppuf import TIE_TOL, MEAS_NOISE_SIGMA, MEAS_NOISE_SOURCE, phase_stats_from_arm_length
 
@@ -66,13 +59,23 @@ LAMBDA_NM = 1560.0      # design wavelength (paper Methods), the PUF is evaluate
 N_MEAS_DEFAULT = 3      # re-measurements per (die, challenge) for reliability
 
 
+def wirings():
+    """[(name, rule)] for the two wirings selected by `wiring_search`."""
+    return WS.selected()
+
+
+def default_wiring():
+    """The first selected wiring, used when a caller does not name one."""
+    return WS.selected()[0][1]
+
+
 def orbits():
-    """The 10 quarter-turn orbits of the 40 cells, in fixed order."""
-    return SM.edge_orbits()
+    """The 20 half-turn orbits of the 40 cells, in fixed order."""
+    return SM.half_turn_orbits()
 
 
 def orbit_of_cell():
-    """Array of length 40 giving each cell's orbit index."""
+    """Array of length 40 giving each cell's half-turn orbit index."""
     out = np.empty(N_CELLS, dtype=int)
     for i, orb in enumerate(orbits()):
         for k in orb:
@@ -81,72 +84,90 @@ def orbit_of_cell():
 
 
 def n_challenge_bits():
-    """Number of challenge bits: one per rotational orbit."""
+    """Number of challenge bits: one per half-turn orbit."""
     return len(orbits())
 
 
-def _half_turn_pairs(wiring):
-    """External ports grouped into half-turn pairs, in fixed boundary order."""
-    ports = SM.boundary_ports(wiring)
-    pairs, used = [], set()
-    for p in ports:
-        if p in used:
-            continue
-        q = SM.half_turn_port(p)
-        if q not in used and q in set(ports) and q != p:
-            used.update((p, q))
-            pairs.append((p, q))
-    return pairs
+LIVE_PROBE_SEED = 0     # the fixed reference die the port selection is scored on
+_PLAN_CACHE = {}
 
 
-def pairing_is_rotational(wiring=WIRING_A):
-    """True when this wiring's external ports are closed under the rotation.
-
-    False means the preprint's rotational pairing cannot be formed and the consecutive
-    fallback is used, so the design's symmetry does not hold for that wiring.
-    """
-    ports = SM.boundary_ports(wiring)
-    return {SM.half_turn_port(p) for p in ports} == set(ports)
-
-
-def port_plan(wiring=WIRING_A):
-    """(injection_ports, response_pairs) for a wiring, both fixed and die-independent.
+def io_plan(wiring):
+    """(optical_ports, injection_ports, response_pairs), chosen by a stated rule.
 
     The vertex wiring is a stated choice, not the paper's. The paper's Fig. 1 layout was
-    not available, so results from this mesh are conditional on the wiring and are
-    reported for both WIRING_A and WIRING_B.
+    not available, so results from this mesh are conditional on the wiring.
+
+    The preprint fixes the count and placement -- 20 ports, ten per opposite edge -- but
+    not which boundary end each attaches to, nor which diagonal pair is injected. Those are
+    chosen here by search, on the stated criterion that every response pair should actually
+    carry light: over all ten-subsets of the free top-edge ends (their half-turn images
+    supplying the bottom ten) and all ten choices of injection pair, take the plan that
+    leaves the most response pairs above 1e-12 on one fixed reference die, breaking ties by
+    the fixed port order. A pair that carries no light in any die is a bit that can never
+    be anything but a tie, so this is a design criterion rather than a fitted parameter:
+    the reference die is fixed, the thresholds are not tuned, and nothing about the dies
+    later evaluated enters the choice.
     """
-    if pairing_is_rotational(wiring):
-        pairs = _half_turn_pairs(wiring)
-        return list(pairs[0]), pairs[1:]
-    # WIRING_B: not rotation-closed, so fall back to consecutive pairs in boundary order
-    ports = SM.boundary_ports(wiring)
-    return list(ports[:2]), [(ports[i], ports[i + 1]) for i in range(2, len(ports) - 1, 2)]
+    key = tuple(sorted((a, b) for a, b in wiring.items()))
+    if key in _PLAN_CACHE:
+        return _PLAN_CACHE[key]
+    import itertools
+    top = SM.free_top_ends(wiring)
+    mu, sg = phase_stats_from_arm_length()
+    g = SM.grating_amplitude(LAMBDA_NM)
+    best = None
+    for combo in itertools.combinations(range(len(top)), SM.N_OPTICAL_PORTS // 2):
+        ctop = [top[i] for i in combo]
+        gp = ctop + [SM.half_turn_port(p) for p in ctop]
+        allpairs = WS.half_turn_pairs(gp)
+        if len(allpairs) != SM.N_OPTICAL_PORTS // 2:
+            continue
+        for idx in range(len(allpairs)):
+            inj = list(allpairs[idx])
+            rest = [p for j, p in enumerate(allpairs) if j != idx]
+            rng = np.random.default_rng(LIVE_PROBE_SEED)
+            eps = rng.normal(mu, sg, N_CELLS)
+            theta = np.pi * rng.integers(0, 2, len(orbits()))[orbit_of_cell()] + eps
+            mesh = SM.io_mesh_from_ports(theta, wiring, gp, inputs=inj)
+            o = mesh.solve(LAMBDA_NM, {p: g / np.sqrt(len(inj)) for p in inj})
+            I = {p: float(np.abs(g * o[mesh.pidx[p]]) ** 2) for p in gp}
+            live = sum(1 for a, b in rest if I[a] > 1e-12 and I[b] > 1e-12)
+            cand = (live, tuple(gp), tuple(inj), tuple(rest))
+            if best is None or cand[0] > best[0]:
+                best = cand
+    _PLAN_CACHE[key] = (list(best[1]), list(best[2]), [tuple(x) for x in best[3]])
+    return _PLAN_CACHE[key]
 
 
-def n_response_bits(wiring=WIRING_A):
+def port_plan(wiring):
+    """(injection_ports, response_pairs) for a wiring, fixed and die-independent."""
+    _gp, inj, pairs = io_plan(wiring)
+    return inj, pairs
+
+
+def n_response_bits(wiring):
     """Number of response bits this wiring yields."""
     return len(port_plan(wiring)[1])
 
 
-def response(challenge, eps, N=None, meas_noise=0.0, rng=None, wiring=WIRING_A,
+def response(challenge, eps, N=None, meas_noise=0.0, rng=None, wiring=None,
              lam_nm=LAMBDA_NM):
     """One response from one die on the recirculating mesh.
 
     The vertex wiring is a stated choice, not the paper's. The paper's Fig. 1 layout was
-    not available, so results from this mesh are conditional on the wiring and are
-    reported for both WIRING_A and WIRING_B.
+    not available, so results from this mesh are conditional on the wiring.
 
-    challenge is one bit per rotational orbit (length `n_challenge_bits()`); every cell of
-    an orbit takes phase pi*bit. eps is the die's fixed per-cell error, length 40, and the
+    challenge is one bit per half-turn orbit (length `n_challenge_bits()`); both cells of
+    an orbit take phase pi*bit. eps is the die's fixed per-cell error, length 40, and the
     measurement noise is drawn fresh per call when meas_noise and rng are both given.
 
     N is accepted and ignored: the mesh is fixed at 40 cells. It is in the signature only
     so that this function and `ppuf.response` can be called the same way.
 
-    Returns (bits, n_ties): an integer array of `n_response_bits(wiring)` bits, and the
-    number of tied pairs. Ties are resolved as 1 and counted, as in `ppuf.py`.
+    Returns (bits, n_ties). Ties are resolved as 1 and counted, as in `ppuf.py`.
     """
+    wiring = default_wiring() if wiring is None else wiring
     challenge = np.asarray(challenge, dtype=float)
     if challenge.shape != (n_challenge_bits(),):
         raise ValueError(f"challenge must have {n_challenge_bits()} bits, "
@@ -160,12 +181,12 @@ def response(challenge, eps, N=None, meas_noise=0.0, rng=None, wiring=WIRING_A,
         noise = rng.normal(0, meas_noise, size=N_CELLS)
     theta = np.pi * challenge[orbit_of_cell()] + eps + noise
 
-    inj_ports, pairs = port_plan(wiring)
-    ports = SM.boundary_ports(wiring)
-    mesh = SM.build_mesh(theta, wiring, inputs=inj_ports, outputs=ports)
-    amp = 1.0 / np.sqrt(len(inj_ports))
+    gp, inj_ports, pairs = io_plan(wiring)
+    mesh = SM.io_mesh_from_ports(theta, wiring, gp, inputs=inj_ports)
+    g = SM.grating_amplitude(lam_nm)
+    amp = g / np.sqrt(len(inj_ports))
     o = mesh.solve(lam_nm, {p: amp for p in inj_ports})
-    inten = {p: float(np.abs(o[mesh.pidx[p]]) ** 2) for p in ports}
+    inten = {p: float(np.abs(g * o[mesh.pidx[p]]) ** 2) for p in mesh.optical_ports}
 
     diff = np.array([inten[a] - inten[b] for a, b in pairs])
     tied = np.abs(diff) < TIE_TOL
@@ -174,23 +195,35 @@ def response(challenge, eps, N=None, meas_noise=0.0, rng=None, wiring=WIRING_A,
     return bits, int(tied.sum())
 
 
+def live_pairs(wiring, eps=None, lam_nm=LAMBDA_NM, seed=0):
+    """How many response pairs have both outputs above 1e-12 for one sample die."""
+    wiring = default_wiring() if wiring is None else wiring
+    rng = np.random.default_rng(seed)
+    if eps is None:
+        mu, sg = phase_stats_from_arm_length()
+        eps = rng.normal(mu, sg, size=N_CELLS)
+    gp, inj_ports, pairs = io_plan(wiring)
+    theta = np.pi * rng.integers(0, 2, n_challenge_bits())[orbit_of_cell()] + eps
+    mesh = SM.io_mesh_from_ports(theta, wiring, gp, inputs=inj_ports)
+    g = SM.grating_amplitude(lam_nm)
+    o = mesh.solve(lam_nm, {p: g / np.sqrt(len(inj_ports)) for p in inj_ports})
+    I = {p: float(np.abs(g * o[mesh.pidx[p]]) ** 2) for p in mesh.optical_ports}
+    return sum(1 for a, b in pairs if I[a] > 1e-12 and I[b] > 1e-12)
+
+
 def evaluate(n_dies=100, n_challenges=128, N=None, sigma_phase=None, mu_phase=None,
-             meas_noise=MEAS_NOISE_SIGMA, n_meas=N_MEAS_DEFAULT, seed=0,
-             wiring=WIRING_A):
+             meas_noise=MEAS_NOISE_SIGMA, n_meas=N_MEAS_DEFAULT, seed=0, wiring=None):
     """Uniqueness, uniformity, reliability and tie fraction on the recirculating mesh.
 
     The vertex wiring is a stated choice, not the paper's. The paper's Fig. 1 layout was
-    not available, so results from this mesh are conditional on the wiring and are
-    reported for both WIRING_A and WIRING_B.
+    not available, so results from this mesh are conditional on the wiring.
 
     Same definitions and the same returned keys as `ppuf.evaluate`, so the two models can
     be compared key by key. Two differences are deliberate: `n_meas` defaults to 3 rather
     than 5, because a solve of the recirculating mesh costs far more than a feed-forward
     matrix product; and `N` is ignored, the mesh being fixed at 40 cells.
-
-    Defaults derive the per-cell phase Gaussian from the arm-length-difference
-    distribution N(-0.08 um, 0.11 um) via `ppuf.phase_stats_from_arm_length`.
     """
+    wiring = default_wiring() if wiring is None else wiring
     if sigma_phase is None or mu_phase is None:
         mu_phase, sigma_phase = phase_stats_from_arm_length()
     rng = np.random.default_rng(seed)
@@ -234,22 +267,20 @@ def evaluate(n_dies=100, n_challenges=128, N=None, sigma_phase=None, mu_phase=No
         "prop1_per_die": prop1_per_die,
         "n_dies": n_dies, "n_challenges": n_challenges, "response_bits": n_bits,
         "challenge_bits": n_c,
-        "wiring": wiring[0],
-        "pairing_is_rotational": bool(pairing_is_rotational(wiring)),
+        "live_pairs": live_pairs(wiring, seed=seed),
     }
 
 
 def sensitivity_sweep(sigmas=(0.001, 0.01, 0.1, 0.5, 1.05, 3.0), n_dies=40,
-                      n_challenges=64, seed=1, wiring=WIRING_A):
+                      n_challenges=64, seed=1, wiring=None):
     """Uniqueness, uniformity, tie fraction and reliability vs manufacturing spread.
 
     The vertex wiring is a stated choice, not the paper's. The paper's Fig. 1 layout was
-    not available, so results from this mesh are conditional on the wiring and are
-    reported for both WIRING_A and WIRING_B.
+    not available, so results from this mesh are conditional on the wiring.
 
-    Each row is `evaluate` at that per-cell phase sigma with mu_phase = 0, so the only
-    thing that varies is how far the fabricated phases scatter from their nominal value.
+    Each row is `evaluate` at that per-cell phase sigma with mu_phase = 0.
     """
+    wiring = default_wiring() if wiring is None else wiring
     rows = []
     for s in sigmas:
         res = evaluate(n_dies=n_dies, n_challenges=n_challenges,
@@ -258,25 +289,28 @@ def sensitivity_sweep(sigmas=(0.001, 0.01, 0.1, 0.5, 1.05, 3.0), n_dies=40,
                      "uniqueness": res["uniqueness"],
                      "uniformity": res["uniformity"],
                      "tie_fraction": res["tie_fraction"],
-                     "reliability": res["reliability"]})
+                     "reliability": res["reliability"],
+                     "live_pairs": res["live_pairs"]})
     return rows
 
 
-def run(verbose=True, n_dies=40, n_challenges=64, wiring=WIRING_A):
+def run(verbose=True, n_dies=40, n_challenges=64, wiring=None, name=None):
     """Evaluate the recirculating PUF and print a summary.
 
     The vertex wiring is a stated choice, not the paper's. The paper's Fig. 1 layout was
-    not available, so results from this mesh are conditional on the wiring and are
-    reported for both WIRING_A and WIRING_B.
+    not available, so results from this mesh are conditional on the wiring.
     """
+    if wiring is None:
+        name, wiring = wirings()[0]
     res = evaluate(n_dies=n_dies, n_challenges=n_challenges, wiring=wiring)
+    res["wiring"] = name
     res["measurement_noise_sigma"] = MEAS_NOISE_SIGMA
     res["measurement_noise_source"] = MEAS_NOISE_SOURCE
     if verbose:
-        print(f"[PPUF-recirc/{wiring[0]}] 40-cell square recirculating mesh, "
+        print(f"[PPUF-recirc/{name}] 40-cell square recirculating mesh, 20 optical ports, "
               f"{res['challenge_bits']}-bit challenge, {res['response_bits']}-bit response, "
-              f"rotational pairing: {res['pairing_is_rotational']}")
-        print(f"[PPUF-recirc/{wiring[0]}] {n_dies} dies x {n_challenges} challenges: "
+              f"{res['live_pairs']} live pairs")
+        print(f"[PPUF-recirc/{name}] {n_dies} dies x {n_challenges} challenges: "
               f"uniqueness {100*res['uniqueness']:.2f}%, "
               f"uniformity {100*res['uniformity']:.2f}%, "
               f"reliability {100*res['reliability']:.2f}%, "
