@@ -43,7 +43,9 @@ def test_nonunitary_modulus():
 
 
 def test_iris_accuracy():
-    res = nn_iris.train(seed=0)
+    # five restarts rather than the reported fifteen: the best restart is kept, so this
+    # is a lower bound on the reported accuracy and the threshold still discriminates
+    res = nn_iris.train(restarts=5, seed=0)
     assert res["full_acc"] > 0.90                       # paper offline 94.67%
 
 

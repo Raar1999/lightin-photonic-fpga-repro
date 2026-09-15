@@ -76,14 +76,22 @@ def _loss(p, X, y, N=4, n_classes=3):
     return ll + 1e-4 * np.sum(p ** 2)
 
 
-def train(seed=0):
+def train(seed=0, restarts=N_RESTARTS):
+    """Offline-train the photonic layer and its readout on one 70/30 split.
+
+    restarts is the number of random restarts of the non-convex fit; it defaults to
+    N_RESTARTS, the value the reported results use. Lowering it makes the fit cheaper
+    and, because the best restart is kept, can only lower the accuracy on average, so a
+    reduced-restart accuracy is a lower bound on the reported one rather than a
+    different quantity.
+    """
     # 4 features encoded as complex amplitudes (real-valued here)
     Xc, y, Xtr, Xte, ytr, yte = _train_test(seed)
 
     N, n_classes = 4, 3
     rng = np.random.default_rng(seed)
     best = None
-    for _ in range(N_RESTARTS):
+    for _ in range(restarts):
         p0 = rng.uniform(-1, 1, _n_params(N, n_classes))
         sol = minimize(_loss, p0, args=(Xtr, ytr, N, n_classes),
                        method="L-BFGS-B", options={"maxiter": 4000})
