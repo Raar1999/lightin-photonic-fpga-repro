@@ -553,7 +553,44 @@
         ],
         "reliability_mean": 0.007624421296296377,
         "reliability_std": 0.000636866281605694
-      }
+      },
+      "noise_sweep": [
+        {
+          "meas_noise_sigma": 0.002,
+          "uniqueness": 0.49337829415954426,
+          "uniformity": 0.48051215277777776,
+          "reliability": 0.0018229166666666626,
+          "tie_fraction": 0.0
+        },
+        {
+          "meas_noise_sigma": 0.005,
+          "uniqueness": 0.49337829415954426,
+          "uniformity": 0.48051215277777776,
+          "reliability": 0.004383680555555549,
+          "tie_fraction": 0.0
+        },
+        {
+          "meas_noise_sigma": 0.01,
+          "uniqueness": 0.49337829415954426,
+          "uniformity": 0.48051215277777776,
+          "reliability": 0.008362268518518618,
+          "tie_fraction": 0.0
+        },
+        {
+          "meas_noise_sigma": 0.02,
+          "uniqueness": 0.49337829415954426,
+          "uniformity": 0.48051215277777776,
+          "reliability": 0.01588541666666697,
+          "tie_fraction": 0.0
+        },
+        {
+          "meas_noise_sigma": 0.05,
+          "uniqueness": 0.49337829415954426,
+          "uniformity": 0.48051215277777776,
+          "reliability": 0.03927951388888869,
+          "tie_fraction": 0.0
+        }
+      ]
     },
     "C4_FREE_2": {
       "uniqueness": 0.4999470398428721,
@@ -739,7 +776,44 @@
       ],
       "reliability_mean": 0.007624421296296377,
       "reliability_std": 0.000636866281605694
-    }
+    },
+    "noise_sweep": [
+      {
+        "meas_noise_sigma": 0.002,
+        "uniqueness": 0.49337829415954426,
+        "uniformity": 0.48051215277777776,
+        "reliability": 0.0018229166666666626,
+        "tie_fraction": 0.0
+      },
+      {
+        "meas_noise_sigma": 0.005,
+        "uniqueness": 0.49337829415954426,
+        "uniformity": 0.48051215277777776,
+        "reliability": 0.004383680555555549,
+        "tie_fraction": 0.0
+      },
+      {
+        "meas_noise_sigma": 0.01,
+        "uniqueness": 0.49337829415954426,
+        "uniformity": 0.48051215277777776,
+        "reliability": 0.008362268518518618,
+        "tie_fraction": 0.0
+      },
+      {
+        "meas_noise_sigma": 0.02,
+        "uniqueness": 0.49337829415954426,
+        "uniformity": 0.48051215277777776,
+        "reliability": 0.01588541666666697,
+        "tie_fraction": 0.0
+      },
+      {
+        "meas_noise_sigma": 0.05,
+        "uniqueness": 0.49337829415954426,
+        "uniformity": 0.48051215277777776,
+        "reliability": 0.03927951388888869,
+        "tie_fraction": 0.0
+      }
+    ]
   },
   "throughput_energy": {
     "P_pi_mW": 90.0,

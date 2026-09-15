@@ -431,6 +431,21 @@ def test_population_sweep_reports_a_spread():
     assert rc["n_seeds"] == 3 and rc["uniqueness_std"] > 0.0
 
 
+def test_noise_sweep_drives_reliability_not_uniqueness():
+    """Reliability is set by the assumed measurement noise; uniqueness is not.
+
+    Uniqueness, uniformity and the tie fraction come from the noise-free reference
+    response, so they must not move with the noise. If they do, the noise is leaking into
+    the reference and the reliability number means something else.
+    """
+    from lightin import ppuf_recirc
+    rows = ppuf_recirc.noise_sweep(sigmas=(0.002, 0.05), n_dies=8, n_challenges=8, seed=1)
+    lo, hi = rows
+    assert hi["reliability"] > lo["reliability"]
+    assert lo["uniqueness"] == hi["uniqueness"]
+    assert lo["tie_fraction"] == hi["tie_fraction"]
+
+
 def test_ppuf_real_arm_length_distribution():
     # N(-0.08, 0.11) um -> rad. The mean is negative: the preprint
     # (arXiv:2504.01463v2 section 2.5) gives mu = -0.08 um, and the sign is pinned here so
