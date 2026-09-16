@@ -24,7 +24,11 @@ import numpy as np
 
 # --- Device constants from the LightIN paper (Methods) + supplementary ---
 LAMBDA0 = 1560.0       # nm, matrix-multiplication design wavelength (Methods)
-DC_LAMBDA_3DB = 1574.7  # nm, 3-dB point from fitting the mesh T20 model to digitized Fig 4d (scripts/fit_fig4.py); design wavelength is 1560 nm
+DC_LAMBDA_3DB = 1574.2  # nm, 3-dB point from fitting the mesh T20 model to digitized Fig 4d (scripts/fit_fig4.py); design wavelength is 1560 nm.
+# The Fig 4d fit holds switching.SIGMA_SPLIT and the Fig 4e fit holds this wavelength, so
+# the two are solved by alternating until neither moves: one pass from the previous 1574.7
+# lands here and the next pass shifts sigma_split by 8e-6. The 0.5 nm move from 1574.7 is
+# well inside this fit's own 0.61 nm standard error.
 DC_SLOPE = 0.0026      # rad/nm, coupling-phase dispersion slope of the same fit
 LAMBDA_MRM = 1555.0    # nm, MRM wavelength-locking experiment (Methods)
 N_GROUP = 4.0          # group index, stated in paper ("group index of 4")

@@ -16,11 +16,17 @@ import numpy as np
 from .coupler import (mzi_single_theta, link_budget_db, LAMBDA0,
                       DC_LAMBDA_3DB, DC_SLOPE)
 
-SIGMA_SPLIT = 0.02     # coupler-to-coupler power-split spread. Assumed, no source.
-SIGMA_PHASE = 0.02     # rad, arm phase imbalance. Assumed, no source.
-# Named rather than left as inline literals so that scripts/fit_fig4e.py can fit one of
-# them to the digitized Fig 4e bar-state curve and the tests can pin the two models
-# together. Both still carry the assumed value here.
+SIGMA_SPLIT = 0.0182   # coupler-to-coupler power-split spread, fitted to the digitized
+# Fig 4e all-bar T32 curve (scripts/fit_fig4e.py, 27 points over 1550-1589 nm), with
+# SIGMA_PHASE held at 0.02. The digitized points are the band's upper envelope, so the
+# model is compared at the matching statistic -- the 99th percentile of a 3200-realisation
+# fabrication ensemble, not its mean. Fitting the mean instead returns 0.0479, which is the
+# 7.4 dB quantile-to-mean offset absorbed into the spread; that value fails the Fig 4d
+# cross-check of docs/FIG4E_SCOPE.md and is not what ships.
+SIGMA_PHASE = 0.02     # rad, arm phase imbalance. Still assumed, no source: one curve
+# constrains only the combination of the two spreads (fit_fig4e.identifiability), so one
+# has to be held. Fitting this one instead, with SIGMA_SPLIT held at 0.02, has no interior
+# optimum -- the split spread alone already exceeds the measured envelope, so it runs to 0.
 
 FIG4D_FLOOR_DB = -26.2   # dB, crosstalk floor fitted to digitized Fig 4d alongside
 # lam0 and slope. It is phenomenological: the mesh model has no term that produces
