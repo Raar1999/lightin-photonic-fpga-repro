@@ -151,7 +151,7 @@ Two controls put the number in context, both on the same splits:
 
 * Identity control — the unitary frozen to I, only the readout trained: 85.60%<!--{iris.identity_control.full_acc_mean}--> ± 0.44%<!--{iris.identity_control.full_acc_std}-->
   full set, 81.56%<!--{iris.identity_control.test_acc_mean}--> ± 4.67%<!--{iris.identity_control.test_acc_std}--> held out. The programmable unitary is therefore worth about
-  10 points, which is a real contribution.
+  10<!--{iris.unitary_minus_identity_full_acc|pct}--> points, which is a real contribution.
 * Logistic baseline — plain multinomial logistic regression on the same four standardized
   features: 96.53%<!--{iris.logistic_baseline.full_acc_mean}--> ± 0.88%<!--{iris.logistic_baseline.full_acc_std}--> full set, 94.89%<!--{iris.logistic_baseline.test_acc_mean}--> ± 3.45%<!--{iris.logistic_baseline.test_acc_std}--> held out. Because the two sweeps run
   the same seeds and the seed fixes the split, they can be differenced seed by seed
@@ -214,7 +214,7 @@ wavelength (§4.2). At 1560 nm the fitted coupler splits 0.462<!--{coupler.power
 that offset common to both couplers, rather than any difference between them, that the
 cross state cannot cancel. Forcing both couplers to an exact 50:50 split drops the cell's
 leakage from −25.69<!--{switching.leak_mechanism_check.cross_cell_leak_db_model}--> dB (`cross_cell_leak_db_model`) to −32.87<!--{switching.leak_mechanism_check.cross_cell_leak_db_ideal_coupler}--> dB
-(`cross_cell_leak_db_ideal_coupler`), an improvement of 7.18 dB, and the leakage moves with
+(`cross_cell_leak_db_ideal_coupler`), an improvement of 7.18<!--{switching.leak_mechanism_check.cross_ideal_coupler_improvement_db}--> dB, and the leakage moves with
 wavelength because the split does. That is the mechanism behind rows 17–19.
 
 The bar state leaks for a different reason. Its unintended-port amplitude is proportional
@@ -275,9 +275,9 @@ grating couplers. Over the eight intended paths — four inputs in the all-cross
 four in the all-bar state — the model gives −1.40<!--{switching.onchip_il_max_db}--> to −1.80<!--{switching.onchip_il_min_db}--> dB (`onchip_il_min_db`,
 `onchip_il_max_db`), against the paper's measured −1.85<!--{switching.onchip_il_paper_range_db[1]}--> to −2.99<!--{switching.onchip_il_paper_range_db[0]}--> dB
 (`onchip_il_paper_range_db`). The two ranges do not overlap: the model's most-lossy path,
-at −1.80<!--{switching.onchip_il_min_db}--> dB, is still 0.05 dB better than the paper's least-lossy measured path at
-−1.85<!--{switching.onchip_il_paper_range_db[1]}--> dB. End to end the model is optimistic by 0.45 dB at the least-lossy end and by
-1.19 dB at the most-lossy end. The loss parameters were left unchanged rather than tuned
+at −1.80<!--{switching.onchip_il_min_db}--> dB, is still 0.05<!--{switching.onchip_il_gap_nearest_db}--> dB better than the paper's least-lossy measured path at
+−1.85<!--{switching.onchip_il_paper_range_db[1]}--> dB. End to end the model is optimistic by 0.45<!--{switching.onchip_il_gap_least_lossy_db}--> dB at the least-lossy end and by
+1.19<!--{switching.onchip_il_gap_most_lossy_db}--> dB at the most-lossy end. The loss parameters were left unchanged rather than tuned
    to close that gap, so the disagreement stays visible. Separately, the fibre-to-fibre
    link budget at 1560 nm is 11.43<!--{switching.fibre_to_fibre_loss_db}--> dB (`fibre_to_fibre_loss_db`), dominated by the two
    grating couplers; it is a different quantity from the on-chip loss and is not
@@ -439,7 +439,7 @@ feed-forward sweep shows at that spread. By sigma = 0.1 the ties are gone and un
 is 0.4937<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[2].uniqueness}-->.
 
 The two wirings agree on uniqueness to 0.0002<!--{ppuf_recirc.wiring_robustness.uniqueness_difference}--> on the single headline run, and their
-population means differ by 0.04 points against a seed spread of about 0.25<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniqueness_std|pct}--> points, well
+population means differ by 0.046<!--{ppuf_recirc.wiring_uniqueness_gap|pct}--> points against a seed spread of about 0.25<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniqueness_std|pct}--> points, well
 inside the stated tolerance of 0.05<!--{ppuf_recirc.wiring_robustness.tolerance}-->. That is the check that the conclusion does not rest on
 the wiring, and a test enforces it.
 
@@ -462,8 +462,9 @@ hidden. At σ = 0.001 the mesh is still essentially a permutation, only the two 
 outputs carry power, and the tie fraction is non-zero. That regime is also where
 reliability (0.2198<!--{ppuf.sensitivity_sweep[0].reliability}-->) is as large as uniqueness (0.2164<!--{ppuf.sensitivity_sweep[0].uniqueness}-->): the bits are being set by
 measurement noise rather than by the die, which is exactly what a non-functioning PUF looks
-like. At the paper's spread the two separate by a factor of 67 (the ratio of the two
-`results.json` values 0.48917<!--{ppuf.uniqueness}--> and 0.00735<!--{ppuf.reliability_intra_die_HD}-->), which is what makes the response a signature.
+like. At the paper's spread the two separate by a factor of 67<!--{ppuf.uniqueness_over_reliability}-->
+(`uniqueness_over_reliability`, the ratio of the two `results.json` values 0.48917<!--{ppuf.uniqueness}-->
+and 0.00735<!--{ppuf.reliability_intra_die_HD}-->), which is what makes the response a signature.
 The PUF test judges the low-spread case by reliability rather than by a uniqueness bound,
 because a symmetric comparison of two ports is randomised by any nonzero spread and only
 measurement noise distinguishes a working PUF from a non-working one.
@@ -512,8 +513,8 @@ fitter both use it, so the recovered values are directly comparable with the gen
 own `demo_true_kappa0` = 0.5<!--{coupler.demo_true_kappa0}--> and `demo_true_slope` = 0.0042<!--{coupler.demo_true_slope}-->. That reference wavelength is
 deliberately independent of `DC_LAMBDA_3DB`: the demo exercises the fitting routine and
 says nothing about this chip, so tying it to the chip's fitted 3-dB point would make a
-change in the chip fit look like a change in the demo. The κ₀ agreement to 0.002 is a
-genuine recovery check; the 4.1% slope offset is the generator's quadratic dispersion term,
+change in the chip fit look like a change in the demo. The κ₀ agreement to 0.002<!--{coupler.demo_kappa0_abs_error}--> is a
+genuine recovery check; the 4.1%<!--{coupler.demo_slope_offset_frac}--> slope offset is the generator's quadratic dispersion term,
 which the two-parameter CMT fit form cannot represent. Referencing generator and fitter to
 different wavelengths would shift the fitted κ₀ by roughly slope × Δλ without the fit itself
 changing, which measures the choice of reference wavelength rather than the quality of the
@@ -554,7 +555,7 @@ Six results do not simply confirm the paper:
    [1572.3<!--{fig4d_mesh_fit.lambda0_param_p05_nm}-->, 1577.7<!--{fig4d_mesh_fit.lambda0_param_p95_nm}-->] nm.
    Both bootstrap intervals exclude 1560 nm: the pairs interval [1573.7<!--{fig4d_mesh_fit.lambda0_pairs_p05_nm}-->, 1575.5<!--{fig4d_mesh_fit.lambda0_pairs_p95_nm}-->] nm by
    13.7 nm and the parametric interval by 12.3 nm (§6.1). The proxy and mesh models place
-   λ₀ 3.7 nm apart. The bootstrap intervals describe the uncertainty within the mesh model,
+   λ₀ 3.6<!--{fig4d_mesh_fit.lambda0_minus_proxy_nm}--> nm apart. The bootstrap intervals describe the uncertainty within the mesh model,
    not the uncertainty in the choice of model. Both models exclude 1560 nm.
 3. The ideal-coupler fidelities do not survive the chip's own coupler. Rows 3 and 5 reach
    1.000000<!--{unitary.random_mean_fidelity}--> with ideal 50:50 couplers; the coupler fitted to Fig 4d caps the single-θ cross
@@ -567,7 +568,7 @@ Six results do not simply confirm the paper:
    the held-out split it leads by 5.56<!--{iris.paired_logistic_minus_photonic.test_mean|pct}--> ± 3.67<!--{iris.paired_logistic_minus_photonic.test_std|pct}--> points, winning on 9<!--{iris.paired_logistic_minus_photonic.test_n_logistic_higher}--> seeds, tying on 1<!--{iris.paired_logistic_minus_photonic.test_n_equal}--> and
    losing on none; there the absolute paired mean exceeds the paired standard deviation, so
    that is a consistent difference. The identity control shows the unitary contributes about
-   10 points over the readout alone, so the mesh is doing real work — but Iris does not
+   10<!--{iris.unitary_minus_identity_full_acc|pct}--> points over the readout alone, so the mesh is doing real work — but Iris does not
    discriminate a photonic classifier from a linear one.
 5. The modelled on-chip insertion loss, −1.40<!--{switching.onchip_il_max_db}--> to −1.80<!--{switching.onchip_il_min_db}--> dB over eight paths, is lower than
    the paper's measured −1.85<!--{switching.onchip_il_paper_range_db[1]}--> to −2.99<!--{switching.onchip_il_paper_range_db[0]}--> dB. Per path against the four digitized Fig 4e
@@ -686,7 +687,7 @@ the data says they are about 15 nm apart. The consequence is physical, not cosme
 the single-θ unitary fidelity ceiling drops to 0.9942<!--{expressivity.coupler_ceiling_fidelity_at_1560}-->, and the worst-case switch crosstalk
 inside the fitted range is −16.77<!--{switching.cross_worst_xtalk_fitrange_db}--> dB.
 
-The two models disagree about λ₀ by 3.7 nm, which is six times the mesh fit's own standard
+The two models disagree about λ₀ by 3.6<!--{fig4d_mesh_fit.lambda0_minus_proxy_nm}--> nm, which is six times the mesh fit's own standard
 error and larger than the pairs bootstrap interval. That gap is model-form uncertainty: it
 measures the choice between a single-coupler formula and the full four-stage fabric, and
 neither bootstrap interval contains it, because both resample the data under one fixed
@@ -764,12 +765,12 @@ percentile entries. These are the `fig4e_fit.sensitivity` keys.
 
 **What adopting the fit would have bought, and why that is not a gain.** Nothing is
 refitted in this check. On the Fig 4e points the bar model scores 0.9013<!--{cross_check.fig4e_rms_at_assumed_spreads_db}--> dB RMS at the
-assumed spread and 0.4176<!--{cross_check.fig4e_rms_at_fitted_spread_db}--> dB at the fitted 0.0182<!--{cross_check.fitted_spread_not_adopted}-->, an improvement of 0.4837 dB. That
+assumed spread and 0.4176<!--{cross_check.fig4e_rms_at_fitted_spread_db}--> dB at the fitted 0.0182<!--{cross_check.fitted_spread_not_adopted}-->, an improvement of 0.4837<!--{cross_check.fig4e_rms_improvement_at_fitted_spread_db}--> dB. That
 improvement is real and it is not evidence for the fitted value, because a plain constant
 fitted to the same 27<!--{fig4e_fit.n_points}--> points scores 0.4170<!--{fig4e_fit.shape_check.constant_rms_db}--> dB — better than either. The whole of it is the
 model's flat level being moved onto the data mean, which any single free parameter would
 achieve; none of it is the model accounting for the shape of the curve. On the Fig 4d
-points the same change costs 0.0104 dB (0.7921<!--{cross_check.fig4d_rms_at_assumed_spreads_db}--> dB to 0.8025<!--{cross_check.fig4d_rms_at_fitted_spread_db}--> dB), which is far below the
+points the same change costs 0.0104<!--{cross_check.fig4d_rms_penalty_at_fitted_spread_db}--> dB (0.7921<!--{cross_check.fig4d_rms_at_assumed_spreads_db}--> dB to 0.8025<!--{cross_check.fig4d_rms_at_fitted_spread_db}--> dB), which is far below the
 ±0.3<!--{fig4e_fit.digitization_sd_db}--> dB per-point digitization uncertainty and so is not resolvable either way. These are
 the `cross_check` keys. (Figure: `figures/fig4e_digitized.png`, which overlays the fitted
 model on the digitized points.)
@@ -1088,7 +1089,7 @@ document is what changes.
   the most-lossy end. The parameters were left unchanged, so the disagreement is on record
   rather than tuned away.
 * The paper's Iris evaluation set is not established from the published values.
-* The coupler 3-dB wavelength carries a model-form uncertainty (3.7 nm between the proxy and
+* The coupler 3-dB wavelength carries a model-form uncertainty (3.6 nm between the proxy and
   mesh models) that the bootstrap intervals do not include.
 * The Iris accuracies depend on the installed scipy and scikit-learn versions: with
   `nn_iris.py` unchanged, seed 0 currently yields a full-set accuracy of 95.33% where an

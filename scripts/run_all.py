@@ -147,6 +147,11 @@ def cross_check(f4_mesh, f4e):
             "fig4e_rms_at_assumed_spreads_db": float(rms_e_before),
             "fig4d_rms_at_fitted_spread_db": float(at_fitted),
             "fig4e_rms_at_fitted_spread_db": float(rms_e_fitted),
+            # What adopting the Fig 4e fitted spread would have bought on its own panel
+            # and cost on the other: differences of the four RMS values above, stored so
+            # that each one has a path of its own.
+            "fig4e_rms_improvement_at_fitted_spread_db": float(rms_e_before - rms_e_fitted),
+            "fig4d_rms_penalty_at_fitted_spread_db": float(at_fitted - before),
             "fitted_spread_not_adopted": float(fitted),
             "sigma_split": float(switching.SIGMA_SPLIT),
             "sigma_phase": float(switching.SIGMA_PHASE),
@@ -558,8 +563,16 @@ def recirc_puf_block(quick=False, feedforward=None):
         "tolerance": WIRING_AGREEMENT_TOL,
         "wirings_agree": bool(d_uq < WIRING_AGREEMENT_TOL),
     }
+    # The headline runs agree to d_uq above; the population sweeps average the sampling
+    # spread out of that comparison, and their gap is the number the report quotes. It is
+    # a difference of two values this block already holds, stored so that one path carries
+    # it rather than the report doing the subtraction.
+    pop_means = [per_wiring[name]["population_sweep"]["uniqueness_mean"]
+                 for name in names]
+    block["wiring_uniqueness_gap"] = float(abs(pop_means[1] - pop_means[0]))
     print(f"[PPUF-recirc] the two wirings agree on uniqueness to {d_uq:.4f} "
-          f"(tolerance {WIRING_AGREEMENT_TOL})")
+          f"(tolerance {WIRING_AGREEMENT_TOL}); their population means differ by "
+          f"{100 * block['wiring_uniqueness_gap']:.3f} points")
     if feedforward is not None:
         block["vs_feedforward"] = {
             "uniqueness": float(primary["uniqueness"] - feedforward["uniqueness"]),
@@ -611,6 +624,7 @@ def main(quick=False):
     section("5. Optical switching crosstalk")
     sw = switching.run()
     onchip_il = switching.onchip_insertion_loss()
+    leak_mechanism = switching.leak_mechanism_check()
     paper_lo, paper_hi = switching.ONCHIP_IL_PAPER_RANGE_DB
     print(f"[switching] modelled on-chip insertion loss over 8 intended paths: "
           f"{onchip_il['min_db']:.2f} to {onchip_il['max_db']:.2f} dB; "
@@ -684,7 +698,12 @@ def main(quick=False):
                  "seed_sweep": ir["seed_sweep"],
                  "identity_control": ir["identity_control"],
                  "logistic_baseline": ir["logistic_baseline"],
-                 "paired_logistic_minus_photonic": paired},
+                 "paired_logistic_minus_photonic": paired,
+                 # The identity control runs the same seeds on the same splits, so the
+                 # difference of the two full-set means is what the unitary contributes.
+                 "unitary_minus_identity_full_acc": float(
+                     ir["seed_sweep"]["full_acc_mean"]
+                     - ir["identity_control"]["full_acc_mean"])},
         "mrm": {"lock_bias": mr["lock_bias"], "max_er_db": float(mr["er_db"].max())},
         "switching": {
             "cross_xtalk_center_db": sw["cross"]["xtalk_center_db"],
@@ -706,7 +725,18 @@ def main(quick=False):
             "onchip_il_max_db": onchip_il["max_db"],
             "onchip_il_paths": onchip_il["paths"],
             "onchip_il_paper_range_db": switching.ONCHIP_IL_PAPER_RANGE_DB,
-            "leak_mechanism_check": switching.leak_mechanism_check(),
+            # Modelled minus measured, positive where the model is the less lossy of the
+            # two. The nearest gap separates the two ranges; the other two compare the
+            # ends. All three are differences of the four values above.
+            "onchip_il_gap_nearest_db": float(onchip_il["min_db"] - paper_hi),
+            "onchip_il_gap_least_lossy_db": float(onchip_il["max_db"] - paper_hi),
+            "onchip_il_gap_most_lossy_db": float(onchip_il["min_db"] - paper_lo),
+            "leak_mechanism_check": dict(
+                leak_mechanism,
+                # Forcing both couplers to an exact 50:50 split, in dB.
+                cross_ideal_coupler_improvement_db=float(
+                    leak_mechanism["cross_cell_leak_db_model"]
+                    - leak_mechanism["cross_cell_leak_db_ideal_coupler"])),
             "bar_il_vs_fig4e": bar_il,
         },
         "ppuf": {"uniqueness": pp["uniqueness"], "uniformity": pp["uniformity"],
@@ -716,6 +746,9 @@ def main(quick=False):
                  "tie_tol": ppuf.TIE_TOL,
                  "measurement_noise_sigma": pp["measurement_noise_sigma"],
                  "measurement_noise_source": pp["measurement_noise_source"],
+                 # The factor by which the two metrics separate at the paper's spread.
+                 "uniqueness_over_reliability": float(
+                     pp["uniqueness"] / pp["reliability_intra_die_HD"]),
                  "sensitivity_sweep": pp["sensitivity_sweep"]},
         "ppuf_recirc": pr,
         "throughput_energy": te,
@@ -728,6 +761,11 @@ def main(quick=False):
             demo_true_slope=cp["demo_true_slope"],
             demo_fit_lam0_nm=cp["demo_fit_lam0_nm"],
             power_coupling_at_1560=float(coupler.dc_power_coupling(1560.0)),
+            # Recovered against generated, for the two demo parameters: kappa0 as a
+            # magnitude and the slope as a fraction of the generator's value.
+            demo_kappa0_abs_error=float(abs(cp["fit_kappa0"] - cp["demo_true_kappa0"])),
+            demo_slope_offset_frac=float((cp["fit_slope"] - cp["demo_true_slope"])
+                                         / cp["demo_true_slope"]),
             demo_fit_note=("recovered from the synthetic _demo_measured_dataset, "
                            "not from chip data"),
             extinction_note=("ideal null: model contains no loss or coupler imbalance, "
@@ -744,7 +782,11 @@ def main(quick=False):
         },
         "fig4d_fit": f4,
         "fig4d_mesh_fit": dict(f4_mesh,
-                               digitization_sd_db=fit_fig4.DIGITIZATION_SD_DB),
+                               digitization_sd_db=fit_fig4.DIGITIZATION_SD_DB,
+                               # Mesh minus proxy: the model-form uncertainty on the
+                               # coupler's 3-dB wavelength, from the two fits above.
+                               lambda0_minus_proxy_nm=float(f4_mesh["lambda0_nm"]
+                                                            - f4["lambda0_nm"])),
         "fig4e_fit": f4e,
         "fig4e_diagonals": f4e_diag,
         "cross_check": xc,

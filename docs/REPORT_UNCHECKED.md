@@ -107,29 +107,43 @@ where §6.3 documents them.
 
 ## 4. Arithmetic on other values
 
-Derived in the prose from numbers that are themselves checked. Annotating them would bind a
-path to a value that path does not hold.
+Derived in the prose from numbers that are themselves checked. A value that is a difference
+or a ratio of exactly two stored values is stored in its own right: `scripts/run_all.py`
+computes it from the values its block already holds, and the report annotates it like any
+other number. The second table below lists those. The first lists what carries no path,
+because it is derived from more than two stored values, from something `results.json` does
+not hold, or by a rule that is not arithmetic.
 
-| Value | Section | Derivation |
+| Value | Section | Derivation | Why it cannot carry a path |
+|---|---|---|---|
+| 5.0 nm, 1569.7 nm | §3, §6 | a 0.1 nm grid scan of the null | a scan, not arithmetic; the report states it is not a `results.json` value |
+| 2.9×, 13.7, 12.3, 7.5, 2.3 | §5, §6 | ratios and offsets of the Fig 4d bootstrap bounds; §6.1 says so explicitly | each combines four stored bounds, or a stored bound with the 1560 nm design wavelength, which is a code constant |
+| 14.7 nm | §3 | the dispersion displacement used in the ruling-out argument | the difference of two code constants, `DC_LAMBDA_3DB` and `LAMBDA0`, neither of them a model output |
+| 0.032 rad | §3 | linear interpolation between the 0.02 and 0.05 noise-sweep rows | an interpolation to a crossing, over four stored values and a threshold, not a difference of two |
+| 0.42 dB | §6 | the percentile scan's RMS column rounded to a common value | a statement about a whole column; the per-row values are annotated |
+| 0.008 | §3 | the largest of the three arm-length-sign changes | a maximum over three differences, not one of them |
+| 142/150, 71/75, 140/150, 70/75, 42/45, 28/30 | §3 | the fractions the paper's percentages equal | the paper's values, as in §1 |
+| ~1e-15 | §5 | an order-of-magnitude summary of the solver validation | a summary of two stored RMS values, written with a `~` and to no decimal place |
+
+The two-value derivations, each stored by `scripts/run_all.py` and annotated where the
+report writes it:
+
+| Value | Section | Path it now carries |
 |---|---|---|
-| 7.18 dB | §3 | −32.87 minus −25.69, the ideal-coupler improvement |
-| 0.05, 0.45, 1.19 dB | §3 | gaps between the modelled and the paper's insertion-loss ends |
-| 5.0 nm, 1569.7 nm | §3, §6 | a 0.1 nm grid scan of the null, stated in the report as not a `results.json` value |
-| 2.9×, 13.7, 12.3, 7.5, 2.3 | §5, §6 | ratios and offsets of the Fig 4d bootstrap bounds; §6.1 says so explicitly |
-| 3.7 nm | §5, §6 | the two models' λ₀ difference |
-| 14.7 nm | §3 | the dispersion displacement used in the ruling-out argument |
-| 0.4837 dB | §6 | 0.9013 minus 0.4176 |
-| 0.0104 dB | §6 | 0.8025 minus 0.7921 |
-| 67 | §3 | ratio of 0.48917 to 0.00735 |
-| 0.032 rad | §3 | linear interpolation between the 0.02 and 0.05 noise-sweep rows |
-| 0.42 dB | §6 | the percentile scan's RMS column rounded to a common value |
-| 0.008 | §3 | the largest of the three arm-length-sign changes |
-| 10 points | §3, §5 | the identity control's contribution, to the nearest point |
-| 0.04 points | §3 | the gap between the two wirings' population uniqueness means, `C4_FREE_2` minus `C4_FREE_1`; no single path holds a difference of two stored values |
-| 142/150, 71/75, 140/150, 70/75, 42/45, 28/30 | §3 | the fractions the paper's percentages equal |
-| ~1e-15 | §5 | an order-of-magnitude summary of the solver validation |
-| 4.1% | §4 | the demo slope offset |
-| 0.002 | §4 | the demo κ₀ agreement |
+| 7.18 dB | §3 | `switching.leak_mechanism_check.cross_ideal_coupler_improvement_db` |
+| 0.05, 0.45, 1.19 dB | §3 | `switching.onchip_il_gap_nearest_db`, `onchip_il_gap_least_lossy_db`, `onchip_il_gap_most_lossy_db` |
+| 3.6 nm | §5, §6 | `fig4d_mesh_fit.lambda0_minus_proxy_nm` |
+| 0.4837 dB | §6 | `cross_check.fig4e_rms_improvement_at_fitted_spread_db` |
+| 0.0104 dB | §6 | `cross_check.fig4d_rms_penalty_at_fitted_spread_db` |
+| 67 | §3 | `ppuf.uniqueness_over_reliability` |
+| 10 points | §3, §5 | `iris.unitary_minus_identity_full_acc`, with `\|pct` |
+| 0.046 points | §3 | `ppuf_recirc.wiring_uniqueness_gap`, with `\|pct` |
+| 4.1% | §4 | `coupler.demo_slope_offset_frac` |
+| 0.002 | §4 | `coupler.demo_kappa0_abs_error` |
+
+Two of them are written to a precision the prose had rounded past: the λ₀ gap is the
+difference of the two fitted wavelengths rather than of the two rounded ones the report
+displays, and the wiring gap is written rounded rather than truncated.
 
 ## 5. Values computed outside `results.json`
 
@@ -157,10 +171,11 @@ Nothing is listed here. A value the document writes on a different scale from th
 `results.json` stores it on, or whose sign the document carries in a word rather than a
 character, is annotated with a modifier after a pipe and is checked like any other number:
 
-* `|pct` multiplies the stored value by 100. It carries the paired differences the report
-  writes in percentage *points* — the Iris full-set and held-out means and standard
-  deviations, the recirculating-minus-feed-forward uniqueness difference, and the seed
-  spread it is judged against. A value that already carries a `%` sign must not also carry
+* `|pct` multiplies the stored value by 100. It carries the differences the report writes
+  in percentage *points* — the Iris full-set and held-out paired means and standard
+  deviations, what the programmable unitary adds over the identity control, the
+  recirculating-minus-feed-forward uniqueness difference, the gap between the two wirings'
+  population uniqueness means, and the seed spread those two are judged against. A value that already carries a `%` sign must not also carry
   `|pct`; the test fails if both appear, so the scale can never be applied twice.
 * `|abs` compares magnitudes. It carries the one value whose sign lives in a word: the
   0.0006 dB by which the bar model is *worse* than a constant, stored negative as
@@ -198,6 +213,6 @@ The headline table's reproduction column is annotated and checked. What is left:
 | 1560, 1549–1565, 1530–1549, 1550–1574 nm | crosstalk and loss rows | wavelength bounds of the stated comparisons |
 | 8 paths, 8 modelled paths, 4×4, 40 PUCs, 10 seeds | throughout | structure, as in §8 above |
 | 22 minutes, 50 seconds, 4 minutes | quick start | measured on this machine, not pipeline outputs |
-| 57 checks | quick start | the size of the test suite |
+| 60 checks | quick start | the size of the test suite |
 | 6.22/5.47 bit, 60 ps, 1.92 TOPS, 1.875 pJ/MAC in the module-reference table and the tier list | module reference, Scope | restatements of the paper's values, identifying what a module covers |
 | 0.0182 and the `0.0152-0.0707` range printed in the "How to run" block | how-to-run | inside a fenced code block, where an HTML comment would render as literal text |
