@@ -30,7 +30,7 @@ python -m venv .venv && source .venv/bin/activate
 # Windows: .venv\Scripts\activate
 pip install -e .                       # or: pip install -r requirements.txt
 python scripts/run_all.py              # runs everything, writes results.json + figures/
-pytest -q                              # 57 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
+pytest -q                              # 60 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
 ```
 
 On a typical laptop CPU, `scripts/run_all.py` takes about 22 minutes, most of which is
@@ -169,7 +169,8 @@ lightin-photonic-fpga-repro/
 │   └── fit_fig4e.py                  fit the bar-state spread to the digitized Fig 4e crosstalk
 ├── tests/
 │   ├── test_reproduction.py          54 checks (pytest or standalone)
-│   └── test_report_consistency.py     3 checks: the report and README against results.json
+│   ├── test_report_consistency.py     4 checks: the report and README against results.json
+│   └── test_constants_documented.py   2 checks: the §6.3 parameter table against the modules
 ├── data/
 │   ├── fig4d_T20_digitized.csv       colour-digitized cross-state crosstalk (with provenance header)
 │   ├── fig4e_bar_digitized.csv       colour-digitized bar-state crosstalk (with provenance header)
@@ -246,10 +247,14 @@ PYTHONPATH=. python tests/test_reproduction.py
 Every number in the headline table above, and in
 [`docs/REPRODUCTION_REPORT_v10.md`](docs/REPRODUCTION_REPORT_v10.md), that comes from
 `results.json` carries its path in an HTML comment that GitHub does not render, and
-`tests/test_report_consistency.py` checks all of them against the file on every run. The
-numbers left outside that check — the paper's own values, code constants, arithmetic on
-other values — are listed with their provenance in
-[`docs/REPORT_UNCHECKED.md`](docs/REPORT_UNCHECKED.md).
+`tests/test_report_consistency.py` checks all of them against the file on every run; a path
+may add `|pct` where the document writes a fraction as percentage points, or `|abs` where it
+carries a sign in words. The parameter table in the report's §6.3 is checked the same way
+against the modules rather than against `results.json`, by
+`tests/test_constants_documented.py`, since those are the constants the model was given
+rather than anything it produced. The numbers left outside both checks — the paper's own
+values, default arguments and inline literals, arithmetic on other values — are listed with
+their provenance in [`docs/REPORT_UNCHECKED.md`](docs/REPORT_UNCHECKED.md).
 
 ---
 

@@ -1031,7 +1031,7 @@ the wiring neither loses nor creates power.
 
 ---
 
-## Checking this report against `results.json`
+## Checking this report against the repository
 
 Every number in this report that comes from `results.json` is written as the value followed
 by an HTML comment naming its path, as in `1574.7<!--{fig4d_mesh_fit.lambda0_nm}--> nm`.
@@ -1044,7 +1044,26 @@ oversights: each is listed in [`docs/REPORT_UNCHECKED.md`](REPORT_UNCHECKED.md) 
 section and where it comes from, whether that is the paper, the preprint, a code constant,
 arithmetic on other values, or a quantity computed outside `results.json`.
 
-When a number here disagrees with `results.json`, the document is what changes.
+A path may carry one modifier after a pipe, which says how the written value was derived
+from the stored one. `|pct` multiplies the stored value by 100, for a quantity this report
+writes as a percentage-point difference where `results.json` stores a fraction -- the paired
+Iris and PUF differences quoted in points. `|abs` compares magnitudes, for a quantity whose
+sign this report carries in a word rather than a character, as the 0.0006 dB by which the
+bar model is *worse* than a constant. A value that already carries a `%` sign must not also
+carry `|pct`, and the test fails if both appear, so the scale is never applied twice. A
+modifier that is not one of the two fails the test by name.
+
+The parameter table in §6.3 is checked a different way, because `results.json` cannot
+police it: that file records what the model produced, not the constants the model was given.
+A row of that table whose name is a module-level constant carries a square-bracket comment
+naming the module and attribute, as in `0.02<!--[lightin.switching.SIGMA_SPLIT]-->`, and
+`tests/test_constants_documented.py` imports each one and compares it with the documented
+value. Thirteen of the thirty-two rows are checked that way. The rest document a default
+argument or an inline literal, which has no module-level name to import, and are listed in
+[`docs/REPORT_UNCHECKED.md`](REPORT_UNCHECKED.md) with the reason.
+
+When a number here disagrees with `results.json`, or with the module it documents, the
+document is what changes.
 
 ---
 
@@ -1100,7 +1119,11 @@ When a number here disagrees with `results.json`, the document is what changes.
   model is symmetric under port reversal. Modelling the non-uniform grating-to-MZI
   waveguide sections described in the preprint would test whether those sections account
   for the difference.
-* Earlier report versions are not covered by the consistency test and are kept only as history.
+* Earlier report versions are not covered by the consistency test and are kept only as
+  history.
+* Inline numeric literals that are documented in §6.3 but are not module-level constants
+  are not covered by the constants test; promoting them to named constants would close
+  that gap.
 * Twenty-three of the parameters in §6.3 have no source recorded anywhere in this
   repository: the nominal 0.5 coupler split; `n_couplers_in_path` = 4 and `n_grating` = 2 in the link
   budget; the four synthetic-demo constants `DEMO_LAMBDA0`, `DEMO_TRUE_KAPPA0`,
