@@ -126,19 +126,19 @@
   },
   "switching": {
     "cross_xtalk_center_db": [
-      -21.058179020840075,
-      -27.159661481407493
+      -21.47556232499371,
+      -27.157264764991332
     ],
     "bar_xtalk_center_db": [
-      -30.500238841570884,
-      -106.67211074284721
+      -31.159282628913452,
+      -107.79948888759537
     ],
-    "cross_worst_xtalk_cband_db": -11.797091608954688,
-    "bar_worst_xtalk_cband_db": -30.4976929835669,
+    "cross_worst_xtalk_cband_db": -11.898251371119635,
+    "bar_worst_xtalk_cband_db": -31.156431901458767,
     "cross_structural_zeros": 0,
     "bar_structural_zeros": 0,
-    "cross_worst_xtalk_fitrange_db": -16.76775295806134,
-    "cross_worst_xtalk_extrapolated_db": -11.797091608954688,
+    "cross_worst_xtalk_fitrange_db": -17.02695536833854,
+    "cross_worst_xtalk_extrapolated_db": -11.898251371119635,
     "fit_range_nm": [
       1549,
       1565
@@ -150,56 +150,56 @@
     "chip_crosstalk_floor_db": -26.2,
     "floor_note": "phenomenological floor fitted to Fig 4d; the mesh model has no floor term, so modelled crosstalk below this level is not reached on the chip",
     "fibre_to_fibre_loss_db": 11.433333333333335,
-    "onchip_il_min_db": -1.8000000000000065,
-    "onchip_il_max_db": -1.4000000000000052,
+    "onchip_il_min_db": -1.800000000000011,
+    "onchip_il_max_db": -1.400000000000007,
     "onchip_il_paths": [
       [
         "cross",
         0,
         3,
-        -1.6762026917226793
+        -1.6711023559286353
       ],
       [
         "cross",
         1,
         2,
-        -1.6838106401123853
+        -1.677958448284761
       ],
       [
         "cross",
         2,
         1,
-        -1.6838106401123853
+        -1.677958448284761
       ],
       [
         "cross",
         3,
         0,
-        -1.6762026917226793
+        -1.6711023559286353
       ],
       [
         "bar",
         0,
         0,
-        -1.4000000000000052
+        -1.400000000000007
       ],
       [
         "bar",
         1,
         1,
-        -1.8000000000000065
+        -1.800000000000011
       ],
       [
         "bar",
         2,
         2,
-        -1.8000000000000065
+        -1.800000000000011
       ],
       [
         "bar",
         3,
         3,
-        -1.4000000000000052
+        -1.400000000000007
       ]
     ],
     "onchip_il_paper_range_db": [
@@ -207,15 +207,15 @@
       -1.85
     ],
     "leak_mechanism_check": {
-      "bar_cell_leak_db_model": -29.806945985145695,
-      "bar_cell_leak_db_equal_arm_loss": -29.806945985145695,
+      "bar_cell_leak_db_model": -30.203584489750327,
+      "bar_cell_leak_db_equal_arm_loss": -30.203584489750327,
       "bar_cell_leak_db_ideal_coupler": -32.87220846548636,
-      "cross_cell_leak_db_model": -25.689436227959874,
-      "cross_cell_leak_db_equal_arm_loss": -25.689436227959874,
+      "cross_cell_leak_db_model": -25.692815285832168,
+      "cross_cell_leak_db_equal_arm_loss": -25.692815285832168,
       "cross_cell_leak_db_ideal_coupler": -32.87220846548639,
       "bar_center_db_equal_arm_loss": [
-        -30.500238841570884,
-        -106.67211074284721
+        -31.159282628913452,
+        -107.79948888759537
       ]
     }
   },
@@ -827,15 +827,15 @@
   },
   "coupler": {
     "extinction_at_3db_db": null,
-    "extinction_at_1560_db": 22.342005997481344,
-    "extinction_at_1520_db": 11.037589889855484,
+    "extinction_at_1560_db": 22.642019939010154,
+    "extinction_at_1520_db": 11.11520773605761,
     "link_budget_db": 11.433333333333335,
     "demo_fit_kappa0": 0.49803730802390517,
     "demo_fit_slope": 0.0043703889023811,
     "demo_true_kappa0": 0.5,
     "demo_true_slope": 0.0042,
     "demo_fit_lam0_nm": 1560.0,
-    "power_coupling_at_1560": 0.461817209506274,
+    "power_coupling_at_1560": 0.4631135409547755,
     "demo_fit_note": "recovered from the synthetic _demo_measured_dataset, not from chip data",
     "extinction_note": "ideal null: model contains no loss or coupler imbalance, so the extinction is unbounded"
   },
@@ -852,12 +852,12 @@
       "two_dof_universal": 0.9999999999999988
     },
     "realizable_unitary_fidelity": 1.0,
-    "coupler_ceiling_min_fidelity": 0.946937684953625,
+    "coupler_ceiling_min_fidelity": 0.9480972575197208,
     "coupler_ceiling_range_nm": [
       1530.0,
       1565.0
     ],
-    "coupler_ceiling_fidelity_at_1560": 0.9941682980404486
+    "coupler_ceiling_fidelity_at_1560": 0.9945575565564198
   },
   "fig4d_fit": {
     "lambda0_median_nm": 1571.0154701756662,
@@ -880,25 +880,112 @@
   },
   "fig4d_mesh_fit": {
     "model": "4x4 mesh T20 normalised to total output",
-    "lambda0_nm": 1574.678458181731,
-    "slope": 0.0026085639014737333,
-    "floor_db": -26.186675078409916,
-    "lambda0_se_nm": 0.6092902856976796,
-    "slope_se": 0.00011703177545442932,
-    "floor_se_db": 0.4119488374070718,
-    "rms_db": 0.7918223382854097,
+    "lambda0_nm": 1574.1673593897594,
+    "slope": 0.002637688462786212,
+    "floor_db": -26.185081923418508,
+    "lambda0_se_nm": 0.5917982632654981,
+    "slope_se": 0.00011770169831742837,
+    "floor_se_db": 0.4086105338851505,
+    "rms_db": 0.7857877783024255,
     "n_points": 25,
-    "lambda0_pairs_p05_nm": 1573.691176706262,
-    "lambda0_pairs_p95_nm": 1575.5261933572208,
-    "slope_pairs_p05": 0.002386454154653565,
-    "slope_pairs_p95": 0.0028505078490591814,
-    "lambda0_param_p05_nm": 1572.3387010443544,
-    "lambda0_param_p95_nm": 1577.67367858362,
-    "slope_param_p05": 0.0021854736664645713,
-    "slope_param_p95": 0.003063092658789635,
+    "lambda0_pairs_p05_nm": 1573.222818727242,
+    "lambda0_pairs_p95_nm": 1574.9903250743866,
+    "slope_pairs_p05": 0.002413057500663773,
+    "slope_pairs_p95": 0.0028811285013213674,
+    "lambda0_param_p05_nm": 1571.8530744758475,
+    "lambda0_param_p95_nm": 1577.0930562528852,
+    "slope_param_p05": 0.0022077508633712105,
+    "slope_param_p95": 0.0031003741049422436,
     "n_pairs_failed": 0,
     "n_param_failed": 0,
     "digitization_sd_db": 2.0
+  },
+  "fig4e_fit": {
+    "n_points": 27,
+    "fit_range_nm": [
+      1550,
+      1589
+    ],
+    "n_real": 3200,
+    "floor_db": -60.0,
+    "digitization_sd_db": 0.3,
+    "pct": 99.0,
+    "data_is_upper_envelope": true,
+    "model": "4x4 mesh all-bar T32, 99th percentile of the fabrication ensemble, normalised to total output",
+    "statistic_note": "the digitized points are a peak-hold over the fast wavelength ripple, so the model reports a high quantile of the fabrication ensemble; fitting its mean instead absorbs the quantile-to-mean offset into the fitted spread",
+    "joint_fit_not_adopted": {
+      "sigma_split": 0.018513150176815478,
+      "sigma_phase": 1.6989801946707198e-06,
+      "sigma_split_se": 0.030510636850975454,
+      "sigma_phase_se": 12854.495010284656,
+      "correlation": [
+        [
+          1.0,
+          0.9999829059231513
+        ],
+        [
+          0.9999829059231513,
+          0.9999999999999998
+        ]
+      ],
+      "rms_db": 0.4170001957282483
+    },
+    "sigma_split_fit": {
+      "fitted": "split",
+      "value": 0.018191583898139876,
+      "se": 0.00018083607122602936,
+      "at_bound": false,
+      "held": "phase",
+      "held_value": 0.02,
+      "rms_db": 0.4176175250816665,
+      "n_points": 27,
+      "floor_db": -60.0,
+      "n_real": 3200,
+      "pct": 99.0,
+      "fit_range_nm": [
+        1550,
+        1589
+      ],
+      "boot_pairs_p05": 0.017912376283720093,
+      "boot_pairs_p95": 0.01848264872088056,
+      "boot_pairs_median": 0.01819402719137088,
+      "boot_param_p05": 0.01799434712104689,
+      "boot_param_p95": 0.018390507986442296,
+      "boot_param_median": 0.01816670074926835,
+      "boot_n_boot": 500,
+      "boot_n_pairs_failed": 0,
+      "boot_n_param_failed": 0,
+      "boot_noise_sd_db": 0.3
+    },
+    "sigma_phase_fit": {
+      "fitted": "phase",
+      "value": 1.1481654167179445e-07,
+      "se": null,
+      "at_bound": true,
+      "held": "split",
+      "held_value": 0.02,
+      "rms_db": 0.7881300921036075,
+      "n_points": 27,
+      "floor_db": -60.0,
+      "n_real": 3200,
+      "pct": 99.0,
+      "fit_range_nm": [
+        1550,
+        1589
+      ],
+      "bootstrap": null,
+      "bootstrap_note": "not run: the fit has no interior optimum, so there is nothing to resample around"
+    }
+  },
+  "cross_check": {
+    "fig4d_rms_after_fig4e_fit_db": 0.789947005438906,
+    "fig4d_rms_at_fit_db": 0.7857877783024255,
+    "fig4d_rms_at_assumed_spreads_db": 0.8171679732019936,
+    "fig4e_rms_db": 0.41763492902308846,
+    "fig4e_rms_at_assumed_spreads_db": 0.9012807375561803,
+    "sigma_split": 0.0182,
+    "sigma_phase": 0.02,
+    "note": "no parameter is refitted here; the Fig 4d numbers are the same model on the same 25 points, evaluated at the two spreads"
   },
   "recirculating": {
     "ring_rms": 2.8792312954364084e-16,

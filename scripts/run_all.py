@@ -72,6 +72,60 @@ def figpath(name):
     return os.path.join(_figdir, name)
 
 
+def cross_check(f4_mesh, f4e):
+    """Each fitted model measured against the panel it was not fitted to.
+
+    The cross state was fitted from Fig 4d and the bar state from Fig 4e, with the coupler
+    constants DC_LAMBDA_3DB and DC_SLOPE held at their Fig 4d values throughout, so the
+    two fits are independent and each can now be tested against the other's data. Nothing
+    is refitted here.
+
+    The Fig 4d model runs through switching.power_spectra, so it carries SIGMA_SPLIT and
+    SIGMA_PHASE: adopting a Fig 4e spread moves the Fig 4d prediction whether or not
+    anything else changes. That is the cost this block measures, by evaluating the same
+    model on the same 25 points at the shipped spreads and again at the 0.02 both spreads
+    carried before the Fig 4e fit.
+    """
+    lam, db = fit_fig4.load_points()
+    shipped = (coupler.DC_LAMBDA_3DB, coupler.DC_SLOPE, switching.FIG4D_FLOOR_DB)
+    after = fit_fig4.rms_db(fit_fig4.mesh_t20_model, lam, db, *shipped)
+    before = _fig4d_rms_at_spreads(lam, db, shipped, fit_fig4e.SIGMA_ASSUMED,
+                                   fit_fig4e.SIGMA_ASSUMED)
+    lam_e, db_e = fit_fig4e.load_points()
+    rms_e = fit_fig4e.rms_db(lam_e, db_e, switching.SIGMA_SPLIT, switching.SIGMA_PHASE)
+    rms_e_before = fit_fig4e.rms_db(lam_e, db_e, fit_fig4e.SIGMA_ASSUMED,
+                                    fit_fig4e.SIGMA_ASSUMED)
+    print(f"[cross-check] Fig 4d mesh model on its own 25 points, no refit: "
+          f"{after:.2f} dB at the shipped spreads "
+          f"(sigma_split={switching.SIGMA_SPLIT:.4f}, "
+          f"sigma_phase={switching.SIGMA_PHASE:.4f}); "
+          f"{before:.2f} dB at the 0.02 both spreads carried before the Fig 4e fit; "
+          f"{f4_mesh['rms_db']:.2f} dB recorded in fig4d_mesh_fit, which refits "
+          f"lambda0, slope and floor")
+    print(f"[cross-check] Fig 4e bar model on its own {lam_e.size} points: "
+          f"{rms_e:.2f} dB at the shipped spreads, {rms_e_before:.2f} dB at the 0.02 both "
+          f"carried before the fit")
+    return {"fig4d_rms_after_fig4e_fit_db": float(after),
+            "fig4d_rms_at_fit_db": float(f4_mesh["rms_db"]),
+            "fig4d_rms_at_assumed_spreads_db": float(before),
+            "fig4e_rms_db": float(rms_e),
+            "fig4e_rms_at_assumed_spreads_db": float(rms_e_before),
+            "sigma_split": float(switching.SIGMA_SPLIT),
+            "sigma_phase": float(switching.SIGMA_PHASE),
+            "note": ("no parameter is refitted here; the Fig 4d numbers are the same "
+                     "model on the same 25 points, evaluated at the two spreads")}
+
+
+def _fig4d_rms_at_spreads(lam, db, coupler_params, sigma_split, sigma_phase):
+    """Fig 4d mesh RMS with the module's fabrication spreads temporarily overridden."""
+    keep = (switching.SIGMA_SPLIT, switching.SIGMA_PHASE)
+    switching.SIGMA_SPLIT, switching.SIGMA_PHASE = sigma_split, sigma_phase
+    try:
+        return fit_fig4.rms_db(fit_fig4.mesh_t20_model, lam, db, *coupler_params)
+    finally:
+        switching.SIGMA_SPLIT, switching.SIGMA_PHASE = keep
+
+
 FIG4D_KEYS = ("model", "lambda0_nm", "slope_rad_nm", "floor_db",
               "lambda0_median_nm", "lambda0_p05_nm", "lambda0_p95_nm",
               "slope_median", "slope_p05", "slope_p95",
@@ -548,6 +602,7 @@ def main(quick=False):
     print("\n--- 12. Fig 4e bar-state fabrication-spread fit (bootstrapped) ---")
     f4e = fit_fig4e.main(n_boot=n_boot,
                          fig_path=figpath("fig4e_digitized.png"))
+    xc = cross_check(f4_mesh, f4e)
 
     paired = paired_logistic_minus_photonic(ir["seed_sweep"], ir["logistic_baseline"])
     print("\n--- Paired Iris comparison (logistic - photonic, same seeds) ---")
@@ -643,6 +698,7 @@ def main(quick=False):
         "fig4d_mesh_fit": dict(f4_mesh,
                                digitization_sd_db=fit_fig4.DIGITIZATION_SD_DB),
         "fig4e_fit": f4e,
+        "cross_check": xc,
         "recirculating": rc,
         "latency_on_chip_ps": propagation_latency(4.5e-3) * 1e12,
         "environment": environment(),
