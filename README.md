@@ -30,16 +30,16 @@ python -m venv .venv && source .venv/bin/activate
 # Windows: .venv\Scripts\activate
 pip install -e .                       # or: pip install -r requirements.txt
 python scripts/run_all.py              # runs everything, writes results.json + figures/
-pytest -q                              # 44 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
+pytest -q                              # 47 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
 ```
 
-On a typical laptop CPU, `scripts/run_all.py` takes about 10 minutes, most of which is
-the ten-seed Iris sweep, the Fig 4d bootstraps and the recirculating PUF, and the test
-suite takes about 46 seconds. `python scripts/run_all.py --quick` runs a reduced version in about
-5 minutes — the Iris sweep drops to two seeds and both Fig 4d bootstraps to 50 resamples,
-and the outputs go to `results_quick.json` and `figures_quick/` so a quick run never
-overwrites the reported ones. No datasets to
-download (Iris ships with scikit-learn; the one digitized curve is in `data/`).
+On a typical laptop CPU, `scripts/run_all.py` takes about 25 minutes, most of which is
+the ten-seed Iris sweep, the Fig 4d and Fig 4e bootstraps and the recirculating PUF, and
+the test suite takes about 50 seconds. `python scripts/run_all.py --quick` runs a reduced
+version in about 6 minutes — the Iris sweep drops to two seeds and every bootstrap to 50
+resamples, and the outputs go to `results_quick.json` and `figures_quick/` so a quick run
+never overwrites the reported ones. No datasets to
+download (Iris ships with scikit-learn; the two digitized curves are in `data/`).
 results.json was generated with the package versions in requirements-lock.txt; the Iris
 accuracies can differ slightly with other versions of scipy and scikit-learn.
 
@@ -64,8 +64,8 @@ All "reproduction" values below come from `scripts/run_all.py`.
 | On-chip latency | ~60 ps | n_g·L/c = **60.0 ps** | exact |
 | Energy | **1.875 pJ/MAC** | 1.8 W / 0.96 TMAC·s⁻¹ = **1.875**. 3 V, 100 Ω, 90 mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
 | Throughput | **1.92 TOPS** | 96 ops × 2 dir × 10 GBaud = **1.92**. 3 V, 100 Ω, 90 mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
-| Switch crosstalk (Fig 4d,e) | −45 to <−20 dB | mesh model fitted to Fig 4d: −27.2 to −21.1 dB at 1560 nm; worst −16.8 dB over the fitted 1549–1565 nm, −11.8 dB extrapolated over 1530–1549 nm; bar-state values rest on assumed fabrication spreads (report §6.3) | model vs measurement |
-| On-chip insertion loss | −1.85 to −2.99 dB (8 paths) | **−1.40 to −1.80 dB** (8 modelled paths) | model vs measurement |
+| Switch crosstalk (Fig 4d,e) | −45 to <−20 dB | cross state, mesh model fitted to Fig 4d: -27.2 to -21.5 dB at 1560 nm; worst -17.0 dB over the fitted 1549–1565 nm, -11.9 dB extrapolated over 1530–1549 nm. Bar state, coupler-split spread fitted to Fig 4e: -107.8 to -31.2 dB at 1560 nm, RMS 0.42 dB over 27 digitized points; the arm-phase spread is still assumed (report §6.1) | fit to measurement |
+| On-chip insertion loss | −1.85 to −2.99 dB (8 paths) | **-1.40 to -1.80 dB** (8 modelled paths) | model vs measurement |
 | PUF uniqueness, feed-forward mesh (Fig 5) | **49.97%** | **49.00% ± 0.34%** over 10 population seeds | sim |
 | PUF uniformity, feed-forward mesh (Fig 5) | **50.15%** | **50.32% ± 0.51%** over 10 seeds | sim |
 | PUF uniqueness, recirculating mesh | **49.97%** | **49.89% ± 0.25%** / **49.93% ± 0.28%** (two stated wirings, 10 seeds) | sim |
@@ -73,7 +73,7 @@ All "reproduction" values below come from `scripts/run_all.py`.
 | Recirculating-mesh solver | — | ring/add-drop match analytic to **1e-15** | sim |
 
 The energy and throughput rows use the paper's **own derivation** (Supplementary Note 3),
-not a guessed op-count — see [`docs/REPRODUCTION_REPORT_v7.md`](docs/REPRODUCTION_REPORT_v7.md) §6.
+not a guessed op-count — see [`docs/REPRODUCTION_REPORT_v8.md`](docs/REPRODUCTION_REPORT_v8.md) §6.
 
 **Not reproduced — hardware-only, left blank rather than faked:** measured eye-diagram SNR
 (17.10 / 17.83 dB) and Q factors (7.17–8.08), the raw measured crosstalk spectra, the
@@ -164,24 +164,27 @@ lightin-photonic-fpga-repro/
 ├── lightin/                          the package (12 modules)
 ├── scripts/
 │   ├── run_all.py                    run every module, write results.json + figures/
-│   └── fit_fig4.py                   fit the coupler to the digitized Fig 4d crosstalk
+│   ├── fit_fig4.py                   fit the coupler to the digitized Fig 4d crosstalk
+│   └── fit_fig4e.py                  fit the bar-state spread to the digitized Fig 4e crosstalk
 ├── tests/
-│   └── test_reproduction.py          44 checks (pytest or standalone)
+│   └── test_reproduction.py          47 checks (pytest or standalone)
 ├── data/
-│   └── fig4d_T20_digitized.csv       colour-digitized chip crosstalk (with provenance header)
+│   ├── fig4d_T20_digitized.csv       colour-digitized cross-state crosstalk (with provenance header)
+│   └── fig4e_bar_digitized.csv       colour-digitized bar-state crosstalk (with provenance header)
 ├── .github/
 │   └── workflows/tests.yml           CI: the test suite on Python 3.11, 3.12 and 3.13
-├── figures/                          10 generated figures (regenerated by run_all.py)
+├── figures/                          11 generated figures (regenerated by run_all.py)
 └── docs/
-    ├── REPRODUCTION_REPORT_v7.md     full scope map, per-result table, parameter provenance
-    ├── REPRODUCTION_REPORT_v6.md     the previous report
-    ├── REPRODUCTION_REPORT_v5.md     the report before that
-    ├── REPRODUCTION_REPORT_v4.md     earlier reports, kept for history
+    ├── REPRODUCTION_REPORT_v8.md     full scope map, per-result table, parameter provenance
+    ├── REPRODUCTION_REPORT_v7.md     the previous report
+    ├── REPRODUCTION_REPORT_v6.md     the report before that
+    ├── REPRODUCTION_REPORT_v5.md     earlier reports, kept for history
+    ├── REPRODUCTION_REPORT_v4.md
     ├── REPRODUCTION_REPORT_v3.md
     ├── REPRODUCTION_REPORT_v2.md
     ├── REPRODUCTION_REPORT.md        the first-pass report
     ├── PREPRINT_NOTES.md             details taken from the arXiv preprint, and where it differs
-    ├── FIG4E_SCOPE.md                plan for digitizing the bar-state spectra (not yet done)
+    ├── FIG4E_SCOPE.md                the plan that the Fig 4e digitization followed
     └── DOCUMENT_SEARCH_LIST_superseded.md   superseded; kept for history
 ```
 
@@ -219,10 +222,11 @@ python -m lightin.throughput     # exact energy + TOPS derivation
 python -m lightin.mrm            # MRM differentiator monitoring / locking
 ```
 
-**Fit the coupler to the chip's measured crosstalk** (digitized Fig 4d):
+**Fit the coupler to the chip's measured crosstalk** (digitized Fig 4d and Fig 4e):
 
 ```bash
-python scripts/fit_fig4.py       # → mesh fit λ₀=1574.7 nm, slope=0.00261 rad/nm, floor −26.2 dB, RMS 0.79 dB; writes figures/fig4_digitized.png
+python scripts/fit_fig4.py       # → mesh fit λ₀=1574.2 nm, slope=0.00264 rad/nm, floor -26.2 dB, RMS 0.79 dB; writes figures/fig4_digitized.png
+python scripts/fit_fig4e.py      # → bar-state coupler-split spread 0.0182, RMS 0.42 dB over 27 points; writes figures/fig4e_digitized.png
 ```
 
 **Tests:**
@@ -238,9 +242,9 @@ PYTHONPATH=. python tests/test_reproduction.py
 ## Parameter provenance (chip-grounded)
 
 The chip parameters below were taken from the paper's Methods and Supplementary
-(details in [`docs/REPRODUCTION_REPORT_v7.md`](docs/REPRODUCTION_REPORT_v7.md) §6). The
+(details in [`docs/REPRODUCTION_REPORT_v8.md`](docs/REPRODUCTION_REPORT_v8.md) §6). The
 parameters that are not from the paper, with their sources where recorded, are listed in
-docs/REPRODUCTION_REPORT_v7.md §6.3:
+docs/REPRODUCTION_REPORT_v8.md §6.3:
 
 - group index **n_g = 4.0** (stated); phase index **n_eff ≈ 2.36** (450×220 nm SOI TE)
 - directional coupler **11.5 µm long, 200 nm gap**; square-mesh unit **500 µm**; arm **208 µm**
@@ -248,9 +252,12 @@ docs/REPRODUCTION_REPORT_v7.md §6.3:
 - PUF arm-length spread **N(−0.08 µm, 0.11 µm)** → phase N(−0.76, 1.05) rad via n_eff
   (the sign is the preprint's; see docs/PREPRINT_NOTES.md)
 - coupler dispersion **fitted to the digitized Fig 4d crosstalk** (`scripts/fit_fig4.py`)
+- bar-state coupler-split spread **fitted to the digitized Fig 4e crosstalk**
+  (`scripts/fit_fig4e.py`); the arm-phase spread is still assumed, because one curve
+  constrains only the combination of the two
 
 The superseded document search list is kept for history only; current parameter
-provenance is in docs/REPRODUCTION_REPORT_v7.md §6.
+provenance is in docs/REPRODUCTION_REPORT_v8.md §6.
 
 ---
 
@@ -282,9 +289,9 @@ unitary expressivity, as the paper's Discussion concedes and `expressivity.py` q
 - Zhu *et al.*, *Light: Sci. Appl.* **15**, 165 (2026) — the reproduced paper.
 - Directional-coupler dispersion, propagation loss, grating-coupler references and the
   provenance of each borrowed parameter are listed in
-  [`docs/REPRODUCTION_REPORT_v7.md`](docs/REPRODUCTION_REPORT_v7.md) §6.3. The superseded
+  [`docs/REPRODUCTION_REPORT_v8.md`](docs/REPRODUCTION_REPORT_v8.md) §6.3. The superseded
   document search list is kept for history only; current parameter provenance is in
-  docs/REPRODUCTION_REPORT_v7.md §6.
+  docs/REPRODUCTION_REPORT_v8.md §6.
 
 ## License
 

@@ -1,8 +1,10 @@
 # Scope note: digitizing Fig. 4e to constrain the bar state
 
-This is a plan for work that has not been done. Nothing in Fig. 4e has been digitized, and
-no number in this repository comes from it. The purpose is to record what the work would
-involve and what it would buy, so the decision to do it or not is an informed one.
+This was the plan for the work, written before any of it was done. The work has since been
+carried out: `data/fig4e_bar_digitized.csv` holds the digitized curve and `SIGMA_SPLIT` in
+`lightin/switching.py` is fitted to it. What was actually found, including the two places
+this plan guessed wrong, is in `docs/REPRODUCTION_REPORT_v8.md` §6.1. The plan is kept as
+written, because its check 3 is the pre-registered criterion that rejected the first fit.
 
 ## Which panel carries the bar-state spectra
 
