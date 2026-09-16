@@ -16,13 +16,13 @@ import numpy as np
 from .coupler import (mzi_single_theta, link_budget_db, LAMBDA0,
                       DC_LAMBDA_3DB, DC_SLOPE)
 
-SIGMA_SPLIT = 0.0182   # coupler-to-coupler power-split spread, fitted to the digitized
-# Fig 4e all-bar T32 curve (scripts/fit_fig4e.py, 27 points over 1550-1589 nm), with
-# SIGMA_PHASE held at 0.02. The digitized points are the band's upper envelope, so the
-# model is compared at the matching statistic -- the 99th percentile of a 3200-realisation
-# fabrication ensemble, not its mean. Fitting the mean instead returns 0.0479, which is the
-# 7.4 dB quantile-to-mean offset absorbed into the spread; that value fails the Fig 4d
-# cross-check of docs/FIG4E_SCOPE.md and is not what ships.
+SIGMA_SPLIT = 0.02     # assumed; consistent with the Fig 4e range 0.0152-0.0707
+# (report §6, fig4e_fit.sensitivity), which does not determine it. The digitized Fig 4e
+# T32 curve was fitted (scripts/fit_fig4e.py, 27 points over 1550-1589 nm) and the fitted
+# value was not adopted: on those points the model scores 0.4176 dB RMS against 0.4170 dB
+# for a best-fit constant, and the spread it returns depends on which quantile of the
+# fabrication ensemble the upper-envelope data is compared against, which the figure does
+# not show. That panel is a consistency check on this value, not a measurement of it.
 SIGMA_PHASE = 0.02     # rad, arm phase imbalance. Still assumed, no source: one curve
 # constrains only the combination of the two spreads (fit_fig4e.identifiability), so one
 # has to be held. Fitting this one instead, with SIGMA_SPLIT held at 0.02, has no interior

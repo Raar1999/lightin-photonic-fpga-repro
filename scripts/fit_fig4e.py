@@ -12,9 +12,17 @@ the two, which is what quantile_sensitivity() measures.
 
 The bar state nulls exactly when the couplers split 50:50 and the arms are balanced, so
 its leakage is set jointly by the coupler-split spread sigma_split and the arm-phase
-spread sigma_phase. Both were assumed to be 0.02 before this fit. Whether one curve can
-separate them is the question identifiability() answers; it cannot, so fit_one() fits one
-at a time with the other held.
+spread sigma_phase. Both are assumed to be 0.02. Whether one curve can separate them is
+the question identifiability() answers; it cannot, so fit_one() fits one at a time with
+the other held.
+
+The fitted value is NOT adopted, and switching.SIGMA_SPLIT keeps its assumed 0.02. What
+this module produces is a consistency check on that assumption rather than a measurement
+replacing it, for two reasons it reports itself: shape_check() finds the model no better
+on these 27 points than a best-fit constant, and sensitivity() finds the fitted spread
+running from 0.0152 to 0.0707 with the choice of ensemble percentile, at an RMS that does
+not move. 0.02 lies inside that range. Every fit below is still run and still recorded,
+because what the panel rules out is worth having; nothing downstream reads its value.
 """
 import os
 import warnings
@@ -744,6 +752,10 @@ def main(verbose=True, n_boot=500, seed=0, fig_path=FIG, n_real=N_REAL):
            "n_real": int(n_real), "floor_db": float(FLOOR_DB),
            "digitization_sd_db": DIGITIZATION_SD_DB,
            "pct": float(PCT),
+           "adopted": False,
+           "adopted_note": ("the fitted value was not adopted: the model fits these "
+                            "points no better than a constant and the percentile choice "
+                            "moves the result by a factor of 4.6"),
            "data_is_upper_envelope": True,
            "model": f"4x4 mesh all-bar T32, {PCT:g}th percentile of the fabrication "
                     f"ensemble, normalised to total output",

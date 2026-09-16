@@ -81,20 +81,26 @@ def cross_check(f4_mesh, f4e):
     is refitted here.
 
     The Fig 4d model runs through switching.power_spectra, so it carries SIGMA_SPLIT and
-    SIGMA_PHASE: adopting a Fig 4e spread moves the Fig 4d prediction whether or not
-    anything else changes. That is the cost this block measures, by evaluating the same
-    model on the same 25 points at the shipped spreads and again at the 0.02 both spreads
-    carried before the Fig 4e fit.
+    SIGMA_PHASE: adopting a Fig 4e spread would move the Fig 4d prediction whether or not
+    anything else changed. The shipped spread is the assumed 0.02, so the "shipped" and
+    "assumed" legs below are the same evaluation and agree by construction. What makes the
+    block discriminate is the third leg: the same model at the Fig 4e fitted spread, which
+    was not adopted. The difference between that and the shipped value is what adopting
+    the fit would have cost, and it is the number behind calling the panel a consistency
+    check rather than a fit.
     """
     lam, db = fit_fig4.load_points()
     shipped = (coupler.DC_LAMBDA_3DB, coupler.DC_SLOPE, switching.FIG4D_FLOOR_DB)
+    fitted = f4e["sigma_split_fit"]["value"]
     after = fit_fig4.rms_db(fit_fig4.mesh_t20_model, lam, db, *shipped)
     before = _fig4d_rms_at_spreads(lam, db, shipped, fit_fig4e.SIGMA_ASSUMED,
                                    fit_fig4e.SIGMA_ASSUMED)
+    at_fitted = _fig4d_rms_at_spreads(lam, db, shipped, fitted, switching.SIGMA_PHASE)
     lam_e, db_e = fit_fig4e.load_points()
     rms_e = fit_fig4e.rms_db(lam_e, db_e, switching.SIGMA_SPLIT, switching.SIGMA_PHASE)
     rms_e_before = fit_fig4e.rms_db(lam_e, db_e, fit_fig4e.SIGMA_ASSUMED,
                                     fit_fig4e.SIGMA_ASSUMED)
+    rms_e_fitted = fit_fig4e.rms_db(lam_e, db_e, fitted, switching.SIGMA_PHASE)
     print(f"[cross-check] Fig 4d mesh model on its own 25 points, no refit: "
           f"{after:.2f} dB at the shipped spreads "
           f"(sigma_split={switching.SIGMA_SPLIT:.4f}, "
@@ -105,15 +111,23 @@ def cross_check(f4_mesh, f4e):
     print(f"[cross-check] Fig 4e bar model on its own {lam_e.size} points: "
           f"{rms_e:.2f} dB at the shipped spreads, {rms_e_before:.2f} dB at the 0.02 both "
           f"carried before the fit")
+    print(f"[cross-check] at the Fig 4e fitted spread of {fitted:.4f}, which was NOT "
+          f"adopted: Fig 4d {at_fitted:.2f} dB (shipped {after:.2f} dB), "
+          f"Fig 4e {rms_e_fitted:.2f} dB (shipped {rms_e:.2f} dB)")
     return {"fig4d_rms_after_fig4e_fit_db": float(after),
             "fig4d_rms_at_fit_db": float(f4_mesh["rms_db"]),
             "fig4d_rms_at_assumed_spreads_db": float(before),
             "fig4e_rms_db": float(rms_e),
             "fig4e_rms_at_assumed_spreads_db": float(rms_e_before),
+            "fig4d_rms_at_fitted_spread_db": float(at_fitted),
+            "fig4e_rms_at_fitted_spread_db": float(rms_e_fitted),
+            "fitted_spread_not_adopted": float(fitted),
             "sigma_split": float(switching.SIGMA_SPLIT),
             "sigma_phase": float(switching.SIGMA_PHASE),
             "note": ("no parameter is refitted here; the Fig 4d numbers are the same "
-                     "model on the same 25 points, evaluated at the two spreads")}
+                     "model on the same 25 points, evaluated at the shipped spreads, at "
+                     "the 0.02 they also carry, and at the Fig 4e fitted spread that was "
+                     "not adopted")}
 
 
 def _fig4d_rms_at_spreads(lam, db, coupler_params, sigma_split, sigma_phase):
