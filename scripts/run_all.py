@@ -640,7 +640,10 @@ def main(quick=False):
     f4_mesh = f4_all["mesh"]
 
     section("12. Fig 4e bar-state fabrication-spread fit (bootstrapped)")
-    f4e = fit_fig4e.main(n_boot=n_boot,
+    # Fig 4e sets its own resample count rather than sharing the Fig 4d one: its bootstrap
+    # costs a fit per resample where Fig 4d's costs milliseconds, and the interval is
+    # quoted only to be shown far narrower than the percentile dependence beside it.
+    f4e = fit_fig4e.main(n_boot=n_boot if quick else fit_fig4e.ADOPTED_BOOT_N,
                          fig_path=figpath("fig4e_digitized.png"))
     xc = cross_check(f4_mesh, f4e)
 

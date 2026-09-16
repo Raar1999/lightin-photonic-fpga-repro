@@ -489,36 +489,42 @@ def _fit_samples(which, samples, held=SIGMA_ASSUMED, floor_db=FLOOR_DB, n_real=N
     return np.array(vals), n_failed
 
 
-def bootstrap_one(which, lam, db, n_boot=500, seed=0, param_seed=1,
+ADOPTED_BOOT_N = 250       # resamples for the one bootstrap this module still runs. Each
+# resample is a fresh fit costing about a second, so this is the whole cost of the Fig 4e
+# block; 250 places the 5th and 95th percentiles to about a part in a thousand of sigma,
+# which is three orders of magnitude finer than the percentile dependence the interval is
+# quoted against, and nothing downstream reads it more precisely than that.
+
+BOOTSTRAP_NOTE = ("the interval is reported only to show that it is far narrower than the "
+                  "percentile dependence; the fit itself was not adopted")
+
+
+def bootstrap_one(which, lam, db, n_boot=ADOPTED_BOOT_N, param_seed=1,
                   noise_sd_db=DIGITIZATION_SD_DB, held=SIGMA_ASSUMED,
                   floor_db=FLOOR_DB, n_real=N_REAL, p0=0.02, pct=PCT):
-    """Pairs and parametric bootstrap of one single-parameter fit.
+    """Parametric bootstrap of one single-parameter fit.
 
-    The pairs bootstrap resamples the (lambda, dB) points with replacement, so its
-    interval reflects only the scatter of the digitized points about the model. The
-    parametric bootstrap keeps all wavelengths and perturbs each dB value by
-    N(0, noise_sd_db), so its interval also carries the digitization uncertainty the CSV
-    header states. The second is the wider and the more honest of the two.
+    All wavelengths are kept and each dB value is perturbed by N(0, noise_sd_db), so the
+    interval carries the digitization uncertainty the CSV header states as well as the
+    scatter of the points about the model.
+
+    A pairs bootstrap, resampling the (lambda, dB) points with replacement, used to be run
+    alongside this one and is not any more. It answered a narrower question -- scatter
+    about the model, without the reading error -- and returned a narrower interval, and
+    since the fitted value is not adopted, nothing rests on either. Running both doubled
+    the cost of the whole script for a second version of a number quoted once.
     """
     n = lam.size
-    rng_pairs = np.random.default_rng(seed)
-    pairs = [(lambda i: (lam[i], db[i]))(rng_pairs.integers(0, n, size=n))
-             for _ in range(n_boot)]
-    v_pairs, f_pairs = _fit_samples(which, pairs, held, floor_db, n_real, p0, pct)
-
     rng_param = np.random.default_rng(param_seed)
     param = [(lam, db + rng_param.normal(0.0, noise_sd_db, size=n))
              for _ in range(n_boot)]
     v_param, f_param = _fit_samples(which, param, held, floor_db, n_real, p0, pct)
 
     return {
-        "pairs_p05": float(np.percentile(v_pairs, 5)),
-        "pairs_p95": float(np.percentile(v_pairs, 95)),
-        "pairs_median": float(np.median(v_pairs)),
         "param_p05": float(np.percentile(v_param, 5)),
         "param_p95": float(np.percentile(v_param, 95)),
         "param_median": float(np.median(v_param)),
-        "n_boot": int(n_boot), "n_pairs_failed": int(f_pairs),
+        "n_boot": int(n_boot),
         "n_param_failed": int(f_param),
         "noise_sd_db": float(noise_sd_db),
     }
@@ -804,14 +810,14 @@ def shape_check(lam=None, db=None, sigma_split=None, sigma_phase=SIGMA_ASSUMED,
     return out
 
 
-def main(verbose=True, n_boot=500, seed=0, fig_path=FIG, n_real=N_REAL):
+def main(verbose=True, n_boot=ADOPTED_BOOT_N, param_seed=1, fig_path=FIG, n_real=N_REAL):
     lam, db = load_points()
     fits = {w: fit_one(w, lam, db, n_real=n_real) for w in ("split", "phase")}
     joint = fit_joint(lam, db, n_real=n_real)
     # A fit that sits at sigma = 0 has no interior optimum, so there is nothing for a
     # bootstrap to resample around; it is reported as a boundary result instead.
-    boots = {w: (bootstrap_one(w, lam, db, n_boot=n_boot, seed=seed, n_real=n_real,
-                               p0=fits[w]["value"])
+    boots = {w: (bootstrap_one(w, lam, db, n_boot=n_boot, param_seed=param_seed,
+                               n_real=n_real, p0=fits[w]["value"])
                  if not fits[w]["at_bound"] else None)
              for w in ("split", "phase")}
 
@@ -838,11 +844,10 @@ def main(verbose=True, n_boot=500, seed=0, fig_path=FIG, n_real=N_REAL):
             print(f"  {name} = {f['value']:.4f} +/- {f['se']:.4f}  "
                   f"(sigma_{f['held']} held at {f['held_value']:.2f})")
             print(f"    fit RMS = {f['rms_db']:.2f} dB")
-            print(f"    pairs bootstrap ({b['n_pairs_failed']} failed): "
-                  f"[{b['pairs_p05']:.4f}, {b['pairs_p95']:.4f}]")
-            print(f"    parametric bootstrap, +/-{DIGITIZATION_SD_DB} dB "
-                  f"({b['n_param_failed']} failed): "
+            print(f"    parametric bootstrap, +/-{DIGITIZATION_SD_DB} dB, "
+                  f"{b['n_boot']} resamples ({b['n_param_failed']} failed): "
                   f"[{b['param_p05']:.4f}, {b['param_p95']:.4f}]")
+            print(f"    {BOOTSTRAP_NOTE}")
         c = joint["correlation"]
         print(f"  joint two-parameter fit, NOT adopted, run only for its correlation "
               f"matrix:")
@@ -895,7 +900,10 @@ def main(verbose=True, n_boot=500, seed=0, fig_path=FIG, n_real=N_REAL):
             block["bootstrap_note"] = ("not run: the fit has no interior optimum, so "
                                        "there is nothing to resample around")
         else:
-            block.update({f"boot_{k}": v for k, v in boots[w].items()})
+            b = dict(boots[w])
+            block["n_boot"] = b.pop("n_boot")
+            block.update({f"boot_{k}": v for k, v in b.items()})
+            block["bootstrap_note"] = BOOTSTRAP_NOTE
         out[f"sigma_{w}_fit"] = block
     return out
 
