@@ -261,6 +261,53 @@ def test_fig4e_digitized_csv_is_readable_and_on_scale():
     assert np.all(db <= 0.0) and np.all(db >= -25.0)
 
 
+def test_fig4e_cells_match_the_shipped_mzi():
+    """fit_fig4e._cell is mzi_single_theta over a whole ensemble; check it cell by cell.
+
+    The bootstrap calls the bar model tens of thousands of times, so the per-cell Python
+    loop was replaced by one broadcast expression. That rewrite is only safe if it is the
+    same arithmetic, which nothing downstream would reveal: a wrong cell would still give
+    a smooth, plausible, fittable curve.
+    """
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    import fit_fig4e
+    from lightin.coupler import mzi_single_theta, DC_LAMBDA_3DB, DC_SLOPE
+    rng = np.random.default_rng(3)
+    ka = np.clip(rng.normal(0.5, 0.05, size=(2, 6)), 0.3, 0.7)
+    kb = np.clip(rng.normal(0.5, 0.05, size=(2, 6)), 0.3, 0.7)
+    ph = rng.normal(0.0, 0.05, size=(2, 6))
+    lam = np.array([1550.0, 1565.0, 1589.0])
+    dl = DC_SLOPE * (lam - DC_LAMBDA_3DB)
+    for m in range(6):
+        got = fit_fig4e._cell(ka[:, m], kb[:, m], ph[:, m], dl)
+        for r in range(2):
+            for li, x in enumerate(lam):
+                want = mzi_single_theta(switching.THETA_BAR, x, kappa0=ka[r, m],
+                                        slope=DC_SLOPE, excess_loss_db=0.1,
+                                        kappa0_b=kb[r, m], arm_phase_err=ph[r, m],
+                                        lam0=DC_LAMBDA_3DB)
+                assert np.allclose(got[r, li], want, atol=1e-14)
+
+
+def test_fig4e_bar_model_matches_the_shipped_mesh():
+    """One realisation of the bar model must be the mesh switching.py already ships.
+
+    At n_real=1 and seed 0 the model draws the same splits and arm phases
+    switching.power_spectra draws, so its T32 ratio must equal that mesh's, to machine
+    precision. This is what ties the fitted spread to the module the results come from.
+    """
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    import fit_fig4e
+    lam = np.array([1550.0, 1560.0, 1575.0, 1589.0])
+    T, _ = switching.power_spectra("bar", lam, seed=0)
+    want = T[fit_fig4e.OUT_PORT, fit_fig4e.IN_PORT] / T[:, fit_fig4e.IN_PORT].sum(axis=0)
+    got = fit_fig4e._bar_ensemble(lam, switching.SIGMA_SPLIT, switching.SIGMA_PHASE,
+                                  n_real=1, seed=0)[0]
+    assert np.allclose(got, want, rtol=1e-12, atol=0)
+
+
 def test_energy_paper_derivation():
     from lightin import throughput
     te = throughput.reproduce(verbose=False)

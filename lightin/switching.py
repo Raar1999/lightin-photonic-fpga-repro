@@ -16,6 +16,12 @@ import numpy as np
 from .coupler import (mzi_single_theta, link_budget_db, LAMBDA0,
                       DC_LAMBDA_3DB, DC_SLOPE)
 
+SIGMA_SPLIT = 0.02     # coupler-to-coupler power-split spread. Assumed, no source.
+SIGMA_PHASE = 0.02     # rad, arm phase imbalance. Assumed, no source.
+# Named rather than left as inline literals so that scripts/fit_fig4e.py can fit one of
+# them to the digitized Fig 4e bar-state curve and the tests can pin the two models
+# together. Both still carry the assumed value here.
+
 FIG4D_FLOOR_DB = -26.2   # dB, crosstalk floor fitted to digitized Fig 4d alongside
 # lam0 and slope. It is phenomenological: the mesh model has no term that produces
 # it, so it is recorded here and deliberately not added to any crosstalk this
@@ -79,9 +85,9 @@ def power_spectra(state, lambdas, N=4, seed=0, lam0=None, slope=None):
     slope = DC_SLOPE if slope is None else slope
     rng = np.random.default_rng(seed)
     n_mzi = N * (N - 1) // 2
-    kappa_a = np.clip(rng.normal(0.5, 0.02, size=n_mzi), 0.3, 0.7)   # two independently
-    kappa_b = np.clip(rng.normal(0.5, 0.02, size=n_mzi), 0.3, 0.7)   # fabricated couplers
-    arm_err = rng.normal(0, 0.02, size=n_mzi)                        # arm phase imbalance
+    kappa_a = np.clip(rng.normal(0.5, SIGMA_SPLIT, size=n_mzi), 0.3, 0.7)  # two independently
+    kappa_b = np.clip(rng.normal(0.5, SIGMA_SPLIT, size=n_mzi), 0.3, 0.7)  # fabricated couplers
+    arm_err = rng.normal(0, SIGMA_PHASE, size=n_mzi)                       # arm phase imbalance
     theta = THETA_CROSS if state == "cross" else THETA_BAR
     amp = 10 ** (-0.25 / 20.0)
     T = np.zeros((N, N, len(lambdas)))
@@ -212,9 +218,9 @@ def _cell_draws(N=4, seed=0):
     """The per-MZI coupler splits and arm phase errors power_spectra() draws."""
     rng = np.random.default_rng(seed)
     n_mzi = N * (N - 1) // 2
-    kappa_a = np.clip(rng.normal(0.5, 0.02, size=n_mzi), 0.3, 0.7)
-    kappa_b = np.clip(rng.normal(0.5, 0.02, size=n_mzi), 0.3, 0.7)
-    arm_err = rng.normal(0, 0.02, size=n_mzi)
+    kappa_a = np.clip(rng.normal(0.5, SIGMA_SPLIT, size=n_mzi), 0.3, 0.7)
+    kappa_b = np.clip(rng.normal(0.5, SIGMA_SPLIT, size=n_mzi), 0.3, 0.7)
+    arm_err = rng.normal(0, SIGMA_PHASE, size=n_mzi)
     return kappa_a, kappa_b, arm_err
 
 

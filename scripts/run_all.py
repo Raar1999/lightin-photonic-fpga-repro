@@ -24,6 +24,7 @@ from lightin.metrics import enob, propagation_latency
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import fit_fig4                       # noqa: E402  (sibling script)
+import fit_fig4e                      # noqa: E402  (sibling script)
 
 # Several modules print Greek letters. The Windows console codepage is usually cp1252,
 # which cannot encode them, so the run dies partway through unless stdout is UTF-8.
@@ -35,7 +36,7 @@ QUICK_FIGDIR = os.path.join(os.path.dirname(__file__), "..", "figures_quick")
 _figdir = FIGDIR      # directory the current run writes figures to; main() sets it
 
 QUICK_SEEDS = range(2)      # Iris seed sweep and both controls
-QUICK_N_BOOT = 50           # both Fig 4d bootstraps
+QUICK_N_BOOT = 50           # every Fig 4d and Fig 4e bootstrap
 FULL_SEEDS = range(10)
 FULL_N_BOOT = 500
 
@@ -544,6 +545,10 @@ def main(quick=False):
     f4 = {k: v for k, v in f4_all.items() if k in FIG4D_KEYS}
     f4_mesh = f4_all["mesh"]
 
+    print("\n--- 12. Fig 4e bar-state fabrication-spread fit (bootstrapped) ---")
+    f4e = fit_fig4e.main(n_boot=n_boot,
+                         fig_path=figpath("fig4e_digitized.png"))
+
     paired = paired_logistic_minus_photonic(ir["seed_sweep"], ir["logistic_baseline"])
     print("\n--- Paired Iris comparison (logistic - photonic, same seeds) ---")
     for pfx, label in (("full", "full-set"), ("test", "held-out")):
@@ -637,6 +642,7 @@ def main(quick=False):
         "fig4d_fit": f4,
         "fig4d_mesh_fit": dict(f4_mesh,
                                digitization_sd_db=fit_fig4.DIGITIZATION_SD_DB),
+        "fig4e_fit": f4e,
         "recirculating": rc,
         "latency_on_chip_ps": propagation_latency(4.5e-3) * 1e12,
         "environment": environment(),
