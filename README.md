@@ -168,7 +168,8 @@ lightin-photonic-fpga-repro/
 │   ├── fit_fig4.py                   fit the coupler to the digitized Fig 4d crosstalk
 │   └── fit_fig4e.py                  fit the bar-state spread to the digitized Fig 4e crosstalk
 ├── tests/
-│   └── test_reproduction.py          54 checks (pytest or standalone)
+│   ├── test_reproduction.py          54 checks (pytest or standalone)
+│   └── test_report_consistency.py     3 checks: the report and README against results.json
 ├── data/
 │   ├── fig4d_T20_digitized.csv       colour-digitized cross-state crosstalk (with provenance header)
 │   ├── fig4e_bar_digitized.csv       colour-digitized bar-state crosstalk (with provenance header)
@@ -189,6 +190,7 @@ lightin-photonic-fpga-repro/
     ├── REPRODUCTION_REPORT.md        the first-pass report
     ├── PREPRINT_NOTES.md             details taken from the arXiv preprint, and where it differs
     ├── FIG4E_SCOPE.md                the plan that the Fig 4e digitization followed
+    ├── REPORT_UNCHECKED.md           report and README numbers outside the consistency test
     └── DOCUMENT_SEARCH_LIST_superseded.md   superseded; kept for history
 ```
 
@@ -240,6 +242,14 @@ pytest -q
 # or, with no pytest installed:
 PYTHONPATH=. python tests/test_reproduction.py
 ```
+
+Every number in the headline table above, and in
+[`docs/REPRODUCTION_REPORT_v10.md`](docs/REPRODUCTION_REPORT_v10.md), that comes from
+`results.json` carries its path in an HTML comment that GitHub does not render, and
+`tests/test_report_consistency.py` checks all of them against the file on every run. The
+numbers left outside that check — the paper's own values, code constants, arithmetic on
+other values — are listed with their provenance in
+[`docs/REPORT_UNCHECKED.md`](docs/REPORT_UNCHECKED.md).
 
 ---
 

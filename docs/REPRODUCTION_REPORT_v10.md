@@ -1031,6 +1031,23 @@ the wiring neither loses nor creates power.
 
 ---
 
+## Checking this report against `results.json`
+
+Every number in this report that comes from `results.json` is written as the value followed
+by an HTML comment naming its path, as in `1574.7<!--{fig4d_mesh_fit.lambda0_nm}--> nm`.
+GitHub's renderer strips the comment, so it is invisible on the page and visible to
+`tests/test_report_consistency.py`, which resolves each path and compares the stored value
+with the written one at the precision it was written to. The test runs with the rest of the
+suite, so a regenerated `results.json` that moves a number fails the suite until the
+document is brought back into line. The numbers that carry no such comment are not
+oversights: each is listed in [`docs/REPORT_UNCHECKED.md`](REPORT_UNCHECKED.md) with its
+section and where it comes from, whether that is the paper, the preprint, a code constant,
+arithmetic on other values, or a quantity computed outside `results.json`.
+
+When a number here disagrees with `results.json`, the document is what changes.
+
+---
+
 ## 7. Open items
 
 * `python -m pytest -q` takes about 50 seconds on this machine, because
@@ -1083,6 +1100,7 @@ the wiring neither loses nor creates power.
   model is symmetric under port reversal. Modelling the non-uniform grating-to-MZI
   waveguide sections described in the preprint would test whether those sections account
   for the difference.
+* Earlier report versions are not covered by the consistency test and are kept only as history.
 * Twenty-three of the parameters in §6.3 have no source recorded anywhere in this
   repository: the nominal 0.5 coupler split; `n_couplers_in_path` = 4 and `n_grating` = 2 in the link
   budget; the four synthetic-demo constants `DEMO_LAMBDA0`, `DEMO_TRUE_KAPPA0`,
