@@ -620,6 +620,60 @@ def sensitivity(lam=None, db=None, pcts=SCAN_PCTS, n_boot=150, seed=0, param_see
     return out
 
 
+# --------------------------------------------------------------------------- Step 2c
+
+def shape_check(lam=None, db=None, sigma_split=None, sigma_phase=SIGMA_ASSUMED,
+                floor_db=FLOOR_DB, n_real=N_REAL, pct=PCT, verbose=True):
+    """Does the fitted model explain the curve, or only its level?
+
+    The fit reports an RMS, and an RMS on its own says nothing: it has to be read against
+    what the most trivial possible model achieves on the same points. That model is a
+    constant, whose least-squares value is the mean of the points and whose RMS is their
+    standard deviation. If the bar model does not beat it by more than the stated per-point
+    uncertainty, then everything the fit has extracted from the figure is one number.
+
+    The peak-to-peak values are the same question asked directly: how much of the data's
+    variation across the band the model puts back.
+    """
+    if lam is None or db is None:
+        lam, db = load_points()
+    if sigma_split is None:
+        sigma_split = fit_one("split", lam, db, held=sigma_phase, floor_db=floor_db,
+                              n_real=n_real, pct=pct)["value"]
+    model = bar_model(lam, sigma_split, sigma_phase, floor_db, n_real, pct=pct)
+    const = float(db.mean())
+    const_rms = float(np.sqrt(np.mean((db - const) ** 2)))
+    model_rms = float(np.sqrt(np.mean((db - model) ** 2)))
+    out = {
+        "constant_db": const,
+        "constant_rms_db": const_rms,
+        "model_rms_db": model_rms,
+        "data_ptp_db": float(np.ptp(db)),
+        "model_ptp_db": float(np.ptp(model)),
+        "model_ptp_over_data_ptp": float(np.ptp(model) / np.ptp(db)),
+        "rms_advantage_db": float(const_rms - model_rms),
+        "point_sd_db": DIGITIZATION_SD_DB,
+        "corr_model_data": float(np.corrcoef(model, db)[0, 1]),
+        "sigma_split": float(sigma_split),
+        "sigma_phase": float(sigma_phase),
+        "pct": float(pct),
+        "n_points": int(lam.size),
+    }
+    if verbose:
+        print(f"    best constant = {const:.3f} dB, RMS = {const_rms:.4f} dB")
+        print(f"    bar model at sigma_split={sigma_split:.5f}, "
+              f"sigma_phase={sigma_phase:.2f}, pct={pct:g}: "
+              f"RMS = {model_rms:.4f} dB")
+        print(f"    peak-to-peak across the band: data {out['data_ptp_db']:.3f} dB, "
+              f"model {out['model_ptp_db']:.4f} dB "
+              f"({100 * out['model_ptp_over_data_ptp']:.2f}% of the data's)")
+        sign = "better" if out["rms_advantage_db"] > 0 else "worse"
+        print(f"    the model is {abs(out['rms_advantage_db']):.4f} dB {sign} than the "
+              f"constant, against a stated per-point uncertainty of "
+              f"{DIGITIZATION_SD_DB} dB")
+    return out
+
+
 def main(verbose=True, n_boot=500, seed=0, fig_path=FIG, n_real=N_REAL):
     lam, db = load_points()
     fits = {w: fit_one(w, lam, db, n_real=n_real) for w in ("split", "phase")}
@@ -674,6 +728,11 @@ def main(verbose=True, n_boot=500, seed=0, fig_path=FIG, n_real=N_REAL):
               f"quantile_sensitivity() gives the fit at other percentiles.")
 
     if verbose:
+        print("  does the model explain the curve or only its level?")
+    shape = shape_check(lam, db, sigma_split=fits["split"]["value"], n_real=n_real,
+                        verbose=verbose)
+
+    if verbose:
         print("  sensitivity of sigma_split to the two choices the curve cannot settle:")
     sens = sensitivity(lam, db, n_boot=max(10, n_boot // SCAN_BOOT_FRACTION),
                        n_real=n_real, adopted_boot=boots["split"], verbose=verbose)
@@ -693,7 +752,8 @@ def main(verbose=True, n_boot=500, seed=0, fig_path=FIG, n_real=N_REAL):
                               "the fabrication ensemble; fitting its mean instead absorbs "
                               "the quantile-to-mean offset into the fitted spread"),
            "joint_fit_not_adopted": joint,
-           "sensitivity": sens}
+           "sensitivity": sens,
+           "shape_check": shape}
     for w in ("split", "phase"):
         block = dict(fits[w])
         if boots[w] is None:

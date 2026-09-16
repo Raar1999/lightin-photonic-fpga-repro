@@ -351,6 +351,25 @@ def test_fig4e_sensitivity_block_is_self_consistent():
     assert s["offset_test_db"] < 0.0        # the digitized scale reads high, not low
     assert s["range_over_bootstrap_factor"] > 1.0
 
+
+def test_fig4e_model_is_flat_against_the_digitized_curve():
+    """The bar model must be recorded as reproducing the level and not the structure.
+
+    This is the claim report v9 makes about what the panel constrains, and it is the kind
+    of claim that quietly stops being true: a later change to the coupler dispersion or to
+    the fitted spread could give the model real wavelength structure, and then the report
+    would be describing a model that no longer exists. The numbers are loose because the
+    assertion is about the size of the effect, not its value.
+    """
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    import fit_fig4e
+    sc = fit_fig4e.shape_check(n_real=400, verbose=False)
+    assert sc["data_ptp_db"] > 1.0
+    assert sc["model_ptp_db"] < 0.05 * sc["data_ptp_db"]
+    # no meaningful RMS advantage over the best constant, at the stated point uncertainty
+    assert abs(sc["rms_advantage_db"]) < 0.1 * sc["point_sd_db"]
+
 def test_fig4e_cells_match_the_shipped_mzi():
     """fit_fig4e._cell is mzi_single_theta over a whole ensemble; check it cell by cell.
 
