@@ -930,6 +930,121 @@
       ],
       "rms_db": 0.4170001957282483
     },
+    "sensitivity": {
+      "percentile_scan": {
+        "p50": {
+          "pct": 50.0,
+          "sigma_split": 0.07073862030556952,
+          "se": 0.0007001115526124033,
+          "rms_db": 0.41772641829316143,
+          "n_boot": 166,
+          "boot_pairs_p05": 0.06970783042340836,
+          "boot_pairs_p95": 0.0719094630970529,
+          "boot_param_p05": 0.06996793144685715,
+          "boot_param_p95": 0.0716669777674538,
+          "boot_n_pairs_failed": 0,
+          "boot_n_param_failed": 0
+        },
+        "p75": {
+          "pct": 75.0,
+          "sigma_split": 0.04184961658743067,
+          "se": 0.000393626448325967,
+          "rms_db": 0.4163932801703024,
+          "n_boot": 166,
+          "boot_pairs_p05": 0.04129902066221823,
+          "boot_pairs_p95": 0.04248826856529467,
+          "boot_param_p05": 0.04142108631988708,
+          "boot_param_p95": 0.04228501660389976,
+          "boot_n_pairs_failed": 0,
+          "boot_n_param_failed": 0
+        },
+        "p90": {
+          "pct": 90.0,
+          "sigma_split": 0.02830281008962374,
+          "se": 0.0002673848420182307,
+          "rms_db": 0.41702582820426654,
+          "n_boot": 166,
+          "boot_pairs_p05": 0.027928882002438173,
+          "boot_pairs_p95": 0.028732665796453873,
+          "boot_param_p05": 0.028011536730814024,
+          "boot_param_p95": 0.028596463671667967,
+          "boot_n_pairs_failed": 0,
+          "boot_n_param_failed": 0
+        },
+        "p95": {
+          "pct": 95.0,
+          "sigma_split": 0.023717501679838743,
+          "se": 0.00023678902470495813,
+          "rms_db": 0.4177933548794364,
+          "n_boot": 166,
+          "boot_pairs_p05": 0.02338623953323382,
+          "boot_pairs_p95": 0.024097754978754195,
+          "boot_param_p05": 0.02345996311739324,
+          "boot_param_p95": 0.023977030645464664,
+          "boot_n_pairs_failed": 0,
+          "boot_n_param_failed": 0
+        },
+        "p99": {
+          "pct": 99.0,
+          "sigma_split": 0.018191583898139876,
+          "se": 0.00018083607122602936,
+          "rms_db": 0.4176175250816665,
+          "n_boot": 166,
+          "boot_pairs_p05": 0.017958973291055298,
+          "boot_pairs_p95": 0.018482162839362958,
+          "boot_param_p05": 0.018001487926516915,
+          "boot_param_p95": 0.018389861195735012,
+          "boot_n_pairs_failed": 0,
+          "boot_n_param_failed": 0
+        },
+        "p99.9": {
+          "pct": 99.9,
+          "sigma_split": 0.015217288194996105,
+          "se": 0.00014855007491160964,
+          "rms_db": 0.4173914829343761,
+          "n_boot": 166,
+          "boot_pairs_p05": 0.015009571886161518,
+          "boot_pairs_p95": 0.015456042440090618,
+          "boot_param_p05": 0.015055578939132681,
+          "boot_param_p95": 0.015380273079588518,
+          "boot_n_pairs_failed": 0,
+          "boot_n_param_failed": 0
+        }
+      },
+      "offset_test_db": -0.35,
+      "offset_test_sigma_split": 0.01745628901016405,
+      "offset_test_pct": 99.0,
+      "offset_test_rms_db": 0.4167730295132569,
+      "offset_test_note": "a sensitivity test, not a correction: diagonal_summary() finds the digitized dB scale and the paper's insertion-loss range differ by different amounts at the two ends, which a constant calibration offset cannot produce",
+      "adopted_pct": 99.0,
+      "sigma_split_full_range": [
+        0.015217288194996105,
+        0.07073862030556952
+      ],
+      "sigma_split_full_range_width": 0.05552133211057341,
+      "adopted_bootstrap_param": [
+        0.01799434712104689,
+        0.018390507986442296
+      ],
+      "adopted_bootstrap_param_width": 0.0003961608653954077,
+      "adopted_bootstrap_source": "adopted fit, n_boot=500",
+      "range_over_bootstrap_factor": 140.14845220806362
+    },
+    "shape_check": {
+      "constant_db": -20.158148148148147,
+      "constant_rms_db": 0.41700019572814523,
+      "model_rms_db": 0.4176175250816665,
+      "data_ptp_db": 1.620000000000001,
+      "model_ptp_db": 0.002341062704498853,
+      "model_ptp_over_data_ptp": 0.0014451004348758343,
+      "rms_advantage_db": -0.0006173293535212676,
+      "point_sd_db": 0.3,
+      "corr_model_data": -0.8707074171732033,
+      "sigma_split": 0.018191583898139876,
+      "sigma_phase": 0.02,
+      "pct": 99.0,
+      "n_points": 27
+    },
     "sigma_split_fit": {
       "fitted": "split",
       "value": 0.018191583898139876,
@@ -976,6 +1091,99 @@
       "bootstrap": null,
       "bootstrap_note": "not run: the fit has no interior optimum, so there is nothing to resample around"
     }
+  },
+  "fig4e_diagonals": {
+    "n_points": 18,
+    "band_nm": [
+      1550.0,
+      1589.0
+    ],
+    "continuous_band_nm": [
+      1550.0,
+      1574.0
+    ],
+    "paper_range_db": [
+      -2.99,
+      -1.85
+    ],
+    "paper_n_paths": 8,
+    "panel_n_paths": 4,
+    "per_diagonal": {
+      "T00": {
+        "min_db": -4.06,
+        "max_db": -2.2,
+        "mean_db": -2.5205555555555557,
+        "n_points": 18
+      },
+      "T11": {
+        "min_db": -3.3,
+        "max_db": -2.15,
+        "mean_db": -2.3244444444444436,
+        "n_points": 18
+      },
+      "T22": {
+        "min_db": -3.78,
+        "max_db": -1.45,
+        "mean_db": -1.858888888888889,
+        "n_points": 18
+      },
+      "T33": {
+        "min_db": -3.41,
+        "max_db": -1.1,
+        "mean_db": -1.5894444444444447,
+        "n_points": 18
+      }
+    },
+    "per_diagonal_continuous": {
+      "T00": {
+        "min_db": -2.77,
+        "max_db": -2.2,
+        "mean_db": -2.43,
+        "n_points": 17
+      },
+      "T11": {
+        "min_db": -2.44,
+        "max_db": -2.15,
+        "mean_db": -2.2670588235294113,
+        "n_points": 17
+      },
+      "T22": {
+        "min_db": -2.26,
+        "max_db": -1.45,
+        "mean_db": -1.7458823529411764,
+        "n_points": 17
+      },
+      "T33": {
+        "min_db": -2.01,
+        "max_db": -1.1,
+        "mean_db": -1.4823529411764707,
+        "n_points": 17
+      }
+    },
+    "combined": {
+      "range_db": [
+        -4.06,
+        -1.1
+      ],
+      "mean_db": -2.0733333333333333,
+      "most_lossy_end_minus_paper_db": -1.0699999999999994,
+      "least_lossy_end_minus_paper_db": 0.75,
+      "end_difference_db": 1.8199999999999994,
+      "mean_minus_paper_midpoint_db": 0.3466666666666667
+    },
+    "combined_continuous": {
+      "range_db": [
+        -2.77,
+        -1.1
+      ],
+      "mean_db": -1.9813235294117646,
+      "most_lossy_end_minus_paper_db": 0.2200000000000002,
+      "least_lossy_end_minus_paper_db": 0.75,
+      "end_difference_db": 0.5299999999999998,
+      "mean_minus_paper_midpoint_db": 0.43867647058823533
+    },
+    "offset_db": 0.35,
+    "note": "Fig 4e is the all-bar state, so its four diagonals are four of the eight intended paths the paper's range covers; the other four are the all-cross paths, which this panel does not draw"
   },
   "cross_check": {
     "fig4d_rms_after_fig4e_fit_db": 0.789947005438906,
