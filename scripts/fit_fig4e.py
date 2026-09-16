@@ -185,6 +185,118 @@ def rms_db(lam, db, sigma_split, sigma_phase, floor_db=FLOOR_DB, n_real=N_REAL,
         (db - bar_model(lam, sigma_split, sigma_phase, floor_db, n_real, pct=pct)) ** 2)))
 
 
+# --------------------------------------------------------------------------- diagonals
+
+DIAG_CSV = os.path.join(HERE, "..", "data", "fig4e_diagonal_digitized.csv")
+DIAG_NAMES = ("T00", "T11", "T22", "T33")
+DIAG_CONTINUOUS_MAX_NM = 1574.0    # last wavelength before each sub-panel's legend box
+# hides the trace. The grid resumes at 1589.0 nm, inside the roll-off at the end of the
+# scan, so every summary below is reported over both the full tabulated band and this
+# continuous segment; which one is used changes the comparison with the paper by more
+# than a decibel.
+
+
+def load_diagonals(path=DIAG_CSV):
+    """Read data/fig4e_diagonal_digitized.csv as (wavelengths, {name: dB array})."""
+    lam, cols = [], {n: [] for n in DIAG_NAMES}
+    with open(path) as f:
+        for line in f:
+            if line.startswith("#") or line.startswith("wavelength"):
+                continue
+            parts = line.strip().split(",")
+            if len(parts) != 1 + len(DIAG_NAMES):
+                raise ValueError(f"expected {1 + len(DIAG_NAMES)} columns, got {line!r}")
+            lam.append(float(parts[0]))
+            for n, v in zip(DIAG_NAMES, parts[1:]):
+                cols[n].append(float(v))
+    return np.array(lam), {n: np.array(v) for n, v in cols.items()}
+
+
+def diagonal_summary(paper_range_db=None, verbose=True):
+    """Compare the digitized all-bar through paths with the paper's insertion-loss range.
+
+    The question this answers is whether the gap between the two is a calibration offset
+    on the digitized dB scale, which would move every fitted spread, or a difference in
+    which paths the paper quoted, which would not. A constant offset shifts both ends of
+    the range by the same amount; anything else does not, so the two end differences are
+    the diagnostic and are reported separately.
+
+    offset_db, used by sensitivity() as a what-if, is the digitized mean minus the
+    midpoint of the paper's range. It is a single number standing in for a disagreement
+    that is not a single number, which is why the sensitivity test it feeds is labelled a
+    sensitivity test rather than a correction.
+    """
+    if paper_range_db is None:
+        paper_range_db = list(switching.ONCHIP_IL_PAPER_RANGE_DB)
+    lo_paper, hi_paper = min(paper_range_db), max(paper_range_db)
+    lam, cols = load_diagonals()
+    cont = lam <= DIAG_CONTINUOUS_MAX_NM
+
+    def block(mask):
+        per = {n: {"min_db": float(v[mask].min()), "max_db": float(v[mask].max()),
+                   "mean_db": float(v[mask].mean()), "n_points": int(mask.sum())}
+               for n, v in cols.items()}
+        allv = np.concatenate([v[mask] for v in cols.values()])
+        return per, {
+            "range_db": [float(allv.min()), float(allv.max())],
+            "mean_db": float(allv.mean()),
+            "most_lossy_end_minus_paper_db": float(allv.min() - lo_paper),
+            "least_lossy_end_minus_paper_db": float(allv.max() - hi_paper),
+            "end_difference_db": float(abs((allv.min() - lo_paper)
+                                           - (allv.max() - hi_paper))),
+            "mean_minus_paper_midpoint_db": float(allv.mean()
+                                                  - 0.5 * (lo_paper + hi_paper)),
+        }
+
+    per_full, comb_full = block(np.ones_like(lam, bool))
+    per_cont, comb_cont = block(cont)
+    out = {
+        "n_points": int(lam.size),
+        "band_nm": [float(lam.min()), float(lam.max())],
+        "continuous_band_nm": [float(lam.min()), float(DIAG_CONTINUOUS_MAX_NM)],
+        "paper_range_db": [lo_paper, hi_paper],
+        "paper_n_paths": 8,
+        "panel_n_paths": 4,
+        "per_diagonal": per_full,
+        "per_diagonal_continuous": per_cont,
+        "combined": comb_full,
+        "combined_continuous": comb_cont,
+        "offset_db": round(comb_full["mean_minus_paper_midpoint_db"], 2),
+        "note": ("Fig 4e is the all-bar state, so its four diagonals are four of the "
+                 "eight intended paths the paper's range covers; the other four are the "
+                 "all-cross paths, which this panel does not draw"),
+    }
+    if verbose:
+        print("Digitized Fig 4e diagonals (all-bar through paths) vs the paper's "
+              "on-chip insertion loss:")
+        print(f"  {lam.size} wavelengths, {lam.min():.1f}-{lam.max():.1f} nm "
+              f"({int(cont.sum())} of them over the continuous "
+              f"{lam.min():.1f}-{DIAG_CONTINUOUS_MAX_NM:.1f} nm segment)")
+        print(f"  {'':5s} {'full band 1550-1589 nm':>28s}   "
+              f"{'continuous 1550-1574 nm':>28s}")
+        for n in DIAG_NAMES:
+            a, b = per_full[n], per_cont[n]
+            print(f"  {n:5s} min {a['min_db']:+6.2f}  max {a['max_db']:+6.2f}  "
+                  f"mean {a['mean_db']:+6.2f}   "
+                  f"min {b['min_db']:+6.2f}  max {b['max_db']:+6.2f}  "
+                  f"mean {b['mean_db']:+6.2f}")
+        for lbl, c in (("full band      ", comb_full),
+                       ("continuous only", comb_cont)):
+            print(f"  all four, {lbl}: {c['range_db'][0]:+.2f} to "
+                  f"{c['range_db'][1]:+.2f} dB, mean {c['mean_db']:+.2f} dB")
+            print(f"    against the paper's {lo_paper:+.2f} to {hi_paper:+.2f} dB: "
+                  f"most-lossy end {c['most_lossy_end_minus_paper_db']:+.2f} dB, "
+                  f"least-lossy end {c['least_lossy_end_minus_paper_db']:+.2f} dB")
+            print(f"    the two ends differ by "
+                  f"{c['end_difference_db']:.2f} dB, so the disagreement is "
+                  f"{'not ' if c['end_difference_db'] > 0.3 else ''}a constant offset")
+        print(f"  the paper's range covers {out['paper_n_paths']} intended paths; this "
+              f"panel is the all-bar state and draws {out['panel_n_paths']} of them")
+        print(f"  what-if offset used by sensitivity(): {out['offset_db']:+.2f} dB "
+              f"(digitized mean minus the paper's range midpoint)")
+    return out
+
+
 # --------------------------------------------------------------------------- Step 2
 
 def identifiability(lam=1560.0, grid=(0.005, 0.08), n=6, floor_db=FLOOR_DB,

@@ -261,6 +261,54 @@ def test_fig4e_digitized_csv_is_readable_and_on_scale():
     assert np.all(db <= 0.0) and np.all(db >= -25.0)
 
 
+
+def test_fig4e_diagonal_csv_is_readable_and_on_scale():
+    """The digitized Fig 4e diagonals parse, are ordered, and lie inside the panel's axes.
+
+    The four traces come from four different sub-panels, each with its own pixel-to-data
+    fit, so a mis-anchored panel would put one column on a different scale from the other
+    three. Nothing downstream would reveal that: the diagonals feed a comparison with the
+    paper's insertion-loss range, not a fit, and a shifted column would simply widen the
+    range. The through paths also have to sit far above the bar-state leakage of the same
+    panel, which is what separates a diagonal from an off-diagonal in the first place.
+    """
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    import fit_fig4e
+    lam, cols = fit_fig4e.load_diagonals()
+    assert lam.size >= 15
+    assert np.all(np.diff(lam) > 0)
+    assert lam.min() >= 1550.0 and lam.max() <= 1590.0
+    assert set(cols) == set(fit_fig4e.DIAG_NAMES)
+    for name, db in cols.items():
+        assert db.size == lam.size
+        assert np.all(db <= 0.0) and np.all(db >= -25.0), name
+        # an intended path, not leakage: the T32 band in the same figure sits below -19 dB
+        assert db.max() > -5.0 and db.min() > -12.0, name
+
+
+def test_fig4e_diagonal_paper_comparison_is_not_a_constant_offset():
+    """The two ends of the digitized range must be compared with the paper's separately.
+
+    A constant calibration offset on the digitized dB scale would move both ends of the
+    range by the same amount. Reporting only one end, or only the midpoint, would hide
+    whether that is what the disagreement is; this pins the two-ended comparison that
+    report v9 rests on.
+    """
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    import fit_fig4e
+    d = fit_fig4e.diagonal_summary(verbose=False)
+    assert d["paper_range_db"] == [-2.99, -1.85]
+    for key in ("combined", "combined_continuous"):
+        c = d[key]
+        lo, hi = c["range_db"]
+        assert lo < hi <= 0.0
+        assert abs(c["most_lossy_end_minus_paper_db"] - (lo + 2.99)) < 1e-9
+        assert abs(c["least_lossy_end_minus_paper_db"] - (hi + 1.85)) < 1e-9
+        # the ends do not move together, so the gap is not a constant offset
+        assert c["end_difference_db"] > 0.3
+
 def test_fig4e_cells_match_the_shipped_mzi():
     """fit_fig4e._cell is mzi_single_theta over a whole ensemble; check it cell by cell.
 

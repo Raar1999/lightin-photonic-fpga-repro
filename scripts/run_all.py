@@ -604,6 +604,9 @@ def main(quick=False):
                          fig_path=figpath("fig4e_digitized.png"))
     xc = cross_check(f4_mesh, f4e)
 
+    print("\n--- 12a. Fig 4e diagonals vs the paper's on-chip insertion loss ---")
+    f4e_diag = fit_fig4e.diagonal_summary()
+
     paired = paired_logistic_minus_photonic(ir["seed_sweep"], ir["logistic_baseline"])
     print("\n--- Paired Iris comparison (logistic - photonic, same seeds) ---")
     for pfx, label in (("full", "full-set"), ("test", "held-out")):
@@ -698,6 +701,7 @@ def main(quick=False):
         "fig4d_mesh_fit": dict(f4_mesh,
                                digitization_sd_db=fit_fig4.DIGITIZATION_SD_DB),
         "fig4e_fit": f4e,
+        "fig4e_diagonals": f4e_diag,
         "cross_check": xc,
         "recirculating": rc,
         "latency_on_chip_ps": propagation_latency(4.5e-3) * 1e12,
