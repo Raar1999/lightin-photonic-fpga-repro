@@ -242,6 +242,25 @@ def test_mesh_model_matches_fig4d():
     assert rms <= 2.0
 
 
+def test_fig4e_digitized_csv_is_readable_and_on_scale():
+    """The digitized Fig 4e points parse, are ordered, and lie inside the panel's axes.
+
+    Fig 4e's axes run 1550-1590 nm by 0 to -25 dB (read in the figure and recorded in the
+    CSV header). A point outside that box would mean the pixel-to-data mapping was wrong,
+    which no fit downstream would detect on its own.
+    """
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    import fit_fig4
+    csv = os.path.join(os.path.dirname(__file__), "..", "data",
+                       "fig4e_bar_digitized.csv")
+    lam, db = fit_fig4.load_points(csv)
+    assert lam.size >= 25
+    assert np.all(np.diff(lam) > 0)
+    assert lam.min() >= 1550.0 and lam.max() <= 1590.0
+    assert np.all(db <= 0.0) and np.all(db >= -25.0)
+
+
 def test_energy_paper_derivation():
     from lightin import throughput
     te = throughput.reproduce(verbose=False)

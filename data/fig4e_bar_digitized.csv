@@ -1,0 +1,50 @@
+# LightIN Fig 4e, all-bar state, T32 curve (input 2 -> output 3), bottom-left sub-panel.
+# Manually/colour digitized from the published figure (s41377-026-02209-5).
+# Panel 4e is a 2x2 array of sub-panels, one per input port; the bottom-left one carries
+# T02, T12, T22, T32. Axes: wavelength 1550-1590 nm, transmission 0 to -25 dB.
+# Pixel-to-data anchors, both fitted by least squares over the inward tick marks:
+#   row = -10.5100*dB + 521.800  from the 0, -5, -10, -15 dB ticks (max residual 0.35 px
+#         = 0.033 dB; the -25 dB axis line falls 0.05 px from the fit, not used to fit it)
+#   col =  10.5600*nm - 16183.50 from the 1550, 1560, 1570, 1580, 1590 nm ticks
+#         (max residual 0.30 px = 0.028 nm)
+# The T32 trace is drawn as a filled band whose lower edge is cut off by the -25 dB axis
+# limit at every wavelength, so the band's centre cannot be read. What is tabulated is the
+# band's UPPER ENVELOPE: the peak crosstalk of the fast wavelength ripple, taken as the
+# median over an 11-pixel (+/-0.5 nm) window of the topmost trace pixel, corrected down by
+# half the 9-pixel drawn line width. It is an upper envelope, not a mean level.
+# Uncertainty ~+/-0.3 dB, one standard deviation, from: tick-fit residual 0.03 dB,
+# top-edge scatter within the window 0.10 dB (worst 0.32 dB), and placement of the line
+# centre from its top edge, half of a 9-pixel line read to +/-2 px, 0.19 dB. This is much
+# tighter than the +/-2 dB of data/fig4d_T20_digitized.csv because that file's dB scale was
+# anchored to figure-read endpoints, whereas this one is anchored to five tick marks per
+# axis with sub-pixel residuals.
+# Axis cross-check: the T22 through path in the same sub-panel reads -1.40 to -2.35 dB over
+# 1550-1573 nm, against the paper's measured on-chip insertion loss of -1.85 to -2.99 dB.
+wavelength_nm,crosstalk_dB
+1550.0,-19.52
+1551.5,-19.86
+1553.0,-19.38
+1554.5,-20.05
+1556.0,-20.24
+1557.5,-20.14
+1559.0,-20.52
+1560.5,-20.33
+1562.0,-20.52
+1563.5,-20.71
+1565.0,-20.62
+1566.5,-21.00
+1568.0,-20.62
+1569.5,-20.43
+1571.0,-20.52
+1572.5,-20.62
+1574.0,-20.24
+1575.5,-20.33
+1577.0,-20.24
+1578.5,-20.14
+1580.0,-19.95
+1581.5,-19.67
+1583.0,-19.76
+1584.5,-19.86
+1586.0,-19.76
+1587.5,-19.86
+1589.0,-19.38

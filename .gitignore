@@ -31,3 +31,6 @@ sweep_cache.json
 noise_test.stash
 runtime.txt
 testtime.txt
+
+# Source figure images (article pages, screenshots) are never committed
+data/raw/
