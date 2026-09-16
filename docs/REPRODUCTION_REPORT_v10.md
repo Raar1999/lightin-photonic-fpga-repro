@@ -1033,13 +1033,13 @@ the wiring neither loses nor creates power.
 
 ## 7. Open items
 
-* `python -m pytest -q` takes about 40 seconds on this machine, because
+* `python -m pytest -q` takes about 50 seconds on this machine, because
   `test_fig4d_digitized_fit` calls only the two single fits (`fit_proxy` and `fit_mesh`)
   instead of `fit_fig4.main()` with its bootstraps, `test_iris_accuracy` runs five random
   restarts rather than the fifteen the reported accuracies use, and every Fig 4e check
   runs at a few hundred fabrication realisations rather than 3200. The best restart is
   kept, so the test's accuracy is a lower bound on the reported one. A full `python
-  scripts/run_all.py` takes about 19 minutes and prints a per-block runtime summary at the
+  scripts/run_all.py` takes about 22 minutes and prints a per-block runtime summary at the
   end; `python scripts/run_all.py --quick` runs the same pipeline with the Iris seed sweep
   cut to two seeds and every Fig 4d and Fig 4e bootstrap to 50 resamples, writing
   `results_quick.json` and `figures_quick/` so that a quick run never overwrites the
