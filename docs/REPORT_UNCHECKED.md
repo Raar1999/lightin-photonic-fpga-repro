@@ -54,25 +54,56 @@ model output.
 
 ## 3. Code constants (§6.3 table, value column)
 
-The whole "value in the code" column of the §6.3 table. Each row names its own file, line
-and recorded source, and several rows record that no source exists. These are inputs to the
-model, not outputs of it, so `results.json` does not carry them as such.
+These are inputs to the model, not outputs of it, so `results.json` does not carry them and
+`tests/test_report_consistency.py` cannot reach them. Thirteen of the thirty-two rows name a
+constant defined at module level; those carry a square-bracket comment naming the module and
+attribute, and `tests/test_constants_documented.py` imports each one and compares it with the
+documented value. They are not listed here:
 
-`DC_LAMBDA_3DB` 1574.7 · `DC_SLOPE` 0.0026 · `PROP_LOSS_DB_CM` 2.0 · `excess_loss_db` 0.1 ·
-`kappa0` 0.5 · `peak_loss_db` 4.4 · `bw_1p5db` 45.0 · `waveguide_cm` 0.45 ·
-`n_couplers_in_path` 4 · `n_grating` 2 · `DEMO_LAMBDA0` 1560.0 · `DEMO_TRUE_KAPPA0` 0.5 ·
-`DEMO_TRUE_SLOPE` 0.0042 · `DEMO_TRUE_QUAD` −8e-6 · `FIG4D_FLOOR_DB` −26.2 ·
-`prop_db_per_stage` 0.25 · `SIGMA_SPLIT` 0.02 clipped to [0.3, 0.7] · `SIGMA_PHASE` 0.02 ·
-`ARM_LOSS_DB` (0.0, 0.0) · `MEAS_NOISE_SIGMA` 0.01 · `N` 8 · `r` 0.92 · `a` 0.90 ·
-`data_swing` 0.9 · `bw` 0.45 · `noise` 0.02 · `ring_um` 120.0 · `ring_um`/`base_um` 600.0 ·
-`detune` 0.004 · `N_RESTARTS` 15 · `test_size` 0.3 · L2 penalty 1e-4.
+`DC_LAMBDA_3DB` · `DC_SLOPE` · `PROP_LOSS_DB_CM` · `DEMO_LAMBDA0` · `DEMO_TRUE_KAPPA0` ·
+`DEMO_TRUE_SLOPE` · `DEMO_TRUE_QUAD` · `FIG4D_FLOOR_DB` · `SIGMA_SPLIT` · `SIGMA_PHASE` ·
+`ARM_LOSS_DB` (both elements) · `MEAS_NOISE_SIGMA` · `N_RESTARTS`.
+
+The remaining nineteen rows document a value that has no module-level name to import. Each
+row still records its own file, line and source, and several record that no source exists.
+
+| Value | Name as documented | Why it cannot be imported |
+|---|---|---|
+| 0.1 dB | `excess_loss_db` | default argument of `coupler.dc_field_matrix` and `coupler.mzi_single_theta` |
+| 0.5 | `kappa0` | default argument of four `coupler` functions and of `switching.fabric_matrix` |
+| 4.4 dB | `peak_loss_db` | default argument of `coupler.grating_coupler_db` |
+| 45.0 nm | `bw_1p5db` | default argument of `coupler.grating_coupler_db` |
+| 0.45 cm | `waveguide_cm` | default argument of `coupler.link_budget_db` |
+| 4 | `n_couplers_in_path` | default argument of `coupler.link_budget_db` |
+| 2 | `n_grating` | default argument of `coupler.link_budget_db` |
+| 0.25 dB | `prop_db_per_stage` | default argument of `switching.fabric_matrix` |
+| 8 | `N` | default argument throughout `ppuf` |
+| 0.92 | `r` | default argument of `mrm.mrm_through` and `mrm.symbol_fields` |
+| 0.90 | `a` | default argument of the same two functions |
+| 0.9 rad | `data_swing` | default argument of `mrm.symbol_fields` |
+| 0.45 | `bw` | inline literal in the eye-diagram call, `mrm.py:65` |
+| 0.02 a.u. | `noise` | inline literal in the same call |
+| 120.0 µm | `ring_um` | inline literal in the all-pass validation, `recirculating.py:127,136` |
+| 600.0 µm | `ring_um` / `base_um` | inline literals in the add-drop and bus validations |
+| 0.004 | `detune` | inline literal in the comb figure |
+| 0.3 | `test_size` | default argument of the Iris split |
+| 1e-4 | L2 penalty | inline literal, `nn_iris.py:76` |
+
+One row names three things at once: `PROP_LOSS_DB_CM`, `alpha_db_cm` and `loss_db_cm`, all
+2.0 dB/cm. The row is checked through `coupler.PROP_LOSS_DB_CM`; the other two names are
+default arguments in `recirculating` that carry the same value and are not separately
+imported.
+
+Promoting the inline literals to named constants would bring them inside the check; §7 of
+the report records that as an open item.
 
 The literature values quoted in the source column of that table — 2.14, 2.2 ± 0.8, 19 dies,
 ~2 dB/cm, 0.1–0.8 dB, ~4.4 dB, ~45 nm — are citations, not repository values.
 
 The two code constants written inside the fenced Python block in §6.1 (`DC_LAMBDA_3DB` =
 1574.7, `DC_SLOPE` = 0.0026) cannot be annotated at all: an HTML comment inside a fenced
-code block renders as literal text on GitHub rather than disappearing.
+code block renders as literal text on GitHub rather than disappearing. Both are checked
+where §6.3 documents them.
 
 ## 4. Arithmetic on other values
 
