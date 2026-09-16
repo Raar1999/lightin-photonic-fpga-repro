@@ -1,10 +1,17 @@
 # Scope note: digitizing Fig. 4e to constrain the bar state
 
 This was the plan for the work, written before any of it was done. The work has since been
-carried out: `data/fig4e_bar_digitized.csv` holds the digitized curve and `SIGMA_SPLIT` in
-`lightin/switching.py` is fitted to it. What was actually found, including the two places
-this plan guessed wrong, is in `docs/REPRODUCTION_REPORT_v9.md` §6.1. The plan is kept as
-written, because its check 3 is the pre-registered criterion that rejected the first fit.
+carried out in full: `data/fig4e_bar_digitized.csv` holds the digitized curve,
+`data/fig4e_diagonal_digitized.csv` holds the four through paths, and the bar-state model
+was fitted to the curve, bootstrapped, and tested against every choice the figure does not
+fix. **The fitted spread was not adopted, because the model fits those points no better
+than a best-fit constant (0.4176 dB RMS against 0.4170 dB) and the spread it returns
+ranges from 0.0152 to 0.0707, a factor of 4.6, with an ensemble percentile the data cannot
+choose.** `SIGMA_SPLIT` in `lightin/switching.py` keeps its assumed 0.02, which falls
+inside that range, and the panel is recorded as a consistency check on it. What was
+actually found, including the two places this plan guessed wrong, is in
+`docs/REPRODUCTION_REPORT_v10.md` §6.1. The plan is kept as written, because its check 3
+is the pre-registered criterion that rejected the first fit.
 
 ## Which panel carries the bar-state spectra
 
