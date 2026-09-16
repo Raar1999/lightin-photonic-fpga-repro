@@ -23,7 +23,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results.json"
-DOCS = ["docs/REPRODUCTION_REPORT_v10.md"]
+DOCS = ["docs/REPRODUCTION_REPORT_v10.md", "README.md"]
 
 # value, optional percent sign, then the path in an HTML comment. A leading minus may be
 # written as a hyphen or as U+2212; a leading plus is allowed for signed differences. The

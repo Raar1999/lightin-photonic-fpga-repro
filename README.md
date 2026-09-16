@@ -30,7 +30,7 @@ python -m venv .venv && source .venv/bin/activate
 # Windows: .venv\Scripts\activate
 pip install -e .                       # or: pip install -r requirements.txt
 python scripts/run_all.py              # runs everything, writes results.json + figures/
-pytest -q                              # 47 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
+pytest -q                              # 57 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
 ```
 
 On a typical laptop CPU, `scripts/run_all.py` takes about 22 minutes, most of which is
@@ -52,25 +52,25 @@ All "reproduction" values below come from `scripts/run_all.py`.
 | Result | Paper | This repo | Tier |
 |---|---|---|---|
 | PUC unitarity / cross-bar (Eq. 1) | unitary | err ≤ 1e-32 | exact |
-| 4×4 unitary realisation (Fig 2h,i) | high fidelity | fidelity 1.000000 with ideal couplers; the coupler fitted to Fig 4d limits the single-θ cross state to **0.9942** at 1560 nm | sim |
-| 4×4 permutations (Fig 2d) | realised by routing | routing fidelity **0.999999999999** | sim |
-| Effective bits @10 GBaud (Fig 2f) | σ=0.0269 → **6.22 bit** | log₂(2/σ)=**6.216** | exact |
-| Non-unitary 3×3 mesh (Fig 2l) | modulus match | corr 1.0, err 7.8e-16 | sim |
+| 4×4 unitary realisation (Fig 2h,i) | high fidelity | fidelity 1.000000<!--{unitary.random_mean_fidelity}--> with ideal couplers; the coupler fitted to Fig 4d limits the single-θ cross state to **0.9942<!--{expressivity.coupler_ceiling_fidelity_at_1560}-->** at 1560 nm | sim |
+| 4×4 permutations (Fig 2d) | realised by routing | routing fidelity **0.999999999999<!--{unitary.perm_routing_fidelity[0]}-->** | sim |
+| Effective bits @10 GBaud (Fig 2f) | σ=0.0269 → **6.22 bit** | log₂(2/σ)=**6.216<!--{unitary.enob_at_sigma_0.0269}-->** | exact |
+| Non-unitary 3×3 mesh (Fig 2l) | modulus match | corr 1.0<!--{nonunitary.modulus_corr}-->, err 7.8e-16<!--{nonunitary.max_abs_err}--> | sim |
 | Non-unitary input/output correlation (Fig 2n) | measured on chip | not reproduced | hardware — not reproduced |
-| Iris unitary NN, full set (Fig 2o,p) | 94.67% offline (evaluation set not stated) | **95.47% ± 1.26%** (10 seeds) | sim |
-| Iris unitary NN, held out | — (paper's 93.33% is on-chip) | 89.33% ± 5.14% (10 seeds) | sim |
-| Iris identity control (unitary frozen to I) | — | 85.60% ± 0.44% full set, 81.56% ± 4.67% held out | control |
-| Iris logistic baseline (same 4 features, same splits) | — | 96.53% ± 0.88% full set, 94.89% ± 3.45% held out | control |
-| On-chip latency | ~60 ps | n_g·L/c = **60.0 ps** | exact |
-| Energy | **1.875 pJ/MAC** | 1.8 W / 0.96 TMAC·s⁻¹ = **1.875**. 3 V, 100 Ω, 90 mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
-| Throughput | **1.92 TOPS** | 96 ops × 2 dir × 10 GBaud = **1.92**. 3 V, 100 Ω, 90 mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
-| Switch crosstalk (Fig 4d,e) | −45 to <−20 dB | cross state, mesh model fitted to Fig 4d: -27.2 to -21.1 dB at 1560 nm; worst -16.8 dB over the fitted 1549–1565 nm, -11.8 dB extrapolated over 1530–1549 nm. Bar state: -106.7 to -30.5 dB at 1560 nm from an **assumed** coupler-split spread of **0.02**; the digitized Fig 4e curve was fitted for that spread and the fit was **not adopted**, because the model does no better on those points than a constant and the result ranges over a factor of 4.6 with a choice the figure does not fix (report §6.1). The arm-phase spread is assumed too | model vs measurement |
-| Bar-state insertion loss, per path (Fig 4e diagonals) | four digitized bar-state through paths, -1.48 to -2.43 dB over 1550–1574 nm | model optimistic by **+0.38 dB** on average (**0.49 dB** absolute); port-to-port ordering **not** reproduced | model vs measurement |
-| On-chip insertion loss | −1.85 to −2.99 dB (8 paths) | **-1.40 to -1.80 dB** (8 modelled paths) | model vs measurement |
-| PUF uniqueness, feed-forward mesh (Fig 5) | **49.97%** | **49.00% ± 0.34%** over 10 population seeds | sim |
-| PUF uniformity, feed-forward mesh (Fig 5) | **50.15%** | **50.32% ± 0.51%** over 10 seeds | sim |
-| PUF uniqueness, recirculating mesh | **49.97%** | **49.89% ± 0.25%** / **49.93% ± 0.28%** (two stated wirings, 10 seeds) | sim |
-| PUF uniformity, recirculating mesh | **50.15%** | **50.01% ± 0.88%** / **49.88% ± 0.94%** (two stated wirings) | sim |
+| Iris unitary NN, full set (Fig 2o,p) | 94.67% offline (evaluation set not stated) | **95.47%<!--{iris.seed_sweep.full_acc_mean}--> ± 1.26%<!--{iris.seed_sweep.full_acc_std}-->** (10 seeds) | sim |
+| Iris unitary NN, held out | — (paper's 93.33% is on-chip) | 89.33%<!--{iris.seed_sweep.test_acc_mean}--> ± 5.14%<!--{iris.seed_sweep.test_acc_std}--> (10 seeds) | sim |
+| Iris identity control (unitary frozen to I) | — | 85.60%<!--{iris.identity_control.full_acc_mean}--> ± 0.44%<!--{iris.identity_control.full_acc_std}--> full set, 81.56%<!--{iris.identity_control.test_acc_mean}--> ± 4.67%<!--{iris.identity_control.test_acc_std}--> held out | control |
+| Iris logistic baseline (same 4 features, same splits) | — | 96.53%<!--{iris.logistic_baseline.full_acc_mean}--> ± 0.88%<!--{iris.logistic_baseline.full_acc_std}--> full set, 94.89%<!--{iris.logistic_baseline.test_acc_mean}--> ± 3.45%<!--{iris.logistic_baseline.test_acc_std}--> held out | control |
+| On-chip latency | ~60 ps | n_g·L/c = **60.0<!--{latency_on_chip_ps}--> ps** | exact |
+| Energy | **1.875 pJ/MAC** | 1.8<!--{throughput_energy.P_total_W}--> W / 0.96 TMAC·s⁻¹ = **1.875<!--{throughput_energy.energy_pj_per_mac}-->**. 3 V, 100 Ω, 90<!--{throughput_energy.P_pi_mW}--> mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
+| Throughput | **1.92 TOPS** | 96 ops × 2 dir × 10 GBaud = **1.92<!--{throughput_energy.tops}-->**. 3 V, 100 Ω, 90<!--{throughput_energy.P_pi_mW}--> mW heater parameters and the 96-operation count are taken from Supplementary Note 3 and cannot be checked from the main article. | consistency check |
+| Switch crosstalk (Fig 4d,e) | −45 to <−20 dB | cross state, mesh model fitted to Fig 4d: -27.2<!--{switching.cross_xtalk_center_db[1]}--> to -21.1<!--{switching.cross_xtalk_center_db[0]}--> dB at 1560 nm; worst -16.8<!--{switching.cross_worst_xtalk_fitrange_db}--> dB over the fitted 1549–1565 nm, -11.8<!--{switching.cross_worst_xtalk_extrapolated_db}--> dB extrapolated over 1530–1549 nm. Bar state: -106.7<!--{switching.bar_xtalk_center_db[1]}--> to -30.5<!--{switching.bar_xtalk_center_db[0]}--> dB at 1560 nm from an **assumed** coupler-split spread of **0.02<!--{cross_check.sigma_split}-->**; the digitized Fig 4e curve was fitted for that spread and the fit was **not adopted**, because the model does no better on those points than a constant and the result ranges over a factor of 4.6<!--{fig4e_fit.sensitivity.sigma_split_range_factor}--> with a choice the figure does not fix (report §6.1). The arm-phase spread is assumed too | model vs measurement |
+| Bar-state insertion loss, per path (Fig 4e diagonals) | four digitized bar-state through paths, -1.48<!--{switching.bar_il_vs_fig4e.per_port[3].digitized_db}--> to -2.43<!--{switching.bar_il_vs_fig4e.per_port[0].digitized_db}--> dB over 1550<!--{switching.bar_il_vs_fig4e.band_nm[0]}-->–1574<!--{switching.bar_il_vs_fig4e.band_nm[1]}--> nm | model optimistic by **+0.38<!--{switching.bar_il_vs_fig4e.mean_signed_diff_db}--> dB** on average (**0.49<!--{switching.bar_il_vs_fig4e.mean_abs_diff_db}--> dB** absolute); port-to-port ordering **not** reproduced | model vs measurement |
+| On-chip insertion loss | −1.85<!--{switching.onchip_il_paper_range_db[1]}--> to −2.99<!--{switching.onchip_il_paper_range_db[0]}--> dB (8 paths) | **-1.40<!--{switching.onchip_il_max_db}--> to -1.80<!--{switching.onchip_il_min_db}--> dB** (8 modelled paths) | model vs measurement |
+| PUF uniqueness, feed-forward mesh (Fig 5) | **49.97%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.paper_uniqueness}-->** | **49.00%<!--{ppuf.population_sweep.uniqueness_mean}--> ± 0.34%<!--{ppuf.population_sweep.uniqueness_std}-->** over 10<!--{ppuf.population_sweep.n_seeds}--> population seeds | sim |
+| PUF uniformity, feed-forward mesh (Fig 5) | **50.15%** | **50.32%<!--{ppuf.population_sweep.uniformity_mean}--> ± 0.51%<!--{ppuf.population_sweep.uniformity_std}-->** over 10 seeds | sim |
+| PUF uniqueness, recirculating mesh | **49.97%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.paper_uniqueness}-->** | **49.89%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniqueness_mean}--> ± 0.25%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniqueness_std}-->** / **49.93%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniqueness_mean}--> ± 0.28%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniqueness_std}-->** (two stated wirings, 10 seeds) | sim |
+| PUF uniformity, recirculating mesh | **50.15%** | **50.01%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniformity_mean}--> ± 0.88%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniformity_std}-->** / **49.88%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniformity_mean}--> ± 0.94%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniformity_std}-->** (two stated wirings) | sim |
 | Recirculating-mesh solver | — | ring/add-drop match analytic to **1e-15** | sim |
 
 The energy and throughput rows use the paper's **own derivation** (Supplementary Note 3),
@@ -259,7 +259,7 @@ docs/REPRODUCTION_REPORT_v10.md §6.3:
 - bar-state coupler-split spread **assumed at 0.02**, not fitted: the digitized Fig 4e
   crosstalk was fitted for it (`scripts/fit_fig4e.py`) and the fitted value was **not
   adopted**, the model doing no better on those points than a constant and the result
-  ranging from **0.0152 to 0.0707** with a choice the figure does not fix. 0.02
+  ranging from **0.0152<!--{fig4e_fit.sensitivity.sigma_split_full_range[0]}--> to 0.0707<!--{fig4e_fit.sensitivity.sigma_split_full_range[1]}-->** with a choice the figure does not fix. 0.02<!--{cross_check.sigma_split}-->
   falls inside that range, so the panel is a consistency check rather than a source. The
   arm-phase spread is assumed for the same reason one curve cannot separate the two
 

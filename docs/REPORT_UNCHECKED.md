@@ -142,3 +142,25 @@ are annotated and the surrounding N-formulae are not, and the percentile labels 
 Sections 1–8 above cover §2 to §6. §1 and §7 carry no `results.json` values: §1 is
 definitional and §7 is the open-items list, whose two runtimes are measurements of this
 machine rather than pipeline outputs.
+
+---
+
+# `README.md`
+
+The headline table's reproduction column is annotated and checked. What is left:
+
+| Value | Where | Why not checked |
+|---|---|---|
+| 94.67%, 93.33%, ~60 ps, −45 to <−20 dB, 50.15%, 1.875 pJ/MAC, 1.92 TOPS, σ=0.0269 → 6.22 bit | the "Paper" column | the paper's values, as in §1 above |
+| 17.10 / 17.83 dB, 7.17–8.08 | the not-reproduced note | the paper's eye-diagram measurements |
+| 3 V, 100 Ω, 96 ops, 2 dir, 10 GBaud | energy and throughput rows | Supplementary Note 3, which the rows say cannot be checked against the main article |
+| 0.96 TMAC·s⁻¹ | energy row | `throughput_energy.mac_rate` holds 9.6e11 MAC·s⁻¹; the README writes the same quantity in TMAC·s⁻¹, and the markup carries no unit conversion |
+| err ≤ 1e-32 | unitarity row | a test assertion, computed outside `results.json` |
+| 1e-15 | solver row | an order-of-magnitude summary, written with a `~` in the prose |
+| ~0.56 | architecture prose | the single-θ Haar fidelity, written as an approximation |
+| 1560, 1549–1565, 1530–1549, 1550–1574 nm | crosstalk and loss rows | wavelength bounds of the stated comparisons |
+| 8 paths, 8 modelled paths, 4×4, 40 PUCs, 10 seeds | throughout | structure, as in §8 above |
+| 22 minutes, 50 seconds, 4 minutes | quick start | measured on this machine, not pipeline outputs |
+| 57 checks | quick start | the size of the test suite |
+| 6.22/5.47 bit, 60 ps, 1.92 TOPS, 1.875 pJ/MAC in the module-reference table and the tier list | module reference, Scope | restatements of the paper's values, identifying what a module covers |
+| 0.0182 and the `0.0152-0.0707` range printed in the "How to run" block | how-to-run | inside a fenced code block, where an HTML comment would render as literal text |
