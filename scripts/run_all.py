@@ -620,6 +620,7 @@ def main(quick=False):
 
     print("\n--- 12a. Fig 4e diagonals vs the paper's on-chip insertion loss ---")
     f4e_diag = fit_fig4e.diagonal_summary()
+    bar_il = fit_fig4e.bar_il_vs_digitized()
 
     paired = paired_logistic_minus_photonic(ir["seed_sweep"], ir["logistic_baseline"])
     print("\n--- Paired Iris comparison (logistic - photonic, same seeds) ---")
@@ -677,6 +678,7 @@ def main(quick=False):
             "onchip_il_paths": onchip_il["paths"],
             "onchip_il_paper_range_db": switching.ONCHIP_IL_PAPER_RANGE_DB,
             "leak_mechanism_check": switching.leak_mechanism_check(),
+            "bar_il_vs_fig4e": bar_il,
         },
         "ppuf": {"uniqueness": pp["uniqueness"], "uniformity": pp["uniformity"],
                  "population_sweep": pp["population_sweep"],

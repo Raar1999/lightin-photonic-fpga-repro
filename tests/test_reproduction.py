@@ -370,6 +370,54 @@ def test_fig4e_model_is_flat_against_the_digitized_curve():
     # no meaningful RMS advantage over the best constant, at the stated point uncertainty
     assert abs(sc["rms_advantage_db"]) < 0.1 * sc["point_sd_db"]
 
+
+def test_bar_il_vs_fig4e_has_four_ports_on_the_panel_scale():
+    """The per-path insertion-loss comparison must cover all four ports and stay on scale.
+
+    Each digitized value in this block has to be a reading from the Fig 4e panel, whose
+    axes run 0 to -25 dB, and there has to be one per input port. A silently short block
+    would still produce a mean difference, and the report would quote it as a four-path
+    comparison when it was fewer; a value off the panel scale would mean the diagonal CSV
+    was paired with the wrong column or the wrong wavelength window.
+    """
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    import fit_fig4e
+    b = fit_fig4e.bar_il_vs_digitized(verbose=False)
+    assert len(b["per_port"]) == 4
+    assert [p["in_port"] for p in b["per_port"]] == [0, 1, 2, 3]
+    for p in b["per_port"]:
+        assert p["in_port"] == p["out_port"]          # the all-bar intended path
+        assert -25.0 <= p["digitized_db"] <= 0.0, p
+        assert -25.0 <= p["digitized_min_db"] <= p["digitized_max_db"] <= 0.0, p
+        assert p["n_points"] == b["n_wavelengths"]
+    # the comparison is the continuous segment only: the legend box hides the rest
+    assert b["band_nm"][1] <= fit_fig4e.DIAG_CONTINUOUS_MAX_NM
+
+
+def test_bar_il_comparison_does_not_depend_on_the_fabrication_spread():
+    """This comparison must be a test of the loss constants, not of SIGMA_SPLIT.
+
+    switching.fabric_matrix uses nominal 50:50 couplers, so the intended-path loss is set
+    by the propagation and coupler excess-loss constants alone. That is what lets report
+    v10 discuss this block next to the paper's quoted range without the assumed spread
+    being an input to it. If a later change routed this through power_spectra instead, the
+    numbers would move with SIGMA_SPLIT and that claim would quietly stop being true.
+    """
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    import fit_fig4e
+    from lightin import switching
+    base = fit_fig4e.bar_il_vs_digitized(verbose=False)
+    keep = switching.SIGMA_SPLIT
+    switching.SIGMA_SPLIT = 0.07          # the top of the Fig 4e percentile-scan range
+    try:
+        moved = fit_fig4e.bar_il_vs_digitized(verbose=False)
+    finally:
+        switching.SIGMA_SPLIT = keep
+    for a, b in zip(base["per_port"], moved["per_port"]):
+        assert a["model_db"] == b["model_db"], (a, b)
+
 def test_fig4e_cells_match_the_shipped_mzi():
     """fit_fig4e._cell is mzi_single_theta over a whole ensemble; check it cell by cell.
 

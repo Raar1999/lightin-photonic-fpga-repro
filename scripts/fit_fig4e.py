@@ -524,6 +524,127 @@ def bootstrap_one(which, lam, db, n_boot=500, seed=0, param_seed=1,
     }
 
 
+
+def bar_il_vs_digitized(max_nm=DIAG_CONTINUOUS_MAX_NM, path=DIAG_CSV, verbose=True):
+    """Modelled bar-state intended-path loss against the four digitized Fig 4e diagonals.
+
+    The paper quotes one insertion-loss range over eight paths and does not say which
+    path or which switch state each end of it belongs to. The digitized diagonals are
+    four measured bar-state values, one per intended path, so they support a per-path
+    comparison the quoted range cannot: not just whether the modelled loss is in the
+    right place, but whether it varies across the four ports the way the chip does.
+
+    Restricted to wavelengths at or below max_nm because each sub-panel's legend box
+    hides roughly 1574.5-1588.3 nm and the grid resumes at 1589.0 nm inside the roll-off
+    at the end of the scan, where the drawn trace is half again as thick as it is across
+    the rest of the band. Including that one point moves the digitized side of this
+    comparison by more than a decibel, so it is left out and the restriction is recorded.
+
+    The model here is switching.fabric_matrix, which uses nominal 50:50 couplers: the
+    intended-path loss is set by the propagation and coupler excess-loss constants, not
+    by the fabrication spreads, so nothing in this comparison depends on SIGMA_SPLIT.
+    """
+    lam, cols = load_diagonals(path)
+    sel = lam <= max_nm
+    lam_s = lam[sel]
+    if lam_s.size == 0:
+        raise ValueError(f"no digitized points at or below {max_nm} nm")
+
+    per_port, diffs_all = [], []
+    for j, name in enumerate(DIAG_NAMES):
+        model_db, out_ports = [], set()
+        for x in lam_s:
+            T = np.abs(switching.fabric_matrix("bar", float(x))) ** 2
+            i = int(np.argmax(T[:, j]))
+            out_ports.add(i)
+            model_db.append(10 * np.log10(T[i, j]))
+        model_db = np.array(model_db)
+        if out_ports != {j}:
+            # the all-bar state must route input j to output j; if it does not, this
+            # comparison is pairing the digitized diagonal with the wrong modelled path
+            raise ValueError(f"bar state routes input {j} to {sorted(out_ports)}, not {j}")
+        dig_db = cols[name][sel]
+        d = model_db - dig_db
+        diffs_all.append(d)
+        per_port.append({
+            "trace": name, "in_port": j, "out_port": j,
+            "model_db": float(model_db.mean()),
+            "digitized_db": float(dig_db.mean()),
+            "difference_db": float(d.mean()),
+            "model_min_db": float(model_db.min()), "model_max_db": float(model_db.max()),
+            "digitized_min_db": float(dig_db.min()),
+            "digitized_max_db": float(dig_db.max()),
+            "n_points": int(lam_s.size),
+        })
+
+    diffs_all = np.concatenate(diffs_all)
+
+    # The modelled fabric is symmetric under port reversal, so it gives two distinct
+    # losses across four ports and ties 0 with 3 and 1 with 2. Sorting would hide that
+    # behind whatever the sort does with equal keys, and the verdict would then be an
+    # artifact of tie-breaking rather than a statement about the model. Every pair is
+    # compared instead, and a tie is recorded as the model declining to order that pair.
+    TIE_DB = 1e-9
+    agree = disagree = tied = 0
+    for a in range(len(per_port)):
+        for b in range(a + 1, len(per_port)):
+            dm = per_port[a]["model_db"] - per_port[b]["model_db"]
+            dd = per_port[a]["digitized_db"] - per_port[b]["digitized_db"]
+            if abs(dm) <= TIE_DB:
+                tied += 1
+            elif (dm > 0) == (dd > 0):
+                agree += 1
+            else:
+                disagree += 1
+
+    def ranking(key):
+        ordered = sorted(per_port, key=lambda p: -p[key])
+        parts = [ordered[0]["trace"]]
+        for prev, cur in zip(ordered, ordered[1:]):
+            parts.append(" = " if abs(prev[key] - cur[key]) <= TIE_DB else " < ")
+            parts.append(cur["trace"])
+        return "".join(parts)
+
+    out = {
+        "band_nm": [float(lam_s.min()), float(lam_s.max())],
+        "n_wavelengths": int(lam_s.size),
+        "per_port": per_port,
+        "mean_abs_diff_db": float(np.abs(diffs_all).mean()),
+        "mean_signed_diff_db": float(diffs_all.mean()),
+        "model_order_least_to_most_lossy": ranking("model_db"),
+        "digitized_order_least_to_most_lossy": ranking("digitized_db"),
+        "pairs_ordered_correctly": agree,
+        "pairs_ordered_wrongly": disagree,
+        "pairs_tied_in_the_model": tied,
+        "order_reproduced": disagree == 0 and tied == 0,
+        "note": ("model minus digitized, so a positive signed mean means the model "
+                 "predicts less loss than the chip shows; the model uses nominal 50:50 "
+                 "couplers, so no fabrication spread enters it"),
+    }
+    if verbose:
+        print("Modelled bar-state intended-path loss vs the digitized Fig 4e diagonals, "
+              f"{lam_s.min():.1f}-{lam_s.max():.1f} nm ({lam_s.size} wavelengths):")
+        print("    port  trace   model      digitized   difference")
+        for p in per_port:
+            print(f"    {p['in_port']}->{p['out_port']}   {p['trace']}  "
+                  f"{p['model_db']:+8.2f} dB  {p['digitized_db']:+8.2f} dB  "
+                  f"{p['difference_db']:+8.2f} dB")
+        print(f"    mean absolute difference {out['mean_abs_diff_db']:.2f} dB, "
+              f"signed mean {out['mean_signed_diff_db']:+.2f} dB "
+              f"({'optimistic' if out['mean_signed_diff_db'] > 0 else 'pessimistic'}: "
+              f"the model predicts "
+              f"{'less' if out['mean_signed_diff_db'] > 0 else 'more'} loss than measured)")
+        print(f"    least to most lossy, model:     "
+              f"{out['model_order_least_to_most_lossy']}")
+        print(f"    least to most lossy, digitized: "
+              f"{out['digitized_order_least_to_most_lossy']}")
+        print(f"    ordering reproduced: {out['order_reproduced']} "
+              f"({agree} of the 6 port pairs ordered correctly, {disagree} wrongly, "
+              f"{tied} tied in the model, which is symmetric under port reversal)")
+    return out
+
+
+
 # --------------------------------------------------------------------------- Step 2b
 
 SCAN_PCTS = (50.0, 75.0, 90.0, 95.0, 99.0, 99.9)
