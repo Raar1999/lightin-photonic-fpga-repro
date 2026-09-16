@@ -58,44 +58,44 @@ The design wavelength is 1560 nm throughout (matrix multiplication, coupler, swi
 | # | Result (figure) | Paper value | This reproduction | Tier |
 |---|---|---|---|---|
 | 1 | PUC unitarity / cross-bar (Eq. 1) | unitary, cross & bar states | unitarity err ≤ 1e-32 (test assertion, computed outside `results.json`); cross/bar correct | **A exact** |
-| 2 | 4×4 permutation matrices (Fig. 2d) | realised by routing | routing fidelity **0.999999999999** (both) | **B** |
-| 3 | 4×4 random unitaries (Fig. 2h,i) | high-fidelity realisation | fidelity **1.000000**, \|·\| corr **1.000000** (ideal couplers) | **B** |
-| 4 | Unitary effective bits @10 GBaud (Fig. 2f) | σ=0.0269 → **6.22 bit** | log₂(2/0.0269) = **6.2163 bit** | **A exact** |
-| 5 | Non-unitary 3×3 mesh (Fig. 2l) | modulus agreement | \|·\| corr **1.000000**, max err **7.8e-16** (ideal couplers) | **B** |
+| 2 | 4×4 permutation matrices (Fig. 2d) | realised by routing | routing fidelity **0.999999999999<!--{unitary.perm_routing_fidelity[0]}-->** (both) | **B** |
+| 3 | 4×4 random unitaries (Fig. 2h,i) | high-fidelity realisation | fidelity **1.000000<!--{unitary.random_mean_fidelity}-->**, \|·\| corr **1.000000<!--{unitary.random_mean_modulus_corr}-->** (ideal couplers) | **B** |
+| 4 | Unitary effective bits @10 GBaud (Fig. 2f) | σ=0.0269 → **6.22 bit** | log₂(2/0.0269) = **6.2163<!--{unitary.enob_at_sigma_0.0269}--> bit** | **A exact** |
+| 5 | Non-unitary 3×3 mesh (Fig. 2l) | modulus agreement | \|·\| corr **1.000000<!--{nonunitary.modulus_corr}-->**, max err **7.8e-16<!--{nonunitary.max_abs_err}-->** (ideal couplers) | **B** |
 | 6 | Non-unitary input/output correlation (Fig. 2n) | measured on chip | not reproduced | **hardware — not reproduced** |
-| 7 | Non-unitary effective bits (Fig. 2f) | σ=0.0453 → **5.47 bit** | log₂(2/0.0453) = **5.4643 bit** | **A exact** |
-| 8 | Iris classification, full set (Fig. 2o,p) | **94.67%** offline | **95.47% ± 1.26%** over 10 seeds | **B** |
-| 9 | Iris classification, held out | — (the paper's 93.33% is an on-chip measurement and is not comparable) | **89.33% ± 5.14%** over 10 seeds | **B** |
-| 10 | Iris identity control | — | **85.60% ± 0.44%** full set, **81.56% ± 4.67%** held out | control |
-| 11 | Iris logistic baseline | — | **96.53% ± 0.88%** full set, **94.89% ± 3.45%** held out | control |
-| 12 | On-chip latency | ~60 ps | n_g·L/c = **60.04 ps** (4.5 mm, n_g=4) | **A exact** |
-| 13 | Throughput | **1.92 TOPS** | **1.92 TOPS** from the Supp Note 3 op count | **consistency check** |
-| 14 | Energy | **1.875 pJ/MAC** | 1.8 W ÷ 9.6e11 MAC·s⁻¹ = **1.875 pJ/MAC** | **consistency check** |
-| 15 | MRM locking (Fig. 3c) | monitoring peaks at high-ER lock | monitoring peak at bias **−0.448**; ER up to **18.46 dB** | **B** (model) |
+| 7 | Non-unitary effective bits (Fig. 2f) | σ=0.0453 → **5.47 bit** | log₂(2/0.0453) = **5.4643<!--{nonunitary.enob_at_sigma_0.0453}--> bit** | **A exact** |
+| 8 | Iris classification, full set (Fig. 2o,p) | **94.67%** offline | **95.47%<!--{iris.seed_sweep.full_acc_mean}--> ± 1.26%<!--{iris.seed_sweep.full_acc_std}-->** over 10 seeds | **B** |
+| 9 | Iris classification, held out | — (the paper's 93.33% is an on-chip measurement and is not comparable) | **89.33%<!--{iris.seed_sweep.test_acc_mean}--> ± 5.14%<!--{iris.seed_sweep.test_acc_std}-->** over 10 seeds | **B** |
+| 10 | Iris identity control | — | **85.60%<!--{iris.identity_control.full_acc_mean}--> ± 0.44%<!--{iris.identity_control.full_acc_std}-->** full set, **81.56%<!--{iris.identity_control.test_acc_mean}--> ± 4.67%<!--{iris.identity_control.test_acc_std}-->** held out | control |
+| 11 | Iris logistic baseline | — | **96.53%<!--{iris.logistic_baseline.full_acc_mean}--> ± 0.88%<!--{iris.logistic_baseline.full_acc_std}-->** full set, **94.89%<!--{iris.logistic_baseline.test_acc_mean}--> ± 3.45%<!--{iris.logistic_baseline.test_acc_std}-->** held out | control |
+| 12 | On-chip latency | ~60 ps | n_g·L/c = **60.04<!--{latency_on_chip_ps}--> ps** (4.5 mm, n_g=4) | **A exact** |
+| 13 | Throughput | **1.92 TOPS** | **1.92<!--{throughput_energy.tops}--> TOPS** from the Supp Note 3 op count | **consistency check** |
+| 14 | Energy | **1.875 pJ/MAC** | 1.8<!--{throughput_energy.P_total_W}--> W ÷ 9.6e11<!--{throughput_energy.mac_rate}--> MAC·s⁻¹ = **1.875<!--{throughput_energy.energy_pj_per_mac}--> pJ/MAC** | **consistency check** |
+| 15 | MRM locking (Fig. 3c) | monitoring peaks at high-ER lock | monitoring peak at bias **−0.448<!--{mrm.lock_bias}-->**; ER up to **18.46<!--{mrm.max_er_db}--> dB** | **B** (model) |
 | 16 | Eye-diagram SNR / Q (Fig. 3d–f) | ~17–18 dB SNR, Q ~7–8 | illustrative model eye only | **hardware — not reproduced** |
-| 17 | Switch crosstalk at 1560 nm, cross state (Fig. 4d) | −45 to <−20 dB | cross **−27.16 to −21.06 dB** | **model vs measurement** |
-| 17b | Switch crosstalk at 1560 nm, bar state (Fig. 4e) | −45 to <−20 dB | bar **−106.67 to −30.50 dB**; both fabrication spreads are assumed at 0.02 (§6.3), and Fig 4e is a consistency check on that rather than a fit (§6.1) | **model vs measurement** |
-| 18 | Switch crosstalk, worst inside the fitted range | <−15/−20 dB over >20 nm | cross **−16.77 dB** over 1549–1565 nm | **model vs measurement** |
-| 19 | Switch crosstalk, worst extrapolated below the data | <−15/−20 dB over >20 nm | cross **−11.80 dB** over 1530–1549 nm | **model vs measurement** |
-| 20 | Mesh T20 model vs digitized Fig 4d | — | RMS **0.79 dB** over 25 points (single-coupler proxy **1.05 dB**) | **fit to measurement** |
-| 20e | Bar-state T32 model vs digitized Fig 4e | — | RMS **0.9013 dB** over 27 points at the assumed spread, against **0.4170 dB** for the best constant on the same points: the model fixes the level and reproduces none of the wavelength structure, so it has no RMS advantage over a constant and the panel was not adopted as a fit (§6.1) | **model vs measurement** |
+| 17 | Switch crosstalk at 1560 nm, cross state (Fig. 4d) | −45 to <−20 dB | cross **−27.16<!--{switching.cross_xtalk_center_db[1]}--> to −21.06<!--{switching.cross_xtalk_center_db[0]}--> dB** | **model vs measurement** |
+| 17b | Switch crosstalk at 1560 nm, bar state (Fig. 4e) | −45 to <−20 dB | bar **−106.67<!--{switching.bar_xtalk_center_db[1]}--> to −30.50<!--{switching.bar_xtalk_center_db[0]}--> dB**; both fabrication spreads are assumed at 0.02 (§6.3), and Fig 4e is a consistency check on that rather than a fit (§6.1) | **model vs measurement** |
+| 18 | Switch crosstalk, worst inside the fitted range | <−15/−20 dB over >20 nm | cross **−16.77<!--{switching.cross_worst_xtalk_fitrange_db}--> dB** over 1549–1565 nm | **model vs measurement** |
+| 19 | Switch crosstalk, worst extrapolated below the data | <−15/−20 dB over >20 nm | cross **−11.80<!--{switching.cross_worst_xtalk_extrapolated_db}--> dB** over 1530–1549 nm | **model vs measurement** |
+| 20 | Mesh T20 model vs digitized Fig 4d | — | RMS **0.79<!--{fig4d_mesh_fit.rms_db}--> dB** over 25<!--{fig4d_mesh_fit.n_points}--> points (single-coupler proxy **1.05<!--{fig4d_fit.rms_db}--> dB**) | **fit to measurement** |
+| 20e | Bar-state T32 model vs digitized Fig 4e | — | RMS **0.9013<!--{cross_check.fig4e_rms_at_assumed_spreads_db}--> dB** over 27<!--{fig4e_fit.n_points}--> points at the assumed spread, against **0.4170<!--{fig4e_fit.shape_check.constant_rms_db}--> dB** for the best constant on the same points: the model fixes the level and reproduces none of the wavelength structure, so it has no RMS advantage over a constant and the panel was not adopted as a fit (§6.1) | **model vs measurement** |
 | 21 | Measured crosstalk spectra (Fig. 4d,e) | measured | not reproduced; the Fig 4d T20 curve is digitized and used as fit input, the Fig 4e T32 curve and the four Fig 4e diagonals are digitized and used as checks, the rest are not | **hardware — not reproduced** |
-| 22 | On-chip insertion loss, 8 paths | **−1.85 to −2.99 dB** (8 measured paths) | **−1.40 to −1.80 dB** (8 modelled paths) | **model vs measurement** |
-| 22b | Bar-state insertion loss, per path (Fig. 4e diagonals) | four digitized bar-state through paths, −1.48 to −2.43 dB over 1550–1574 nm | model optimistic by **+0.38 dB** on average (**0.49 dB** absolute); the port-to-port ordering is **not** reproduced, the modelled fabric being symmetric under port reversal (§3, §6.1) | **model vs measurement** |
-| 23 | PUF uniqueness, feed-forward mesh (Fig. 5) | **49.97%** (simulation) | **49.00% ± 0.34%** over 10 population seeds (48.92% on the single 100-die seed) | **B** |
-| 24 | PUF uniformity, feed-forward mesh (Fig. 5) | **50.15%** (simulation) | **50.32% ± 0.51%** over 10 seeds (49.39% on the single 100-die seed) | **B** |
-| 25 | PUF reliability | 2.55% intra-die HD (experimental) | **0.72%** at a measurement-noise σ of **0.01 rad** per MZI | **model vs measurement** |
-| 23r | PUF uniqueness, recirculating mesh | **49.97%** (simulation) | **49.89% ± 0.25%** (C4_FREE_1), **49.93% ± 0.28%** (C4_FREE_2), over 10 seeds | **model vs simulation** |
-| 24r | PUF uniformity, recirculating mesh | **50.15%** (simulation) | **50.01% ± 0.88%** (C4_FREE_1), **49.88% ± 0.94%** (C4_FREE_2) | **model vs simulation** |
-| 25r | PUF reliability, recirculating mesh | 2.55% intra-die HD (experimental) | **0.76% ± 0.06%** (C4_FREE_1), **0.77% ± 0.06%** (C4_FREE_2), at an assumed noise | **model vs measurement** |
+| 22 | On-chip insertion loss, 8 paths | **−1.85 to −2.99 dB** (8 measured paths) | **−1.40<!--{switching.onchip_il_max_db}--> to −1.80<!--{switching.onchip_il_min_db}--> dB** (8 modelled paths) | **model vs measurement** |
+| 22b | Bar-state insertion loss, per path (Fig. 4e diagonals) | four digitized bar-state through paths, −1.48<!--{switching.bar_il_vs_fig4e.per_port[3].digitized_db}--> to −2.43<!--{switching.bar_il_vs_fig4e.per_port[0].digitized_db}--> dB over 1550<!--{switching.bar_il_vs_fig4e.band_nm[0]}-->–1574<!--{switching.bar_il_vs_fig4e.band_nm[1]}--> nm | model optimistic by **+0.38<!--{switching.bar_il_vs_fig4e.mean_signed_diff_db}--> dB** on average (**0.49<!--{switching.bar_il_vs_fig4e.mean_abs_diff_db}--> dB** absolute); the port-to-port ordering is **not** reproduced, the modelled fabric being symmetric under port reversal (§3, §6.1) | **model vs measurement** |
+| 23 | PUF uniqueness, feed-forward mesh (Fig. 5) | **49.97%** (simulation) | **49.00%<!--{ppuf.population_sweep.uniqueness_mean}--> ± 0.34%<!--{ppuf.population_sweep.uniqueness_std}-->** over 10<!--{ppuf.population_sweep.n_seeds}--> population seeds (48.92%<!--{ppuf.uniqueness}--> on the single 100-die seed) | **B** |
+| 24 | PUF uniformity, feed-forward mesh (Fig. 5) | **50.15%** (simulation) | **50.32%<!--{ppuf.population_sweep.uniformity_mean}--> ± 0.51%<!--{ppuf.population_sweep.uniformity_std}-->** over 10 seeds (49.39%<!--{ppuf.uniformity}--> on the single 100-die seed) | **B** |
+| 25 | PUF reliability | 2.55% intra-die HD (experimental) | **0.72%<!--{ppuf.population_sweep.reliability_mean}-->** at a measurement-noise σ of **0.01<!--{ppuf.measurement_noise_sigma}--> rad** per MZI | **model vs measurement** |
+| 23r | PUF uniqueness, recirculating mesh | **49.97%** (simulation) | **49.89%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniqueness_mean}--> ± 0.25%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniqueness_std}-->** (C4_FREE_1), **49.93%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniqueness_mean}--> ± 0.28%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniqueness_std}-->** (C4_FREE_2), over 10 seeds | **model vs simulation** |
+| 24r | PUF uniformity, recirculating mesh | **50.15%** (simulation) | **50.01%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniformity_mean}--> ± 0.88%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniformity_std}-->** (C4_FREE_1), **49.88%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniformity_mean}--> ± 0.94%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniformity_std}-->** (C4_FREE_2) | **model vs simulation** |
+| 25r | PUF reliability, recirculating mesh | 2.55% intra-die HD (experimental) | **0.76%<!--{ppuf_recirc.C4_FREE_1.population_sweep.reliability_mean}--> ± 0.06%<!--{ppuf_recirc.C4_FREE_1.population_sweep.reliability_std}-->** (C4_FREE_1), **0.77%<!--{ppuf_recirc.C4_FREE_2.population_sweep.reliability_mean}--> ± 0.06%<!--{ppuf_recirc.C4_FREE_2.population_sweep.reliability_std}-->** (C4_FREE_2), at an assumed noise | **model vs measurement** |
 | 26 | PUF experimental, 2 dies | 57.71% / 42.62% / 2.55% | not reproduced | **hardware — not reproduced** |
-| 27 | Recirculating-mesh solver | — | ring **2.9e-16**, add-drop **8.4e-16** vs analytic | **B** |
+| 27 | Recirculating-mesh solver | — | ring **2.9e-16<!--{recirculating.ring_rms}-->**, add-drop **8.4e-16<!--{recirculating.add_drop_rms}-->** vs analytic | **B** |
 
 Row 25 carries a model input as well as a model output. The measurement-noise standard
-deviation is 0.01 rad per MZI (`measurement_noise_sigma`), and its source is recorded as
+deviation is 0.01<!--{ppuf.measurement_noise_sigma}--> rad per MZI (`measurement_noise_sigma`), and its source is recorded as
 an assumed value, not taken from the paper (`measurement_noise_source`). The modelled
 reliability scales with that value: a larger assumed noise flips more bits between
-re-measurements and gives a larger intra-die Hamming distance, so 0.72% is a statement
+re-measurements and gives a larger intra-die Hamming distance, so 0.72%<!--{ppuf.population_sweep.reliability_mean}--> is a statement
 about the assumption as much as about the mesh.
 
 ---
@@ -104,18 +104,18 @@ about the assumption as much as about the mesh.
 
 Rows 2, 3 and 5 assume ideal 50:50 couplers. `lightin/puc.py` builds its universal 2-DOF
 MZI from a wavelength-independent beamsplitter `(1/√2)[[1, i], [i, 1]]`, and `unitary.py`
-and `nonunitary.py` are built on that block. The fidelities of 1.000000 in rows 3 and 5
+and `nonunitary.py` are built on that block. The fidelities of 1.000000<!--{unitary.random_mean_fidelity}--> in rows 3 and 5
 are therefore statements about the mesh algebra — that a Clements decomposition and an
 SVD/diamond realisation are implemented correctly — and not about what this chip's
 couplers would achieve.
 
-The coupler actually fitted to the chip's own Fig 4d data is 50:50 at 1574.7 nm, not at
-the 1560 nm design wavelength (§6.1). At 1560 nm its power coupling is 0.462
+The coupler actually fitted to the chip's own Fig 4d data is 50:50 at 1574.7<!--{fig4d_mesh_fit.lambda0_nm}--> nm, not at
+the 1560 nm design wavelength (§6.1). At 1560 nm its power coupling is 0.462<!--{coupler.power_coupling_at_1560}-->
 (`coupler.power_coupling_at_1560`) rather than 0.500, and that imbalance alone caps the
-fidelity of the single-θ cross state at 0.9942 (`coupler_ceiling_fidelity_at_1560`). Over
-the 1530–1565 nm sweep (`coupler_ceiling_range_nm`) the ceiling falls as low as 0.9469
+fidelity of the single-θ cross state at 0.9942<!--{expressivity.coupler_ceiling_fidelity_at_1560}--> (`coupler_ceiling_fidelity_at_1560`). Over
+the 1530<!--{expressivity.coupler_ceiling_range_nm[0]}-->–1565<!--{expressivity.coupler_ceiling_range_nm[1]}--> nm sweep (`coupler_ceiling_range_nm`) the ceiling falls as low as 0.9469<!--{expressivity.coupler_ceiling_min_fidelity}-->
 (`coupler_ceiling_min_fidelity`). Rows 3 and 5 should be read against that ceiling: the
-ideal-coupler mesh reaches 1.000000, and a mesh built from the chip's own coupler would
+ideal-coupler mesh reaches 1.000000<!--{unitary.random_mean_fidelity}-->, and a mesh built from the chip's own coupler would
 not.
 
 Unitary mesh (rows 2–3). Arbitrary unitaries are realised on a universal Clements
@@ -123,7 +123,7 @@ rectangular mesh of 2-DOF MZIs; the programming phases are fitted, then the real
 matrix is rebuilt independently from the physical MZI matrices, so fidelity = 1 is a
 genuine check rather than a tautology. The permutations of Fig. 2d are treated the same
 way: `_best_routing` optimises the single-θ mesh phases and reports the fraction of input
-power that actually reaches each target port, giving 0.999999999999 for both. A
+power that actually reaches each target port, giving 0.999999999999<!--{unitary.perm_routing_fidelity[0]}--> for both. A
 permutation matrix compared against itself would give 1 by construction and would test
 nothing, so the routing optimisation is what makes row 2 a measurement.
 
@@ -135,7 +135,7 @@ ENOB = log₂(range/σ) with range = 2 (outputs in [−1, 1]). Both reproduce to
 which also confirms the convention.
 
 Non-unitary (rows 5–6). The SVD/diamond realisation is checked by element-modulus
-agreement: correlation 1.000000 and maximum absolute error 7.8e-16. That is the whole of
+agreement: correlation 1.000000<!--{nonunitary.modulus_corr}--> and maximum absolute error 7.8e-16<!--{nonunitary.max_abs_err}-->. That is the whole of
 the simulation check. Fig. 2n is the chip's measured input/output correlation; comparing
 the model's output vector against a copy of itself would return 1.0 while measuring
 nothing, so no vector correlation is reported.
@@ -144,22 +144,22 @@ Iris (rows 8–11). The photonic layer is a trainable 4×4 unitary whose four de
 intensities feed a small learned linear readout, consistent with the paper's offline
 training. Reporting a single seed is not defensible here: over 10 seeds (the seed drives
 both the 70/30 stratified split and the 15 random restarts) the full-set accuracy is
-95.47% ± 1.26% and the held-out accuracy 89.33% ± 5.14%. The paper's 94.67% sits
+95.47%<!--{iris.seed_sweep.full_acc_mean}--> ± 1.26%<!--{iris.seed_sweep.full_acc_std}--> and the held-out accuracy 89.33%<!--{iris.seed_sweep.test_acc_mean}--> ± 5.14%<!--{iris.seed_sweep.test_acc_std}-->. The paper's 94.67% sits
 comfortably inside that spread, so agreement at one seed is not evidence of much.
 
 Two controls put the number in context, both on the same splits:
 
-* Identity control — the unitary frozen to I, only the readout trained: 85.60% ± 0.44%
-  full set, 81.56% ± 4.67% held out. The programmable unitary is therefore worth about
+* Identity control — the unitary frozen to I, only the readout trained: 85.60%<!--{iris.identity_control.full_acc_mean}--> ± 0.44%<!--{iris.identity_control.full_acc_std}-->
+  full set, 81.56%<!--{iris.identity_control.test_acc_mean}--> ± 4.67%<!--{iris.identity_control.test_acc_std}--> held out. The programmable unitary is therefore worth about
   10 points, which is a real contribution.
 * Logistic baseline — plain multinomial logistic regression on the same four standardized
-  features: 96.53% ± 0.88% full set, 94.89% ± 3.45% held out. Because the two sweeps run
+  features: 96.53%<!--{iris.logistic_baseline.full_acc_mean}--> ± 0.88%<!--{iris.logistic_baseline.full_acc_std}--> full set, 94.89%<!--{iris.logistic_baseline.test_acc_mean}--> ± 3.45%<!--{iris.logistic_baseline.test_acc_std}--> held out. Because the two sweeps run
   the same seeds and the seed fixes the split, they can be differenced seed by seed
   (`paired_logistic_minus_photonic`). On the full set the logistic model is ahead by
-  1.07 ± 1.30 points, winning on 7 of the 10 seeds, tying on 2 and losing on 1; the
+  1.07 ± 1.30 points, winning on 7<!--{iris.paired_logistic_minus_photonic.full_n_logistic_higher}--> of the 10 seeds, tying on 2<!--{iris.paired_logistic_minus_photonic.full_n_equal}--> and losing on 1<!--{iris.paired_logistic_minus_photonic.full_n_photonic_higher}-->; the
   absolute paired mean is smaller than the paired standard deviation, so that difference
   is within the seed-to-seed spread. On the held-out split it is ahead by 5.56 ± 3.67
-  points, winning on 9 seeds, tying on 1 and losing on none; there the absolute paired
+  points, winning on 9<!--{iris.paired_logistic_minus_photonic.test_n_logistic_higher}--> seeds, tying on 1<!--{iris.paired_logistic_minus_photonic.test_n_equal}--> and losing on none; there the absolute paired
   mean exceeds the paired standard deviation, so that is a consistent difference. The Iris
   demonstration shows that the mesh can be trained to classify; it does not show that the
   mesh classifies better than a multinomial logistic regression with 15 parameters (four
@@ -173,9 +173,9 @@ is not established.
 
 Energy and throughput (rows 13–14). Reported as consistency checks, not as reproductions.
 The derivation is the paper's own: 40 PUCs, each biased at E[θ] = π/2 and so drawing on
-average half of the 90 mW π-power, gives 45 mW per cell and 1.8 W across the 40 cells;
-dividing by the 4×4 MAC rate of 9.6e11 MAC·s⁻¹ at 10 GBaud yields 1.875 pJ/MAC, and the
-Supplementary op count gives 1.92 TOPS. The 3 V across 100 Ω, the 90 mW, and the
+average half of the 90<!--{throughput_energy.P_pi_mW}--> mW π-power, gives 45<!--{throughput_energy.P_avg_per_mzi_mW}--> mW per cell and 1.8<!--{throughput_energy.P_total_W}--> W across the 40 cells;
+dividing by the 4×4 MAC rate of 9.6e11<!--{throughput_energy.mac_rate}--> MAC·s⁻¹ at 10 GBaud yields 1.875<!--{throughput_energy.energy_pj_per_mac}--> pJ/MAC, and the
+Supplementary op count gives 1.92<!--{throughput_energy.tops}--> TOPS. The 3 V across 100 Ω, the 90 mW, and the
 96-operation count all come from Supplementary Note 3 and cannot be checked against the
 main article.
 
@@ -185,7 +185,7 @@ coupled-mode-theory coupler of §4.2 rather than by a hand-set slope; the bar-st
 crosstalk is now produced by a coupler-split spread fitted to Fig 4e, with the arm-phase
 spread still assumed, as the next paragraphs and §6.3 set out. The loss still comes from
 assumed constants. At 1560 nm the model gives
-cross-state crosstalk of −27.16 to −21.06 dB and bar-state −106.67 to −30.50 dB, against
+cross-state crosstalk of −27.16<!--{switching.cross_xtalk_center_db[1]}--> to −21.06<!--{switching.cross_xtalk_center_db[0]}--> dB and bar-state −106.67<!--{switching.bar_xtalk_center_db[1]}--> to −30.50<!--{switching.bar_xtalk_center_db[0]}--> dB, against
 the paper's −45 to <−20 dB.
 
 The worst case over wavelength is reported as two separate numbers, because only one of
@@ -193,16 +193,16 @@ them is backed by data:
 
 | Range | Status | Worst cross-state crosstalk |
 |---|---|---|
-| **1549–1565 nm** | inside the wavelengths digitized from Fig 4d (1549–1587 nm) | **−16.77 dB** |
-| **1530–1549 nm** | below every digitized point; model extrapolation | **−11.80 dB** |
+| **1549–1565 nm** | inside the wavelengths digitized from Fig 4d (1549–1587 nm) | **−16.77<!--{switching.cross_worst_xtalk_fitrange_db}--> dB** |
+| **1530–1549 nm** | below every digitized point; model extrapolation | **−11.80<!--{switching.cross_worst_xtalk_extrapolated_db}--> dB** |
 
-Inside the fitted range, the model meets the −15 dB figure (worst −16.77 dB) but not the
+Inside the fitted range, the model meets the −15 dB figure (worst −16.77<!--{switching.cross_worst_xtalk_fitrange_db}--> dB) but not the
 −20 dB figure. These are predictions of a model constrained by one digitized port pair,
 not measurements of the other port pairs. The digitized T20 curve itself reaches −14.1 dB
 at 1549.0 nm, within its ±2 dB digitization uncertainty. (That −14.1 dB is read directly
 from `data/fig4d_T20_digitized.csv` and is not a `results.json` value.) The extrapolated
 number is 5.0 dB worse again, and it rests entirely on the model: no digitized point
-exists below 1549 nm, so −11.80 dB is what the coupled-mode-theory coupler predicts when
+exists below 1549 nm, so −11.80<!--{switching.cross_worst_xtalk_extrapolated_db}--> dB is what the coupled-mode-theory coupler predicts when
 run past the edge of its own fit, not something the chip's published data supports. It
 should be read as a projection, and it is the pessimistic half of the band.
 
@@ -210,10 +210,10 @@ The two states do not leak for the same reason, and `leak_mechanism_check` in
 `results.json` separates them on one switch cell at 1560 nm.
 
 The cross state leaks because a single directional-coupler design is 3-dB at only one
-wavelength (§4.2). At 1560 nm the fitted coupler splits 0.462 rather than 0.500, and it is
+wavelength (§4.2). At 1560 nm the fitted coupler splits 0.462<!--{coupler.power_coupling_at_1560}--> rather than 0.500, and it is
 that offset common to both couplers, rather than any difference between them, that the
 cross state cannot cancel. Forcing both couplers to an exact 50:50 split drops the cell's
-leakage from −25.69 dB (`cross_cell_leak_db_model`) to −32.87 dB
+leakage from −25.69<!--{switching.leak_mechanism_check.cross_cell_leak_db_model}--> dB (`cross_cell_leak_db_model`) to −32.87<!--{switching.leak_mechanism_check.cross_cell_leak_db_ideal_coupler}--> dB
 (`cross_cell_leak_db_ideal_coupler`), an improvement of 7.18 dB, and the leakage moves with
 wavelength because the split does. That is the mechanism behind rows 17–19.
 
@@ -227,9 +227,9 @@ Both are 0.02 with no recorded source (§6.3). The digitized Fig 4e curve was fi
 no better than a constant and the spread it returns moves by a factor of 4.6 with a choice
 the figure does not fix; 0.02 lies inside that range, so the panel is recorded as a
 consistency check (§6.1). Set both to zero and the bar state nulls exactly, below the
-1e-20 structural-zero threshold. Leave them and the cell leaks −29.81 dB
+1e-20 structural-zero threshold. Leave them and the cell leaks −29.81<!--{switching.leak_mechanism_check.bar_cell_leak_db_model}--> dB
 (`bar_cell_leak_db_model`); ideal 50:50 couplers, which remove the split imbalance but
-leave the phase error, give −32.87 dB (`bar_cell_leak_db_ideal_coupler`).
+leave the phase error, give −32.87<!--{switching.leak_mechanism_check.bar_cell_leak_db_ideal_coupler}--> dB (`bar_cell_leak_db_ideal_coupler`).
 
 The bar-state numbers are therefore a statement about two assumed spreads, and they would
 move if either were set differently. What the measured panel adds is a bound rather than a
@@ -243,43 +243,43 @@ exactly 1, so the two arms carry identical loss (`ARM_LOSS_DB`), and every loss 
 cell — the 0.1 dB coupler excess loss and the 0.25 dB per-stage propagation — is a scalar
 prefactor on the whole 2×2 that reaches both output ports equally. Setting both arms to the
 mean of the two arm losses is consequently a no-op: `bar_cell_leak_db_equal_arm_loss` =
-−29.81 dB and `cross_cell_leak_db_equal_arm_loss` = −25.69 dB equal their `_model`
+−29.81<!--{switching.leak_mechanism_check.bar_cell_leak_db_equal_arm_loss}--> dB and `cross_cell_leak_db_equal_arm_loss` = −25.69<!--{switching.leak_mechanism_check.cross_cell_leak_db_equal_arm_loss}--> dB equal their `_model`
 counterparts to the last digit, and the full-fabric bar-state centre range under that
-substitution, `bar_center_db_equal_arm_loss`, is [−30.50, −106.67] dB — the shipped
+substitution, `bar_center_db_equal_arm_loss`, is [−30.50<!--{switching.leak_mechanism_check.bar_center_db_equal_arm_loss[0]}-->, −106.67<!--{switching.leak_mechanism_check.bar_center_db_equal_arm_loss[1]}-->] dB — the shipped
 `bar_xtalk_center_db` unchanged. Coupler dispersion is ruled out for the bar
 state alone: moving the fitted 3-dB wavelength by 14.7 nm shifts the bar-state values by
 hundredths of a dB while the cross-state values move by several.
 
-Both states report 0 structural zeros (`cross_structural_zeros` and
+Both states report 0<!--{switching.cross_structural_zeros}--> structural zeros (`cross_structural_zeros` and
 `bar_structural_zeros`): no port pair was excluded from the crosstalk statistics for
 carrying no power, so the numbers above are over every off-target path. A pair is counted
 as a structural zero only when its raw linear transmission falls below 1e-20, and the test
 is made on that raw power rather than on a decibel value, so no additive constant can
 manufacture a floor. The lowest bar-state entry, input 0 to output 3, sits at a raw
-transmission well below the rest (−106.67 dB); reaching that port takes three off-target
+transmission well below the rest (−106.67<!--{switching.bar_xtalk_center_db[1]}--> dB); reaching that port takes three off-target
 couplings, which is why it is so far below the rest and why it is a real model prediction
 rather than a numerical artefact. Each of those three couplings is one factor of the
-coupler-imbalance and arm-phase terms above, so −106.67 dB is roughly three times as far
-from the paper's data as the −30.50 dB entry is. Neither should be read as a crosstalk the
+coupler-imbalance and arm-phase terms above, so −106.67<!--{switching.bar_xtalk_center_db[1]}--> dB is roughly three times as far
+from the paper's data as the −30.50<!--{switching.bar_xtalk_center_db[0]}--> dB entry is. Neither should be read as a crosstalk the
 chip would show at that port: the Fig 4e curve constrains one port pair, T32, and the
 model carries one assumed spread to all sixteen.
 
-The fitted crosstalk floor of −26.2 dB (`chip_crosstalk_floor_db`) is recorded in
+The fitted crosstalk floor of −26.2<!--{switching.chip_crosstalk_floor_db}--> dB (`chip_crosstalk_floor_db`) is recorded in
 `switching.py` as `FIG4D_FLOOR_DB` and is deliberately not added to any crosstalk this
 module reports. Adding it would state a floor the mesh model does not predict. Its meaning
-runs the other way: modelled crosstalk below −26.2 dB is not reached on the chip.
+runs the other way: modelled crosstalk below −26.2<!--{switching.chip_crosstalk_floor_db}--> dB is not reached on the chip.
 
 The on-chip insertion loss of row 22 is the transmission of each intended path through the
 fabric alone, which carries the mesh's propagation and coupler excess losses and no
 grating couplers. Over the eight intended paths — four inputs in the all-cross state and
-four in the all-bar state — the model gives −1.40 to −1.80 dB (`onchip_il_min_db`,
-`onchip_il_max_db`), against the paper's measured −1.85 to −2.99 dB
+four in the all-bar state — the model gives −1.40<!--{switching.onchip_il_max_db}--> to −1.80<!--{switching.onchip_il_min_db}--> dB (`onchip_il_min_db`,
+`onchip_il_max_db`), against the paper's measured −1.85<!--{switching.onchip_il_paper_range_db[1]}--> to −2.99<!--{switching.onchip_il_paper_range_db[0]}--> dB
 (`onchip_il_paper_range_db`). The two ranges do not overlap: the model's most-lossy path,
-at −1.80 dB, is still 0.05 dB better than the paper's least-lossy measured path at
-−1.85 dB. End to end the model is optimistic by 0.45 dB at the least-lossy end and by
+at −1.80<!--{switching.onchip_il_min_db}--> dB, is still 0.05 dB better than the paper's least-lossy measured path at
+−1.85<!--{switching.onchip_il_paper_range_db[1]}--> dB. End to end the model is optimistic by 0.45 dB at the least-lossy end and by
 1.19 dB at the most-lossy end. The loss parameters were left unchanged rather than tuned
    to close that gap, so the disagreement stays visible. Separately, the fibre-to-fibre
-   link budget at 1560 nm is 11.43 dB (`fibre_to_fibre_loss_db`), dominated by the two
+   link budget at 1560 nm is 11.43<!--{switching.fibre_to_fibre_loss_db}--> dB (`fibre_to_fibre_loss_db`), dominated by the two
    grating couplers; it is a different quantity from the on-chip loss and is not
    comparable with the paper's on-chip range.
 
@@ -287,17 +287,17 @@ Row 22b is the same disagreement measured a different way, and it is the sharper
 two. The paper quotes one range over eight paths and does not say which path or which
 switch state either end belongs to, so row 22 can only compare a range with a range. The
 four digitized Fig 4e diagonals are four *measured* bar-state insertion losses, one per
-intended path, so they can be compared path by path. Over 1550.0–1574.0 nm the model is
-optimistic on average by 0.38 dB (0.49 dB absolute), the same direction and about the same
+intended path, so they can be compared path by path. Over 1550.0<!--{switching.bar_il_vs_fig4e.band_nm[0]}-->–1574.0<!--{switching.bar_il_vs_fig4e.band_nm[1]}--> nm the model is
+optimistic on average by 0.38<!--{switching.bar_il_vs_fig4e.mean_signed_diff_db}--> dB (0.49<!--{switching.bar_il_vs_fig4e.mean_abs_diff_db}--> dB absolute), the same direction and about the same
 size as row 22 gives.
 
 The per-path comparison also shows something the range comparison cannot, and it is a
 disagreement in shape rather than in level. **The fabric model is symmetric under port
-reversal: it gives port 0 and port 3 the same loss, −1.40 dB, and port 1 and port 2 the
-same loss, −1.80 dB. The four digitized losses instead fall monotonically with port index,
-the measured transmission rising from −2.43 dB at port 0 through −2.27 and −1.75 dB to
-−1.48 dB at port 3.** Of the six port pairs the model orders 2 correctly and 2 wrongly,
-and ties the remaining 2, which is what a symmetric model must do against an asymmetric
+reversal: it gives port 0 and port 3 the same loss, −1.40<!--{switching.bar_il_vs_fig4e.per_port[0].model_db}--> dB, and port 1 and port 2 the
+same loss, −1.80<!--{switching.bar_il_vs_fig4e.per_port[1].model_db}--> dB. The four digitized losses instead fall monotonically with port index,
+the measured transmission rising from −2.43<!--{switching.bar_il_vs_fig4e.per_port[0].digitized_db}--> dB at port 0 through −2.27<!--{switching.bar_il_vs_fig4e.per_port[1].digitized_db}--> and −1.75<!--{switching.bar_il_vs_fig4e.per_port[2].digitized_db}--> dB to
+−1.48<!--{switching.bar_il_vs_fig4e.per_port[3].digitized_db}--> dB at port 3.** Of the six port pairs the model orders 2<!--{switching.bar_il_vs_fig4e.pairs_ordered_correctly}--> correctly and 2<!--{switching.bar_il_vs_fig4e.pairs_ordered_wrongly}--> wrongly,
+and ties the remaining 2<!--{switching.bar_il_vs_fig4e.pairs_tied_in_the_model}-->, which is what a symmetric model must do against an asymmetric
 chip.
 
 A likely explanation, *proposed rather than tested*: `switching.fabric_matrix` contains
@@ -322,16 +322,16 @@ the same physical chip. Both injections are needed: in a feed-forward mesh, reac
 monotonically with port index and biases every pair towards its even member; the diagonal
 pair has mirror-image decay and the bias cancels.
 
-On one 100-die seed the feed-forward model gives uniqueness 48.92%, uniformity 49.39%,
-intra-die reliability 0.74% and a tie fraction of 0.0. Across 10 population seeds of 40
-dies it gives 49.00% ± 0.34%, 50.32% ± 0.51% and 0.72% ± 0.08%. The spread across seeds is
+On one 100-die seed the feed-forward model gives uniqueness 48.92%<!--{ppuf.uniqueness}-->, uniformity 49.39%<!--{ppuf.uniformity}-->,
+intra-die reliability 0.74%<!--{ppuf.reliability_intra_die_HD}--> and a tie fraction of 0.0<!--{ppuf.tie_fraction}-->. Across 10<!--{ppuf.population_sweep.n_seeds}--> population seeds of 40
+dies it gives 49.00%<!--{ppuf.population_sweep.uniqueness_mean}--> ± 0.34%<!--{ppuf.population_sweep.uniqueness_std}-->, 50.32%<!--{ppuf.population_sweep.uniformity_mean}--> ± 0.51%<!--{ppuf.population_sweep.uniformity_std}--> and 0.72%<!--{ppuf.population_sweep.reliability_mean}--> ± 0.08%<!--{ppuf.population_sweep.reliability_std}-->. The spread across seeds is
 comparable to the differences discussed below, so single-seed figures are labelled as such
 wherever they appear.
 
 The arm-length mean is negative. `ppuf.py` had recorded the per-MZI arm-length difference as
 N(+0.08 um, 0.11 um); the preprint gives N(-0.08 um, 0.11 um) (section 2.5, and §6.4 below),
 and the sign is corrected here. It moves the three PUF metrics very little: uniqueness
-0.4901 to 0.4892, uniformity 0.5012 to 0.4939, reliability 0.00719 to 0.00735, every change
+0.4901 to 0.4892<!--{ppuf.uniqueness}-->, uniformity 0.5012 to 0.4939<!--{ppuf.uniformity}-->, reliability 0.00719 to 0.00735<!--{ppuf.reliability_intra_die_HD}-->, every change
 below 0.008. The mean phase itself flips from +0.7604 to -0.7604 rad.
 
 **The PUF on the recirculating mesh (rows 23r-25r).** The chip's PUF runs on the 4x4
@@ -355,7 +355,7 @@ made here -- the preprint states that the same programming voltage is applied to
 equivalent logical positions under the rotation (section 2.5). A challenge is therefore
 **20 bits**. Two nominally equal-power beams enter one pair of optical ports exchanged by
 the half turn, and each remaining port is compared with its half-turn image, giving
-**9 response bits**, all 9 of which carry light. With no fabrication error every compared
+**9 response bits**, all 9<!--{ppuf_recirc.live_pairs}--> of which carry light. With no fabrication error every compared
 pair is exactly equal and every bit is a tie, so the response is produced entirely by the
 manufacturing spread.
 
@@ -369,21 +369,21 @@ the model):
 
 | | uniqueness | uniformity | reliability (intra-die HD) |
 |---|---|---|---|
-| paper, 100-die simulation | **49.97%** | **50.15%** | 2.55% (experimental, 2 dies) |
-| recirculating, C4_FREE_1 | 49.89% ± 0.25% | 50.01% ± 0.88% | 0.76% ± 0.06% |
-| recirculating, C4_FREE_2 | 49.93% ± 0.28% | 49.88% ± 0.94% | 0.77% ± 0.06% |
-| feed-forward | 49.00% ± 0.34% | 50.32% ± 0.51% | 0.72% ± 0.08% |
+| paper, 100-die simulation | **49.97%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.paper_uniqueness}-->** | **50.15%** | 2.55% (experimental, 2 dies) |
+| recirculating, C4_FREE_1 | 49.89%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniqueness_mean}--> ± 0.25%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniqueness_std}--> | 50.01%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniformity_mean}--> ± 0.88%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniformity_std}--> | 0.76%<!--{ppuf_recirc.C4_FREE_1.population_sweep.reliability_mean}--> ± 0.06%<!--{ppuf_recirc.C4_FREE_1.population_sweep.reliability_std}--> |
+| recirculating, C4_FREE_2 | 49.93%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniqueness_mean}--> ± 0.28%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniqueness_std}--> | 49.88%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniformity_mean}--> ± 0.94%<!--{ppuf_recirc.C4_FREE_2.population_sweep.uniformity_std}--> | 0.77%<!--{ppuf_recirc.C4_FREE_2.population_sweep.reliability_mean}--> ± 0.06%<!--{ppuf_recirc.C4_FREE_2.population_sweep.reliability_std}--> |
+| feed-forward | 49.00%<!--{ppuf.population_sweep.uniqueness_mean}--> ± 0.34%<!--{ppuf.population_sweep.uniqueness_std}--> | 50.32%<!--{ppuf.population_sweep.uniformity_mean}--> ± 0.51%<!--{ppuf.population_sweep.uniformity_std}--> | 0.72%<!--{ppuf.population_sweep.reliability_mean}--> ± 0.08%<!--{ppuf.population_sweep.reliability_std}--> |
 
 Differenced seed by seed, the recirculating model's uniqueness minus the feed-forward
-model's is +0.88% ± 0.42% over the 10 seeds. The absolute paired mean exceeds the paired
+model's is +0.88%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.mean}--> ± 0.42%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.std}--> over the 10 seeds. The absolute paired mean exceeds the paired
 standard deviation, so by the rule used for the Iris comparison that is **a consistent
 difference** rather than seed-to-seed noise: the recirculating model's uniqueness sits
-nearer the paper's 49.97% on all 10 of the 10 seeds, the feed-forward model on none, with
+nearer the paper's 49.97%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.paper_uniqueness}--> on all 10<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.n_seeds_recirc_closer}--> of the 10 seeds, the feed-forward model on none, with
 none tied. That much survives the sweep.
 
 What does not survive is the exactness. The single-seed run reported earlier, in which the
-recirculating model returned 49.97% against the paper's 49.97%, was one draw from a
-distribution whose mean is 49.89% ± 0.25%; the paper's value sits 0.3 sample standard
+recirculating model returned 49.97%<!--{ppuf_recirc.C4_FREE_1.uniqueness}--> against the paper's 49.97%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.paper_uniqueness}-->, was one draw from a
+distribution whose mean is 49.89%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniqueness_mean}--> ± 0.25%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniqueness_std}-->; the paper's value sits 0.3 sample standard
 deviations from that mean. The match to four significant figures was luck, and no claim
 that this model reproduces the paper's uniqueness exactly is supportable. What the sweep
 supports is narrower: over 40-die populations the recirculating model is consistently the
@@ -392,12 +392,12 @@ nearer of the two, by 0.88 points, with both models inside a point of the paper.
 **What agreement on uniqueness is worth.** A uniqueness near 50% is the default outcome of
 comparing two nominally identical outputs, not a discriminating result: any construction in
 which the two compared ports are exchangeable produces it, including the exchangeable model
-this reproduction rejected at its first audit. Matching 49.97% is therefore weak evidence
+this reproduction rejected at its first audit. Matching 49.97%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.paper_uniqueness}--> is therefore weak evidence
 on its own, and the two models matching it equally well is what one would expect rather
 than a coincidence. The evidence that the response is driven by the device physics is the
-sensitivity sweep, not the headline number: uniqueness climbs from 0.2412 at
-sigma = 0.001 to 0.5011 at sigma = 3.0, the tie fraction falls from 0.5141 to 0.0000, and
-all 9 response pairs carry light throughout, so the bits are being set by the manufacturing
+sensitivity sweep, not the headline number: uniqueness climbs from 0.2412<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].uniqueness}--> at
+sigma = 0.001<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].sigma_phase}--> to 0.5011<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[5].uniqueness}--> at sigma = 3.0<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[5].sigma_phase}-->, the tie fraction falls from 0.5141<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].tie_fraction}--> to 0.0000<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[5].tie_fraction}-->, and
+all 9<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].live_pairs}--> response pairs carry light throughout, so the bits are being set by the manufacturing
 spread rather than by the construction of the comparison.
 
 **Reliability is set by an assumed number.** `MEAS_NOISE_SIGMA` has no recorded source
@@ -406,15 +406,15 @@ spread rather than by the construction of the comparison.
 
 | assumed noise sigma (rad) | uniqueness | uniformity | reliability | tie fraction |
 |---|---|---|---|---|
-| 0.002 | 0.4934 | 0.4805 | 0.0018 | 0.0000 |
-| 0.005 | 0.4934 | 0.4805 | 0.0044 | 0.0000 |
-| 0.010 | 0.4934 | 0.4805 | 0.0084 | 0.0000 |
-| 0.020 | 0.4934 | 0.4805 | 0.0159 | 0.0000 |
-| 0.050 | 0.4934 | 0.4805 | 0.0393 | 0.0000 |
+| 0.002<!--{ppuf_recirc.C4_FREE_1.noise_sweep[0].meas_noise_sigma}--> | 0.4934<!--{ppuf_recirc.C4_FREE_1.noise_sweep[0].uniqueness}--> | 0.4805<!--{ppuf_recirc.C4_FREE_1.noise_sweep[0].uniformity}--> | 0.0018<!--{ppuf_recirc.C4_FREE_1.noise_sweep[0].reliability}--> | 0.0000<!--{ppuf_recirc.C4_FREE_1.noise_sweep[0].tie_fraction}--> |
+| 0.005<!--{ppuf_recirc.C4_FREE_1.noise_sweep[1].meas_noise_sigma}--> | 0.4934<!--{ppuf_recirc.C4_FREE_1.noise_sweep[1].uniqueness}--> | 0.4805<!--{ppuf_recirc.C4_FREE_1.noise_sweep[1].uniformity}--> | 0.0044<!--{ppuf_recirc.C4_FREE_1.noise_sweep[1].reliability}--> | 0.0000<!--{ppuf_recirc.C4_FREE_1.noise_sweep[1].tie_fraction}--> |
+| 0.010<!--{ppuf_recirc.C4_FREE_1.noise_sweep[2].meas_noise_sigma}--> | 0.4934<!--{ppuf_recirc.C4_FREE_1.noise_sweep[2].uniqueness}--> | 0.4805<!--{ppuf_recirc.C4_FREE_1.noise_sweep[2].uniformity}--> | 0.0084<!--{ppuf_recirc.C4_FREE_1.noise_sweep[2].reliability}--> | 0.0000<!--{ppuf_recirc.C4_FREE_1.noise_sweep[2].tie_fraction}--> |
+| 0.020<!--{ppuf_recirc.C4_FREE_1.noise_sweep[3].meas_noise_sigma}--> | 0.4934<!--{ppuf_recirc.C4_FREE_1.noise_sweep[3].uniqueness}--> | 0.4805<!--{ppuf_recirc.C4_FREE_1.noise_sweep[3].uniformity}--> | 0.0159<!--{ppuf_recirc.C4_FREE_1.noise_sweep[3].reliability}--> | 0.0000<!--{ppuf_recirc.C4_FREE_1.noise_sweep[3].tie_fraction}--> |
+| 0.050<!--{ppuf_recirc.C4_FREE_1.noise_sweep[4].meas_noise_sigma}--> | 0.4934<!--{ppuf_recirc.C4_FREE_1.noise_sweep[4].uniqueness}--> | 0.4805<!--{ppuf_recirc.C4_FREE_1.noise_sweep[4].uniformity}--> | 0.0393<!--{ppuf_recirc.C4_FREE_1.noise_sweep[4].reliability}--> | 0.0000<!--{ppuf_recirc.C4_FREE_1.noise_sweep[4].tie_fraction}--> |
 
-No single swept value gives the paper's experimental 2.55%. It falls between sigma = 0.02
-(1.59%) and sigma = 0.05 (3.93%); interpolating linearly between those two points puts it
-at about **0.032 rad**, roughly three times the assumed 0.01. Uniqueness, uniformity and
+No single swept value gives the paper's experimental 2.55%. It falls between sigma = 0.02<!--{ppuf_recirc.C4_FREE_1.noise_sweep[3].meas_noise_sigma}-->
+(1.59%<!--{ppuf_recirc.C4_FREE_1.noise_sweep[3].reliability}-->) and sigma = 0.05<!--{ppuf_recirc.C4_FREE_1.noise_sweep[4].meas_noise_sigma}--> (3.93%<!--{ppuf_recirc.C4_FREE_1.noise_sweep[4].reliability}-->); interpolating linearly between those two points puts it
+at about **0.032 rad**, roughly three times the assumed 0.01<!--{ppuf.measurement_noise_sigma}-->. Uniqueness, uniformity and
 the tie fraction do not move at all across the sweep, because they are computed from the
 noise-free reference response; only reliability responds. The modelled reliability is
 therefore a statement about the assumed noise rather than a prediction of the chip's 2.55%,
@@ -425,22 +425,22 @@ model does (20 dies x 32 challenges, mu_phase = 0):
 
 | sigma_phase (rad) | uniqueness | uniformity | tie fraction | reliability | live pairs |
 |---|---|---|---|---|---|
-| 0.001 | 0.2412 | 0.7604 | 0.5141 | 0.4345 | 9 |
-| 0.010 | 0.4408 | 0.5668 | 0.1203 | 0.3352 | 9 |
-| 0.100 | 0.4937 | 0.5059 | 0.0109 | 0.0672 | 9 |
-| 0.500 | 0.4992 | 0.5021 | 0.0000 | 0.0120 | 9 |
-| 1.050 | 0.5003 | 0.5014 | 0.0000 | 0.0086 | 9 |
-| 3.000 | 0.5011 | 0.5201 | 0.0000 | 0.0062 | 9 |
+| 0.001<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].sigma_phase}--> | 0.2412<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].uniqueness}--> | 0.7604<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].uniformity}--> | 0.5141<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].tie_fraction}--> | 0.4345<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].reliability}--> | 9<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].live_pairs}--> |
+| 0.010<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[1].sigma_phase}--> | 0.4408<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[1].uniqueness}--> | 0.5668<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[1].uniformity}--> | 0.1203<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[1].tie_fraction}--> | 0.3352<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[1].reliability}--> | 9<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[1].live_pairs}--> |
+| 0.100<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[2].sigma_phase}--> | 0.4937<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[2].uniqueness}--> | 0.5059<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[2].uniformity}--> | 0.0109<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[2].tie_fraction}--> | 0.0672<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[2].reliability}--> | 9<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[2].live_pairs}--> |
+| 0.500<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[3].sigma_phase}--> | 0.4992<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[3].uniqueness}--> | 0.5021<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[3].uniformity}--> | 0.0000<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[3].tie_fraction}--> | 0.0120<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[3].reliability}--> | 9<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[3].live_pairs}--> |
+| 1.050<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[4].sigma_phase}--> | 0.5003<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[4].uniqueness}--> | 0.5014<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[4].uniformity}--> | 0.0000<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[4].tie_fraction}--> | 0.0086<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[4].reliability}--> | 9<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[4].live_pairs}--> |
+| 3.000<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[5].sigma_phase}--> | 0.5011<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[5].uniqueness}--> | 0.5201<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[5].uniformity}--> | 0.0000<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[5].tie_fraction}--> | 0.0062<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[5].reliability}--> | 9<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[5].live_pairs}--> |
 
 (Wiring C4_FREE_1; C4_FREE_2 differs by at most 0.02 on any entry.) At sigma = 0.001 the
-mesh is nearly nominal, more than half the pairs still tie, and reliability (0.4345) is
-larger than uniqueness (0.2412) -- the non-functioning regime, the same signature the
+mesh is nearly nominal, more than half the pairs still tie, and reliability (0.4345<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].reliability}-->) is
+larger than uniqueness (0.2412<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[0].uniqueness}-->) -- the non-functioning regime, the same signature the
 feed-forward sweep shows at that spread. By sigma = 0.1 the ties are gone and uniqueness
-is 0.4937.
+is 0.4937<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[2].uniqueness}-->.
 
-The two wirings agree on uniqueness to 0.0002 on the single headline run, and their
+The two wirings agree on uniqueness to 0.0002<!--{ppuf_recirc.wiring_robustness.uniqueness_difference}--> on the single headline run, and their
 population means differ by 0.04 points against a seed spread of about 0.25 points, well
-inside the stated tolerance of 0.05. That is the check that the conclusion does not rest on
+inside the stated tolerance of 0.05<!--{ppuf_recirc.wiring_robustness.tolerance}-->. That is the check that the conclusion does not rest on
 the wiring, and a test enforces it.
 
 Because the response is driven by physics rather than by construction, uniqueness is a
@@ -449,21 +449,21 @@ function of the manufacturing spread, and the sweep is the honest way to report 
 
 | σ_phase (rad) | uniqueness | uniformity | tie fraction | reliability |
 |---|---|---|---|---|
-| 0.001 | 0.2164 | 0.5177 | 0.0074 | 0.2198 |
-| 0.010 | 0.2193 | 0.5133 | 0.0000 | 0.1623 |
-| 0.100 | 0.2225 | 0.5126 | 0.0000 | 0.0258 |
-| 0.500 | 0.2835 | 0.5151 | 0.0000 | 0.0073 |
-| 1.050 | 0.4818 | 0.5103 | 0.0000 | 0.0069 |
-| 3.000 | 0.4971 | 0.5040 | 0.0000 | 0.0069 |
+| 0.001<!--{ppuf.sensitivity_sweep[0].sigma_phase}--> | 0.2164<!--{ppuf.sensitivity_sweep[0].uniqueness}--> | 0.5177<!--{ppuf.sensitivity_sweep[0].uniformity}--> | 0.0074<!--{ppuf.sensitivity_sweep[0].tie_fraction}--> | 0.2198<!--{ppuf.sensitivity_sweep[0].reliability}--> |
+| 0.010<!--{ppuf.sensitivity_sweep[1].sigma_phase}--> | 0.2193<!--{ppuf.sensitivity_sweep[1].uniqueness}--> | 0.5133<!--{ppuf.sensitivity_sweep[1].uniformity}--> | 0.0000<!--{ppuf.sensitivity_sweep[1].tie_fraction}--> | 0.1623<!--{ppuf.sensitivity_sweep[1].reliability}--> |
+| 0.100<!--{ppuf.sensitivity_sweep[2].sigma_phase}--> | 0.2225<!--{ppuf.sensitivity_sweep[2].uniqueness}--> | 0.5126<!--{ppuf.sensitivity_sweep[2].uniformity}--> | 0.0000<!--{ppuf.sensitivity_sweep[2].tie_fraction}--> | 0.0258<!--{ppuf.sensitivity_sweep[2].reliability}--> |
+| 0.500<!--{ppuf.sensitivity_sweep[3].sigma_phase}--> | 0.2835<!--{ppuf.sensitivity_sweep[3].uniqueness}--> | 0.5151<!--{ppuf.sensitivity_sweep[3].uniformity}--> | 0.0000<!--{ppuf.sensitivity_sweep[3].tie_fraction}--> | 0.0073<!--{ppuf.sensitivity_sweep[3].reliability}--> |
+| 1.050<!--{ppuf.sensitivity_sweep[4].sigma_phase}--> | 0.4818<!--{ppuf.sensitivity_sweep[4].uniqueness}--> | 0.5103<!--{ppuf.sensitivity_sweep[4].uniformity}--> | 0.0000<!--{ppuf.sensitivity_sweep[4].tie_fraction}--> | 0.0069<!--{ppuf.sensitivity_sweep[4].reliability}--> |
+| 3.000<!--{ppuf.sensitivity_sweep[5].sigma_phase}--> | 0.4971<!--{ppuf.sensitivity_sweep[5].uniqueness}--> | 0.5040<!--{ppuf.sensitivity_sweep[5].uniformity}--> | 0.0000<!--{ppuf.sensitivity_sweep[5].tie_fraction}--> | 0.0069<!--{ppuf.sensitivity_sweep[5].reliability}--> |
 
 The tie fraction is the share of compared pairs whose two intensities differ by less than
-the tie tolerance of 1e-12 (`ppuf.tie_tol`); ties are resolved as 1 and counted rather than
+the tie tolerance of 1e-12<!--{ppuf.tie_tol}--> (`ppuf.tie_tol`); ties are resolved as 1 and counted rather than
 hidden. At σ = 0.001 the mesh is still essentially a permutation, only the two routed
 outputs carry power, and the tie fraction is non-zero. That regime is also where
-reliability (0.2198) is as large as uniqueness (0.2164): the bits are being set by
+reliability (0.2198<!--{ppuf.sensitivity_sweep[0].reliability}-->) is as large as uniqueness (0.2164<!--{ppuf.sensitivity_sweep[0].uniqueness}-->): the bits are being set by
 measurement noise rather than by the die, which is exactly what a non-functioning PUF looks
 like. At the paper's spread the two separate by a factor of 67 (the ratio of the two
-`results.json` values 0.48917 and 0.00735), which is what makes the response a signature.
+`results.json` values 0.48917<!--{ppuf.uniqueness}--> and 0.00735<!--{ppuf.reliability_intra_die_HD}-->), which is what makes the response a signature.
 The PUF test judges the low-spread case by reliability rather than by a uniqueness bound,
 because a symmetric comparison of two ports is randomised by any nonzero spread and only
 measurement noise distinguishes a working PUF from a non-working one.
@@ -476,18 +476,18 @@ measurement noise distinguishes a working PUF from a non-working one.
 
 The paper's PUC (Eq. 1) has one thermo-optic phase shifter, so one DOF per cell. A
 universal N-mode interferometer needs N² real DOF; a rectangular mesh of single-θ cells
-supplies only N(N−1)/2. For N = 4 that is 6 DOF inside a 16-dimensional U(4), rising to 10
-with output phases and 16 only for the full 2-DOF mesh.
+supplies only N(N−1)/2. For N = 4 that is 6<!--{expressivity.dof.single_theta}--> DOF inside a 16<!--{expressivity.dof.dim_U(N)}-->-dimensional U(4), rising to 10<!--{expressivity.dof.single_theta+output_phases}-->
+with output phases and 16<!--{expressivity.dof.two_dof_universal}--> only for the full 2-DOF mesh.
 
-Best-fit fidelity to Haar-random U(4) climbs the same ladder: 0.5605 for single-θ, 0.8264
-with output phases, 1.000000 for the universal 2-DOF mesh. This is why the paper
+Best-fit fidelity to Haar-random U(4) climbs the same ladder: 0.5605<!--{expressivity.haar_fidelity_mean.single_theta}--> for single-θ, 0.8264<!--{expressivity.haar_fidelity_mean.single_theta+output_phases}-->
+with output phases, 1.000000<!--{expressivity.haar_fidelity_mean.two_dof_universal}--> for the universal 2-DOF mesh. This is why the paper
 demonstrates permutations and specific realisable matrices rather than arbitrary unitaries.
-A unitary generated by a single-θ mesh is recovered to fidelity 1.0000, and permutations
-are routed at fidelity 0.999999999999.
+A unitary generated by a single-θ mesh is recovered to fidelity 1.0000<!--{expressivity.realizable_unitary_fidelity}-->, and permutations
+are routed at fidelity 0.999999999999<!--{unitary.perm_routing_fidelity[0]}-->.
 
 Separately from the DOF limit, the coupler imposes its own ceiling on the single-θ cross
-state. Over 1530–1565 nm that ceiling falls to 0.9469; at the 1560 nm design wavelength it
-is 0.9942. Both follow from the coupler being 50:50 at 1574.7 nm (§6.1) rather than at the
+state. Over 1530<!--{expressivity.coupler_ceiling_range_nm[0]}-->–1565<!--{expressivity.coupler_ceiling_range_nm[1]}--> nm that ceiling falls to 0.9469<!--{expressivity.coupler_ceiling_min_fidelity}-->; at the 1560 nm design wavelength it
+is 0.9942<!--{expressivity.coupler_ceiling_fidelity_at_1560}-->. Both follow from the coupler being 50:50 at 1574.7<!--{fig4d_mesh_fit.lambda0_nm}--> nm (§6.1) rather than at the
 design wavelength.
 
 ### 4.2 Coupled-mode-theory coupler with real dispersion (`coupler.py`)
@@ -501,15 +501,15 @@ At its 3-dB wavelength the model's extinction ratio is reported as null, not as 
 the couplers are exactly balanced there and the two arms carry equal loss, so the null is
 ideal and the ratio diverges. Reporting a floored value such as 120 dB would state a finite
 extinction the model does not predict. Off that wavelength the extinction is finite and
-physical: 22.34 dB at 1560 nm and 11.04 dB at 1520 nm. The fibre-to-fibre link budget is
-11.43 dB, dominated by the two grating couplers.
+physical: 22.34<!--{coupler.extinction_at_1560_db}--> dB at 1560 nm and 11.04<!--{coupler.extinction_at_1520_db}--> dB at 1520 nm. The fibre-to-fibre link budget is
+11.43<!--{coupler.link_budget_db}--> dB, dominated by the two grating couplers.
 
-The `demo_fit_kappa0` = 0.4980 and `demo_fit_slope` = 0.004370 entries in `results.json`
+The `demo_fit_kappa0` = 0.4980<!--{coupler.demo_fit_kappa0}--> and `demo_fit_slope` = 0.004370<!--{coupler.demo_fit_slope}--> entries in `results.json`
 are recovered from the synthetic `_demo_measured_dataset`, not from chip data, and are
 labelled as such by `demo_fit_note`. That dataset has its own fixed reference wavelength,
-`DEMO_LAMBDA0` = 1560 nm, written to `results.json` as `demo_fit_lam0_nm`; generator and
+`DEMO_LAMBDA0` = 1560<!--{coupler.demo_fit_lam0_nm}--> nm, written to `results.json` as `demo_fit_lam0_nm`; generator and
 fitter both use it, so the recovered values are directly comparable with the generator's
-own `demo_true_kappa0` = 0.5 and `demo_true_slope` = 0.0042. That reference wavelength is
+own `demo_true_kappa0` = 0.5<!--{coupler.demo_true_kappa0}--> and `demo_true_slope` = 0.0042<!--{coupler.demo_true_slope}-->. That reference wavelength is
 deliberately independent of `DC_LAMBDA_3DB`: the demo exercises the fitting routine and
 says nothing about this chip, so tying it to the chip's fitted 3-dB point would make a
 change in the chip fit look like a change in the demo. The κ₀ agreement to 0.002 is a
@@ -524,54 +524,54 @@ fit. None of these four numbers says anything about this chip.
 The matrix-multiply functions use a feedforward rectangular sub-mesh, but the full chip
 recirculates: light returns through closed loops, so the transfer function is rational and
 has poles. That needs a linear solve, o = (I − S·C)⁻¹ S·b. The solver is validated against
-the analytic all-pass ring to RMS 2.9e-16 and the add-drop ring to 8.4e-16; the 4-PUC
-square plaquette conserves energy to 1.1e-15, and the full 40-PUC recirculating bus solves
-with an energy-conservation deviation of 8.9e-16.
+the analytic all-pass ring to RMS 2.9e-16<!--{recirculating.ring_rms}--> and the add-drop ring to 8.4e-16<!--{recirculating.add_drop_rms}-->; the 4-PUC
+square plaquette conserves energy to 1.1e-15<!--{recirculating.plaquette_unitarity_dev}-->, and the full 40<!--{recirculating.n_pucs_big}-->-PUC recirculating bus solves
+with an energy-conservation deviation of 2.7e-15<!--{recirculating.big_unitarity_dev}-->.
 
 ---
 
 ## 5. Bottom line
 
 Of the paper's headline quantitative claims, the bucket-A items (PUC unitarity, the
-6.2163 / 5.4643-bit ENOB values, 60.04 ps latency) reproduce exactly. The bucket-B
-simulations reproduce closely and on independent code: routing fidelity 0.999999999999,
-unitary fidelity 1.000000, non-unitary modulus correlation 1.000000, PUF uniqueness
-49.00% ± 0.34% against the paper's 49.97%, and PUF uniformity 50.32% ± 0.51% against
-50.15%, both over 10 population seeds. The bucket-C items
+6.2163<!--{unitary.enob_at_sigma_0.0269}--> / 5.4643<!--{nonunitary.enob_at_sigma_0.0453}-->-bit ENOB values, 60.04<!--{latency_on_chip_ps}--> ps latency) reproduce exactly. The bucket-B
+simulations reproduce closely and on independent code: routing fidelity 0.999999999999<!--{unitary.perm_routing_fidelity[0]}-->,
+unitary fidelity 1.000000<!--{unitary.random_mean_fidelity}-->, non-unitary modulus correlation 1.000000<!--{nonunitary.modulus_corr}-->, PUF uniqueness
+49.00%<!--{ppuf.population_sweep.uniqueness_mean}--> ± 0.34%<!--{ppuf.population_sweep.uniqueness_std}--> against the paper's 49.97%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.paper_uniqueness}-->, and PUF uniformity 50.32%<!--{ppuf.population_sweep.uniformity_mean}--> ± 0.51%<!--{ppuf.population_sweep.uniformity_std}--> against
+50.15%, both over 10<!--{ppuf.population_sweep.n_seeds}--> population seeds. The bucket-C items
 are physical measurements and are left unreproduced rather than fabricated.
 
 Six results do not simply confirm the paper:
 
 1. The switch crosstalk the model predicts depends on whether data exists for the range in
-   question. Inside the fitted range, the model meets the −15 dB figure (worst −16.77 dB)
+   question. Inside the fitted range, the model meets the −15 dB figure (worst −16.77<!--{switching.cross_worst_xtalk_fitrange_db}--> dB)
    but not the −20 dB figure. These are predictions of a model constrained by one digitized
    port pair, not measurements of the other port pairs. The digitized T20 curve itself
    reaches −14.1 dB at 1549.0 nm, within its ±2 dB digitization uncertainty. Extrapolated
-   below the data, over 1530–1549 nm, the model degrades to −11.80 dB — but that half of
+   below the data, over 1530–1549 nm, the model degrades to −11.80<!--{switching.cross_worst_xtalk_extrapolated_db}--> dB — but that half of
    the band has no digitized point behind it and is a model projection.
 2. The coupler's 3-dB wavelength is not the design wavelength. Fitting the mesh model to
-   Fig 4d puts it at 1574.7 nm, with the parametric bootstrap interval
-   [1572.3, 1577.7] nm.
-   Both bootstrap intervals exclude 1560 nm: the pairs interval [1573.7, 1575.5] nm by
+   Fig 4d puts it at 1574.7<!--{fig4d_mesh_fit.lambda0_nm}--> nm, with the parametric bootstrap interval
+   [1572.3<!--{fig4d_mesh_fit.lambda0_param_p05_nm}-->, 1577.7<!--{fig4d_mesh_fit.lambda0_param_p95_nm}-->] nm.
+   Both bootstrap intervals exclude 1560 nm: the pairs interval [1573.7<!--{fig4d_mesh_fit.lambda0_pairs_p05_nm}-->, 1575.5<!--{fig4d_mesh_fit.lambda0_pairs_p95_nm}-->] nm by
    13.7 nm and the parametric interval by 12.3 nm (§6.1). The proxy and mesh models place
    λ₀ 3.7 nm apart. The bootstrap intervals describe the uncertainty within the mesh model,
    not the uncertainty in the choice of model. Both models exclude 1560 nm.
 3. The ideal-coupler fidelities do not survive the chip's own coupler. Rows 3 and 5 reach
-   1.000000 with ideal 50:50 couplers; the coupler fitted to Fig 4d caps the single-θ cross
-   state at 0.9942 at 1560 nm, and at 0.9469 at the worst point of 1530–1565 nm.
+   1.000000<!--{unitary.random_mean_fidelity}--> with ideal 50:50 couplers; the coupler fitted to Fig 4d caps the single-θ cross
+   state at 0.9942<!--{expressivity.coupler_ceiling_fidelity_at_1560}--> at 1560 nm, and at 0.9469<!--{expressivity.coupler_ceiling_min_fidelity}--> at the worst point of 1530<!--{expressivity.coupler_ceiling_range_nm[0]}-->–1565<!--{expressivity.coupler_ceiling_range_nm[1]}--> nm.
 4. A multinomial logistic regression with 15 parameters (four weights for each of three
    classes, plus three biases) is ahead of the photonic Iris classifier on the same splits.
-   Differenced seed by seed, it leads by 1.07 ± 1.30 points on the full set, winning on 7
-   of the 10 seeds, tying on 2 and losing on 1; the absolute paired mean is smaller than
+   Differenced seed by seed, it leads by 1.07 ± 1.30 points on the full set, winning on 7<!--{iris.paired_logistic_minus_photonic.full_n_logistic_higher}-->
+   of the 10 seeds, tying on 2<!--{iris.paired_logistic_minus_photonic.full_n_equal}--> and losing on 1<!--{iris.paired_logistic_minus_photonic.full_n_photonic_higher}-->; the absolute paired mean is smaller than
    the paired standard deviation, so that difference is within the seed-to-seed spread. On
-   the held-out split it leads by 5.56 ± 3.67 points, winning on 9 seeds, tying on 1 and
+   the held-out split it leads by 5.56 ± 3.67 points, winning on 9<!--{iris.paired_logistic_minus_photonic.test_n_logistic_higher}--> seeds, tying on 1<!--{iris.paired_logistic_minus_photonic.test_n_equal}--> and
    losing on none; there the absolute paired mean exceeds the paired standard deviation, so
    that is a consistent difference. The identity control shows the unitary contributes about
    10 points over the readout alone, so the mesh is doing real work — but Iris does not
    discriminate a photonic classifier from a linear one.
-5. The modelled on-chip insertion loss, −1.40 to −1.80 dB over eight paths, is lower than
-   the paper's measured −1.85 to −2.99 dB. Per path against the four digitized Fig 4e
-   bar-state diagonals the model is optimistic by 0.38 dB on average and does not
+5. The modelled on-chip insertion loss, −1.40<!--{switching.onchip_il_max_db}--> to −1.80<!--{switching.onchip_il_min_db}--> dB over eight paths, is lower than
+   the paper's measured −1.85<!--{switching.onchip_il_paper_range_db[1]}--> to −2.99<!--{switching.onchip_il_paper_range_db[0]}--> dB. Per path against the four digitized Fig 4e
+   bar-state diagonals the model is optimistic by 0.38<!--{switching.bar_il_vs_fig4e.mean_signed_diff_db}--> dB on average and does not
    reproduce the port-to-port ordering. The loss parameters are assumed rather than taken
    from the paper, and they were not tuned to close the gap.
 
@@ -580,14 +580,14 @@ Six results do not simply confirm the paper:
    uncertainty, while the model's dependence on wavelength is two orders of magnitude
    smaller than the data's scatter, so the panel fixes a level and not a curve. The panel
    was digitized, the model was fitted to it, and the fitted spread was not adopted: it
-   scores 0.4176 dB RMS against 0.4170 dB for a best-fit constant on the same 27 points,
-   and it ranges from 0.0152 to 0.0707, a factor of 4.6, with the ensemble percentile the
-   data cannot choose. The assumed 0.02 lies inside that range, and `SIGMA_SPLIT` keeps
+   scores 0.4176<!--{fig4e_fit.shape_check.model_rms_db}--> dB RMS against 0.4170<!--{fig4e_fit.shape_check.constant_rms_db}--> dB for a best-fit constant on the same 27<!--{fig4e_fit.n_points}--> points,
+   and it ranges from 0.0152<!--{fig4e_fit.sensitivity.sigma_split_full_range[0]}--> to 0.0707<!--{fig4e_fit.sensitivity.sigma_split_full_range[1]}-->, a factor of 4.6<!--{fig4e_fit.sensitivity.sigma_split_range_factor}-->, with the ensemble percentile the
+   data cannot choose. The assumed 0.02<!--{cross_check.sigma_split}--> lies inside that range, and `SIGMA_SPLIT` keeps
    it.
 
 The three physics extensions (§4) make the model mechanistic rather than descriptive: the
-single-θ expressivity limit is quantified (0.5605 mean fidelity to arbitrary U(4), rising
-to 1.000000 only with the full 2-DOF mesh), explaining the paper's choice of matrix classes;
+single-θ expressivity limit is quantified (0.5605<!--{expressivity.haar_fidelity_mean.single_theta}--> mean fidelity to arbitrary U(4), rising
+to 1.000000<!--{expressivity.haar_fidelity_mean.two_dof_universal}--> only with the full 2-DOF mesh), explaining the paper's choice of matrix classes;
 the switch crosstalk emerges from a coupled-mode-theory coupler fitted to the chip's
 measured spectrum, while the loss comes from assumed constants that are lower than the
 measured range; and the full recirculating mesh is solved with a feedback-capable
@@ -603,42 +603,42 @@ chip-specific values below. These are the paper's numbers, used as inputs to the
 
 | Quantity | Paper value (Methods / Supp) | Used in |
 |---|---|---|
-| Group index n_g | 4.0 (stated) | latency (60.04 ps) |
+| Group index n_g | 4.0 (stated) | latency (60.04<!--{latency_on_chip_ps}--> ps) |
 | Phase index n_eff | ~2.36 (450×220 nm SOI TE, geometry) | recirculating, PPUF |
 | Directional coupler | length 11.5 µm, gap 200 nm, 450 nm width | coupler geometry |
 | Square-mesh unit side | 500 µm | recirculating loop length |
 | MZI arm length | 208 µm | mesh segments |
-| Heater | 100 µm, 3 V for π across 100 Ω → 90 mW, E[θ]=π/2 | energy |
-| Energy derivation | 40 PUCs × 45 mW = 1.8 W ÷ 9.6e11 MAC·s⁻¹ | throughput.py |
+| Heater | 100 µm, 3 V for π across 100 Ω → 90<!--{throughput_energy.P_pi_mW}--> mW, E[θ]=π/2 | energy |
+| Energy derivation | 40 PUCs × 45<!--{throughput_energy.P_avg_per_mzi_mW}--> mW = 1.8<!--{throughput_energy.P_total_W}--> W ÷ 9.6e11<!--{throughput_energy.mac_rate}--> MAC·s⁻¹ | throughput.py |
 | Throughput convention | 96 ops × 2 directions × 10 GBaud | throughput.py |
 | PUF arm-length spread | N(μ=0.08 µm, σ=0.11 µm) → phase N(0.76, 1.05) rad | ppuf.py |
 | PUF experimental (2 dies) | inter-die 57.71%, uniformity 42.62%, intra-die HD 2.55% | ppuf targets |
-| PUF simulation (100 dies) | uniqueness 49.97%, uniformity 50.15% | ppuf targets |
+| PUF simulation (100 dies) | uniqueness 49.97%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.paper_uniqueness}-->, uniformity 50.15% | ppuf targets |
 | Switch crosstalk | −45 to <−20 dB at 1560 nm; <−15/−20 dB over >20 nm | switching targets |
-| On-chip insertion loss | −1.85 to −2.99 dB (8 measured paths) | switching comparison |
+| On-chip insertion loss | −1.85<!--{switching.onchip_il_paper_range_db[1]}--> to −2.99<!--{switching.onchip_il_paper_range_db[0]}--> dB (8 measured paths) | switching comparison |
 | Design wavelengths | 1560 nm (matrix), 1555 nm (MRM), 1545 nm (grating peak) | all modules |
 | MRM eye SNR / Q | 17.10 & 17.83 dB; Q 7.17–8.08 | mrm (hardware-only targets) |
 
 ### 6.1 Fig 4d digitized, and the coupler 3-dB wavelength decided by that data
 
 The all-cross-state T20 crosstalk curve was colour-digitized from Fig 4d
-(`data/fig4d_T20_digitized.csv`, 25 points spanning 1549–1587 nm; dB scale anchored to
+(`data/fig4d_T20_digitized.csv`, 25<!--{fig4d_mesh_fit.n_points}--> points spanning 1549–1587 nm; dB scale anchored to
 figure-read endpoints, ~±2 dB) and fitted with `scripts/fit_fig4.py`.
 
-Two models are fitted to the same 25 points, with the same three free parameters (λ₀, slope,
+Two models are fitted to the same 25<!--{fig4d_mesh_fit.n_points}--> points, with the same three free parameters (λ₀, slope,
 floor):
 
 | | `crosstalk_model` — single-coupler proxy | `mesh_t20_model` — 4×4 mesh T20 |
 |---|---|---|
 | what it evaluates | one directional-coupler pair, 10·log₁₀[(1−2κ)² + floor] | the full 4-stage fabric of `switching.py`, T20 normalised to total output power |
-| λ₀ | **1571.0 nm** | **1574.7 ± 0.6 nm** |
-| slope | **0.0029 rad/nm** | **0.00261 ± 0.00012 rad/nm** |
-| floor | **−25.2 dB** | **−26.2 ± 0.4 dB** |
-| **RMS over the 25 points** | **1.05 dB** | **0.79 dB** |
-| pairs bootstrap, λ₀ 5–95% | [1570.1, 1572.0] nm | [1573.7, 1575.5] nm |
-| pairs bootstrap, slope 5–95% | [0.0026, 0.0033] | [0.00239, 0.00285] |
-| parametric bootstrap, λ₀ 5–95% | — | [1572.3, 1577.7] nm |
-| parametric bootstrap, slope 5–95% | — | [0.00219, 0.00306] |
+| λ₀ | **1571.0<!--{fig4d_fit.lambda0_nm}--> nm** | **1574.7<!--{fig4d_mesh_fit.lambda0_nm}--> ± 0.6<!--{fig4d_mesh_fit.lambda0_se_nm}--> nm** |
+| slope | **0.0029<!--{fig4d_fit.slope_rad_nm}--> rad/nm** | **0.00261<!--{fig4d_mesh_fit.slope}--> ± 0.00012<!--{fig4d_mesh_fit.slope_se}--> rad/nm** |
+| floor | **−25.2<!--{fig4d_fit.floor_db}--> dB** | **−26.2<!--{fig4d_mesh_fit.floor_db}--> ± 0.4<!--{fig4d_mesh_fit.floor_se_db}--> dB** |
+| **RMS over the 25<!--{fig4d_mesh_fit.n_points}--> points** | **1.05<!--{fig4d_fit.rms_db}--> dB** | **0.79<!--{fig4d_mesh_fit.rms_db}--> dB** |
+| pairs bootstrap, λ₀ 5–95% | [1570.1<!--{fig4d_fit.lambda0_p05_nm}-->, 1572.0<!--{fig4d_fit.lambda0_p95_nm}-->] nm | [1573.7<!--{fig4d_mesh_fit.lambda0_pairs_p05_nm}-->, 1575.5<!--{fig4d_mesh_fit.lambda0_pairs_p95_nm}-->] nm |
+| pairs bootstrap, slope 5–95% | [0.0026<!--{fig4d_fit.slope_p05}-->, 0.0033<!--{fig4d_fit.slope_p95}-->] | [0.00239<!--{fig4d_mesh_fit.slope_pairs_p05}-->, 0.00285<!--{fig4d_mesh_fit.slope_pairs_p95}-->] |
+| parametric bootstrap, λ₀ 5–95% | — | [1572.3<!--{fig4d_mesh_fit.lambda0_param_p05_nm}-->, 1577.7<!--{fig4d_mesh_fit.lambda0_param_p95_nm}-->] nm |
+| parametric bootstrap, slope 5–95% | — | [0.00219<!--{fig4d_mesh_fit.slope_param_p05}-->, 0.00306<!--{fig4d_mesh_fit.slope_param_p95}-->] |
 
 The mesh fit is the one used for `DC_LAMBDA_3DB`, because the proxy's λ₀ is not a property
 of the mesh. The proxy is a formula for a single coupler pair. The chip's T20 path crosses
@@ -649,24 +649,24 @@ while the couplers are 50:50 at 1574.7 nm — a 5.0 nm displacement. (That grid 
 diagnostic computed from `mesh_t20_model`; it is not a `results.json` value.) The proxy,
 having no multi-stage path, has nowhere to put those 5 nm except into λ₀, which is why it
 reports 1571.0 nm. Its λ₀ is a parameter of the proxy formula; the mesh's λ₀ is the coupler
-parameter the rest of the code needs. The mesh also fits the data better, 0.79 dB against
-1.05 dB, on the same points with the same number of free parameters.
+parameter the rest of the code needs. The mesh also fits the data better, 0.79<!--{fig4d_mesh_fit.rms_db}--> dB against
+1.05<!--{fig4d_fit.rms_db}--> dB, on the same points with the same number of free parameters.
 
-Both bootstraps are run on the mesh model, 500 resamples each, 0 failed fits discarded in
+Both bootstraps are run on the mesh model, 500<!--{fig4d_fit.n_boot}--> resamples each, 0<!--{fig4d_mesh_fit.n_pairs_failed}--> failed fits discarded in
 either:
 
 * The pairs bootstrap resamples the (λ, dB) pairs with replacement and refits. Its interval
-  reflects only the scatter of the points about the model. λ₀ [1573.7, 1575.5] nm, slope
-  [0.00239, 0.00285] rad/nm.
-* The parametric bootstrap keeps all 25 wavelengths and adds Gaussian noise of 2.0 dB
+  reflects only the scatter of the points about the model. λ₀ [1573.7<!--{fig4d_mesh_fit.lambda0_pairs_p05_nm}-->, 1575.5<!--{fig4d_mesh_fit.lambda0_pairs_p95_nm}-->] nm, slope
+  [0.00239<!--{fig4d_mesh_fit.slope_pairs_p05}-->, 0.00285<!--{fig4d_mesh_fit.slope_pairs_p95}-->] rad/nm.
+* The parametric bootstrap keeps all 25<!--{fig4d_mesh_fit.n_points}--> wavelengths and adds Gaussian noise of 2.0<!--{fig4d_mesh_fit.digitization_sd_db}--> dB
   standard deviation (`digitization_sd_db`) to each dB value, treating the CSV header's
   ±2 dB as one standard deviation. Its interval therefore also carries the digitization
-  uncertainty, which the pairs bootstrap cannot see. λ₀ [1572.3, 1577.7] nm, slope
-  [0.00219, 0.00306] rad/nm.
+  uncertainty, which the pairs bootstrap cannot see. λ₀ [1572.3<!--{fig4d_mesh_fit.lambda0_param_p05_nm}-->, 1577.7<!--{fig4d_mesh_fit.lambda0_param_p95_nm}-->] nm, slope
+  [0.00219<!--{fig4d_mesh_fit.slope_param_p05}-->, 0.00306<!--{fig4d_mesh_fit.slope_param_p95}-->] rad/nm.
 
 The parametric interval is 2.9× wider on λ₀ and is the more honest of the two, because the
 dominant uncertainty in this dataset is how accurately a curve could be read off a published
-figure, not how the 25 points scatter about the model. (Both the 2.9× ratio and the interval
+figure, not how the 25<!--{fig4d_mesh_fit.n_points}--> points scatter about the model. (Both the 2.9× ratio and the interval
 widths quoted below are arithmetic on the `results.json` percentile values.)
 
 The decision rule was: if 1560.0 nm falls inside the λ₀ interval, keep 1560 nm as the
@@ -682,9 +682,9 @@ DC_SLOPE = 0.0026       # rad/nm, coupling-phase dispersion slope of the same fi
 
 while `LAMBDA0 = 1560.0` remains the design wavelength. The two are different quantities and
 the data says they are about 15 nm apart. The consequence is physical, not cosmetic: at
-1560 nm the power coupling is 0.462 rather than 0.500, the MZI extinction falls to 22.34 dB,
-the single-θ unitary fidelity ceiling drops to 0.9942, and the worst-case switch crosstalk
-inside the fitted range is −16.77 dB.
+1560 nm the power coupling is 0.462<!--{coupler.power_coupling_at_1560}--> rather than 0.500, the MZI extinction falls to 22.34<!--{coupler.extinction_at_1560_db}--> dB,
+the single-θ unitary fidelity ceiling drops to 0.9942<!--{expressivity.coupler_ceiling_fidelity_at_1560}-->, and the worst-case switch crosstalk
+inside the fitted range is −16.77<!--{switching.cross_worst_xtalk_fitrange_db}--> dB.
 
 The two models disagree about λ₀ by 3.7 nm, which is six times the mesh fit's own standard
 error and larger than the pairs bootstrap interval. That gap is model-form uncertainty: it
@@ -694,7 +694,7 @@ model.
 
 The crosstalk floor is a fitted parameter whose physical origin is not established from the
 paper. Both models need a floor term to reproduce the plateau near −25 dB in the middle of
-the digitized curve, and the mesh fit puts it at −26.2 ± 0.4 dB. Nothing in the paper
+the digitized curve, and the mesh fit puts it at −26.2<!--{fig4d_mesh_fit.floor_db}--> ± 0.4<!--{fig4d_mesh_fit.floor_se_db}--> dB. Nothing in the paper
 identifies what produces it. Candidate mechanisms — residual phase error, back-reflection,
 leakage paths outside the modelled topology, or a noise floor of the measurement set-up —
 are not distinguished by a single digitized curve, and this reproduction does not claim to
@@ -712,24 +712,24 @@ sub-panels, one per input port, each carrying four output curves against wavelen
 in the top-left sub-panel and is **not drawn at all**: in the all-bar state it lies below
 the panel's −25 dB axis limit across the whole range, as do T10 and T30. The only
 off-diagonal curve visible across the full wavelength span is **T32**, in the bottom-left
-sub-panel, and that is the one digitized (`data/fig4e_bar_digitized.csv`, 27 points over
-1550–1589 nm). The four diagonals — the intended all-bar paths — were digitized separately
+sub-panel, and that is the one digitized (`data/fig4e_bar_digitized.csv`, 27<!--{fig4e_fit.n_points}--> points over
+1550<!--{fig4e_fit.fit_range_nm[0]}-->–1589<!--{fig4e_fit.fit_range_nm[1]}--> nm). The four diagonals — the intended all-bar paths — were digitized separately
 (`data/fig4e_diagonal_digitized.csv`).
 
 The work `docs/FIG4E_SCOPE.md` planned was carried out in full: the panel was digitized,
 the bar-state model was fitted to it, the fit was bootstrapped, and its sensitivity to
 every choice the figure does not fix was measured. **The fitted value was not adopted.**
-`SIGMA_SPLIT` keeps the assumed 0.02 it has always carried, and the panel is recorded
+`SIGMA_SPLIT` keeps the assumed 0.02<!--{cross_check.sigma_split}--> it has always carried, and the panel is recorded
 below as a consistency check on that assumption rather than as a measurement replacing it.
 `results.json` carries the whole fit under `fig4e_fit`, with `adopted: false` and the
 reason on `adopted_note`. The three paragraphs that follow are that reason.
 
 **The model fits these points no better than a constant.** An RMS figure means nothing
 until it is read against the most trivial model that could be fitted to the same points,
-which is a constant. The least-squares constant on the 27 digitized points is −20.158 dB
-and its RMS is their standard deviation, 0.4170 dB. The bar model at its own best-fit
-spread scores 0.4176 dB, which is 0.0006 dB *worse*. Across the band the measured points
-vary by 1.620 dB peak to peak and the model by 0.0022 dB, 0.14% of that. The model's
+which is a constant. The least-squares constant on the 27<!--{fig4e_fit.n_points}--> digitized points is −20.158<!--{fig4e_fit.shape_check.constant_db}--> dB
+and its RMS is their standard deviation, 0.4170<!--{fig4e_fit.shape_check.constant_rms_db}--> dB. The bar model at its own best-fit
+spread scores 0.4176<!--{fig4e_fit.shape_check.model_rms_db}--> dB, which is 0.0006 dB *worse*. Across the band the measured points
+vary by 1.620<!--{fig4e_fit.shape_check.data_ptp_db}--> dB peak to peak and the model by 0.0022<!--{fig4e_fit.shape_check.model_ptp_db}--> dB, 0.14%<!--{fig4e_fit.shape_check.model_ptp_over_data_ptp}--> of that. The model's
 wavelength dependence is two orders of magnitude below the scatter of the data, so the
 panel fixes a level and not a curve, and a level is one number. These are the
 `fig4e_fit.shape_check` keys.
@@ -740,43 +740,43 @@ axis limit cuts off at every wavelength, so each point is a peak-hold over the f
 wavelength ripple rather than a level, and its model counterpart is a high quantile of the
 fabrication ensemble rather than the mean. Which quantile is a judgement about how many
 independent ripple samples fall inside one digitization window, and the figure does not
-show it. Refitting at six percentiles, with `SIGMA_PHASE` held at 0.02:
+show it. Refitting at six percentiles, with `SIGMA_PHASE` held at 0.02<!--{fig4e_fit.sigma_split_fit.held_value}-->:
 
 | percentile | fitted `SIGMA_SPLIT` | standard error | RMS |
 |---|---|---|---|
-| 50th | **0.0707** | ±0.0007 | 0.418 dB |
-| 75th | **0.0418** | ±0.0004 | 0.416 dB |
-| 90th | **0.0283** | ±0.0003 | 0.417 dB |
-| 95th | **0.0237** | ±0.0002 | 0.418 dB |
-| 99th | **0.0182** | ±0.0002 | 0.418 dB |
-| 99.9th | **0.0152** | ±0.0001 | 0.417 dB |
+| 50th | **0.0707<!--{fig4e_fit.sensitivity.percentile_scan.p50.sigma_split}-->** | ±0.0007<!--{fig4e_fit.sensitivity.percentile_scan.p50.se}--> | 0.418<!--{fig4e_fit.sensitivity.percentile_scan.p50.rms_db}--> dB |
+| 75th | **0.0418<!--{fig4e_fit.sensitivity.percentile_scan.p75.sigma_split}-->** | ±0.0004<!--{fig4e_fit.sensitivity.percentile_scan.p75.se}--> | 0.416<!--{fig4e_fit.sensitivity.percentile_scan.p75.rms_db}--> dB |
+| 90th | **0.0283<!--{fig4e_fit.sensitivity.percentile_scan.p90.sigma_split}-->** | ±0.0003<!--{fig4e_fit.sensitivity.percentile_scan.p90.se}--> | 0.417<!--{fig4e_fit.sensitivity.percentile_scan.p90.rms_db}--> dB |
+| 95th | **0.0237<!--{fig4e_fit.sensitivity.percentile_scan.p95.sigma_split}-->** | ±0.0002<!--{fig4e_fit.sensitivity.percentile_scan.p95.se}--> | 0.418<!--{fig4e_fit.sensitivity.percentile_scan.p95.rms_db}--> dB |
+| 99th | **0.0182<!--{fig4e_fit.sensitivity.percentile_scan.p99.sigma_split}-->** | ±0.0002<!--{fig4e_fit.sensitivity.percentile_scan.p99.se}--> | 0.418<!--{fig4e_fit.sensitivity.percentile_scan.p99.rms_db}--> dB |
+| 99.9th | **0.0152<!--{fig4e_fit.sensitivity.percentile_scan.p99.9.sigma_split}-->** | ±0.0001<!--{fig4e_fit.sensitivity.percentile_scan.p99.9.se}--> | 0.417<!--{fig4e_fit.sensitivity.percentile_scan.p99.9.rms_db}--> dB |
 
 The RMS is the same 0.42 dB at every one of them, so the data expresses no preference
-between a spread of 0.0152 and one of 0.0707. A further variant tests the dB calibration:
-shifting every digitized point by −0.35 dB, the difference between the digitized
-diagonals' mean and the midpoint of the paper's insertion-loss range, returns 0.0175.
-Across all 7 variants the fitted spread runs from 0.0152 to 0.0707, **a factor of 4.6**,
-against a parametric bootstrap interval at the adopted percentile of [0.0180, 0.0184] —
-narrower by a factor of 136. The bootstrap measures how far 27 points scatter about a
+between a spread of 0.0152<!--{fig4e_fit.sensitivity.sigma_split_full_range[0]}--> and one of 0.0707<!--{fig4e_fit.sensitivity.sigma_split_full_range[1]}-->. A further variant tests the dB calibration:
+shifting every digitized point by −0.35<!--{fig4e_fit.sensitivity.offset_test_db}--> dB, the difference between the digitized
+diagonals' mean and the midpoint of the paper's insertion-loss range, returns 0.0175<!--{fig4e_fit.sensitivity.offset_test_sigma_split}-->.
+Across all 7 variants the fitted spread runs from 0.0152<!--{fig4e_fit.sensitivity.sigma_split_full_range[0]}--> to 0.0707<!--{fig4e_fit.sensitivity.sigma_split_full_range[1]}-->, **a factor of 4.6<!--{fig4e_fit.sensitivity.sigma_split_range_factor}-->**,
+against a parametric bootstrap interval at the adopted percentile of [0.0180<!--{fig4e_fit.sensitivity.adopted_bootstrap_param[0]}-->, 0.0184<!--{fig4e_fit.sensitivity.adopted_bootstrap_param[1]}-->] —
+narrower by a factor of 136<!--{fig4e_fit.sensitivity.range_over_bootstrap_factor}-->. The bootstrap measures how far 27<!--{fig4e_fit.n_points}--> points scatter about a
 model of a fixed form; the range measures the form, and it is the larger by two orders of
-magnitude. **The assumed 0.02 lies inside that range**, between the 95th and 99th
+magnitude. **The assumed 0.02<!--{cross_check.sigma_split}--> lies inside that range**, between the 95th and 99th
 percentile entries. These are the `fig4e_fit.sensitivity` keys.
 
 **What adopting the fit would have bought, and why that is not a gain.** Nothing is
-refitted in this check. On the Fig 4e points the bar model scores 0.9013 dB RMS at the
-assumed spread and 0.4176 dB at the fitted 0.0182, an improvement of 0.4837 dB. That
+refitted in this check. On the Fig 4e points the bar model scores 0.9013<!--{cross_check.fig4e_rms_at_assumed_spreads_db}--> dB RMS at the
+assumed spread and 0.4176<!--{cross_check.fig4e_rms_at_fitted_spread_db}--> dB at the fitted 0.0182<!--{cross_check.fitted_spread_not_adopted}-->, an improvement of 0.4837 dB. That
 improvement is real and it is not evidence for the fitted value, because a plain constant
-fitted to the same 27 points scores 0.4170 dB — better than either. The whole of it is the
+fitted to the same 27<!--{fig4e_fit.n_points}--> points scores 0.4170<!--{fig4e_fit.shape_check.constant_rms_db}--> dB — better than either. The whole of it is the
 model's flat level being moved onto the data mean, which any single free parameter would
 achieve; none of it is the model accounting for the shape of the curve. On the Fig 4d
-points the same change costs 0.0104 dB (0.7921 dB to 0.8025 dB), which is far below the
-±0.3 dB per-point digitization uncertainty and so is not resolvable either way. These are
+points the same change costs 0.0104 dB (0.7921<!--{cross_check.fig4d_rms_at_assumed_spreads_db}--> dB to 0.8025<!--{cross_check.fig4d_rms_at_fitted_spread_db}--> dB), which is far below the
+±0.3<!--{fig4e_fit.digitization_sd_db}--> dB per-point digitization uncertainty and so is not resolvable either way. These are
 the `cross_check` keys. (Figure: `figures/fig4e_digitized.png`, which overlays the fitted
 model on the digitized points.)
 
 **What the panel is evidence for.** It is a consistency check, and it passes: the measured
-bar-state leakage is where a 0.02 coupler-split spread puts it, and no spread outside
-roughly a factor of two either side of 0.02 would put it there at the 90th to 99.9th
+bar-state leakage is where a 0.02<!--{cross_check.sigma_split}--> coupler-split spread puts it, and no spread outside
+roughly a factor of two either side of 0.02<!--{cross_check.sigma_split}--> would put it there at the 90th to 99.9th
 percentiles. That is a real constraint and it is worth having. What it is not is a
 measurement of the spread, because the quantity it constrains — one level — is shared
 between two parameters that one curve cannot separate, and because the model that turns a
@@ -785,28 +785,28 @@ level into a spread has a free choice in it that the figure does not fix.
 **The digitized diagonals, against the paper's measured insertion loss.** The diagonal of
 each sub-panel is an intended all-bar path, and all four are digitized, each sub-panel
 anchored to its own tick marks. The opaque legend box hides roughly 1574.5–1588.3 nm in
-every sub-panel, so the 1.5 nm grid runs 1550.0–1574.0 nm and then resumes at 1589.0 nm,
+every sub-panel, so the 1.5 nm grid runs 1550.0<!--{fig4e_diagonals.continuous_band_nm[0]}-->–1574.0<!--{fig4e_diagonals.continuous_band_nm[1]}--> nm and then resumes at 1589.0<!--{fig4e_diagonals.band_nm[1]}--> nm,
 inside the roll-off at the end of the scan where the drawn trace is half again as thick as
 across the rest of the band. **Every comparison below is made over 1550–1574 nm only.**
-Including the single 1589.0 nm point moves the four-diagonal range from −1.10 … −2.77 dB
-to −1.10 … −4.06 dB, more than a decibel at the lossy end, which is why it is excluded and
+Including the single 1589.0 nm point moves the four-diagonal range from −1.10<!--{fig4e_diagonals.combined_continuous.range_db[1]}--> … −2.77<!--{fig4e_diagonals.combined_continuous.range_db[0]}--> dB
+to −1.10<!--{fig4e_diagonals.combined.range_db[1]}--> … −4.06<!--{fig4e_diagonals.combined.range_db[0]}--> dB, more than a decibel at the lossy end, which is why it is excluded and
 why the exclusion is stated rather than assumed.
 
 | trace | 1550–1574 nm (used) | 1550–1589 nm (band edge included) |
 |---|---|---|
-| T00 | −2.20 to −2.77 dB (mean −2.43) | −2.20 to −4.06 dB |
-| T11 | −2.15 to −2.44 dB (mean −2.27) | −2.15 to −3.30 dB |
-| T22 | −1.45 to −2.26 dB (mean −1.75) | −1.45 to −3.78 dB |
-| T33 | −1.10 to −2.01 dB (mean −1.48) | −1.10 to −3.41 dB |
-| **all four** | **−1.10 to −2.77 dB** | **−1.10 to −4.06 dB** |
+| T00 | −2.20<!--{fig4e_diagonals.per_diagonal_continuous.T00.max_db}--> to −2.77<!--{fig4e_diagonals.per_diagonal_continuous.T00.min_db}--> dB (mean −2.43<!--{fig4e_diagonals.per_diagonal_continuous.T00.mean_db}-->) | −2.20<!--{fig4e_diagonals.per_diagonal.T00.max_db}--> to −4.06<!--{fig4e_diagonals.per_diagonal.T00.min_db}--> dB |
+| T11 | −2.15<!--{fig4e_diagonals.per_diagonal_continuous.T11.max_db}--> to −2.44<!--{fig4e_diagonals.per_diagonal_continuous.T11.min_db}--> dB (mean −2.27<!--{fig4e_diagonals.per_diagonal_continuous.T11.mean_db}-->) | −2.15<!--{fig4e_diagonals.per_diagonal.T11.max_db}--> to −3.30<!--{fig4e_diagonals.per_diagonal.T11.min_db}--> dB |
+| T22 | −1.45<!--{fig4e_diagonals.per_diagonal_continuous.T22.max_db}--> to −2.26<!--{fig4e_diagonals.per_diagonal_continuous.T22.min_db}--> dB (mean −1.75<!--{fig4e_diagonals.per_diagonal_continuous.T22.mean_db}-->) | −1.45<!--{fig4e_diagonals.per_diagonal.T22.max_db}--> to −3.78<!--{fig4e_diagonals.per_diagonal.T22.min_db}--> dB |
+| T33 | −1.10<!--{fig4e_diagonals.per_diagonal_continuous.T33.max_db}--> to −2.01<!--{fig4e_diagonals.per_diagonal_continuous.T33.min_db}--> dB (mean −1.48<!--{fig4e_diagonals.per_diagonal_continuous.T33.mean_db}-->) | −1.10<!--{fig4e_diagonals.per_diagonal.T33.max_db}--> to −3.41<!--{fig4e_diagonals.per_diagonal.T33.min_db}--> dB |
+| **all four** | **−1.10<!--{fig4e_diagonals.combined_continuous.range_db[1]}--> to −2.77<!--{fig4e_diagonals.combined_continuous.range_db[0]}--> dB** | **−1.10<!--{fig4e_diagonals.combined.range_db[1]}--> to −4.06<!--{fig4e_diagonals.combined.range_db[0]}--> dB** |
 
-The paper's measured range is −1.85 to −2.99 dB over 8 intended paths. Over the window
-used, the four digitized diagonals run −1.10 to −2.77 dB: the least-lossy end sits 0.75 dB
-above the paper's and the most-lossy end 0.22 dB below it, so the two ends disagree by
-0.53 dB. A constant calibration offset on the digitized dB scale would move both ends by
+The paper's measured range is −1.85<!--{fig4e_diagonals.paper_range_db[1]}--> to −2.99<!--{fig4e_diagonals.paper_range_db[0]}--> dB over 8<!--{fig4e_diagonals.paper_n_paths}--> intended paths. Over the window
+used, the four digitized diagonals run −1.10<!--{fig4e_diagonals.combined_continuous.range_db[1]}--> to −2.77<!--{fig4e_diagonals.combined_continuous.range_db[0]}--> dB: the least-lossy end sits 0.75<!--{fig4e_diagonals.combined_continuous.least_lossy_end_minus_paper_db}--> dB
+above the paper's and the most-lossy end 0.22<!--{fig4e_diagonals.combined_continuous.most_lossy_end_minus_paper_db}--> dB below it, so the two ends disagree by
+0.53<!--{fig4e_diagonals.combined_continuous.end_difference_db}--> dB. A constant calibration offset on the digitized dB scale would move both ends by
 the same amount, and this does not, so there is no offset to correct. The ready
-alternative is that the sets differ: Fig 4e is the all-bar configuration and draws 4 of
-the paper's 8 paths, the other 4 being the all-cross paths that belong to Fig 4d. Which
+alternative is that the sets differ: Fig 4e is the all-bar configuration and draws 4<!--{fig4e_diagonals.panel_n_paths}--> of
+the paper's 8<!--{fig4e_diagonals.paper_n_paths}--> paths, the other 4 being the all-cross paths that belong to Fig 4d. Which
 switch state the paper's range was measured in, at what wavelength and over what band, is
 not recorded anywhere available here — `docs/PREPRINT_NOTES.md` does not mention insertion
 loss at all — so the two cannot be reconciled from this repository. These are the
@@ -818,24 +818,24 @@ the paper's single quoted range cannot: not only whether the modelled loss is in
 place, but whether it varies across the four ports the way the chip does. The model here
 is `switching.fabric_matrix` with nominal 50:50 couplers, so the intended-path loss is set
 by the propagation and coupler excess-loss constants alone and no fabrication spread
-enters it. Over 1550.0–1574.0 nm, 17 wavelengths:
+enters it. Over 1550.0<!--{switching.bar_il_vs_fig4e.band_nm[0]}-->–1574.0<!--{switching.bar_il_vs_fig4e.band_nm[1]}--> nm, 17<!--{switching.bar_il_vs_fig4e.n_wavelengths}--> wavelengths:
 
 | path | trace | model | digitized | model − digitized |
 |---|---|---|---|---|
-| 0 −> 0 | T00 | −1.40 dB | −2.43 dB | +1.03 dB |
-| 1 −> 1 | T11 | −1.80 dB | −2.27 dB | +0.47 dB |
-| 2 −> 2 | T22 | −1.80 dB | −1.75 dB | −0.05 dB |
-| 3 −> 3 | T33 | −1.40 dB | −1.48 dB | +0.08 dB |
-| | **mean** | | | **+0.38 dB** (abs 0.49 dB) |
+| 0 −> 0 | T00 | −1.40<!--{switching.bar_il_vs_fig4e.per_port[0].model_db}--> dB | −2.43<!--{switching.bar_il_vs_fig4e.per_port[0].digitized_db}--> dB | +1.03<!--{switching.bar_il_vs_fig4e.per_port[0].difference_db}--> dB |
+| 1 −> 1 | T11 | −1.80<!--{switching.bar_il_vs_fig4e.per_port[1].model_db}--> dB | −2.27<!--{switching.bar_il_vs_fig4e.per_port[1].digitized_db}--> dB | +0.47<!--{switching.bar_il_vs_fig4e.per_port[1].difference_db}--> dB |
+| 2 −> 2 | T22 | −1.80<!--{switching.bar_il_vs_fig4e.per_port[2].model_db}--> dB | −1.75<!--{switching.bar_il_vs_fig4e.per_port[2].digitized_db}--> dB | −0.05<!--{switching.bar_il_vs_fig4e.per_port[2].difference_db}--> dB |
+| 3 −> 3 | T33 | −1.40<!--{switching.bar_il_vs_fig4e.per_port[3].model_db}--> dB | −1.48<!--{switching.bar_il_vs_fig4e.per_port[3].digitized_db}--> dB | +0.08<!--{switching.bar_il_vs_fig4e.per_port[3].difference_db}--> dB |
+| | **mean** | | | **+0.38<!--{switching.bar_il_vs_fig4e.mean_signed_diff_db}--> dB** (abs 0.49<!--{switching.bar_il_vs_fig4e.mean_abs_diff_db}--> dB) |
 
-The model is **optimistic** — it predicts less loss than the chip shows — by 0.38 dB on
-average, 0.49 dB in absolute value, with the per-path difference running from −0.05 to
-+1.03 dB. That is the same direction as the eight-path comparison against the paper's
+The model is **optimistic** — it predicts less loss than the chip shows — by 0.38<!--{switching.bar_il_vs_fig4e.mean_signed_diff_db}--> dB on
+average, 0.49<!--{switching.bar_il_vs_fig4e.mean_abs_diff_db}--> dB in absolute value, with the per-path difference running from −0.05<!--{switching.bar_il_vs_fig4e.per_port[2].difference_db}--> to
++1.03<!--{switching.bar_il_vs_fig4e.per_port[0].difference_db}--> dB. That is the same direction as the eight-path comparison against the paper's
 quoted range in §3, and about the same size. **It does not reproduce the ordering of the
 four ports.** The modelled fabric is symmetric under port reversal, so it returns two
 distinct losses across four ports (T00 = T33 < T11 = T22), while the measured diagonals
 are monotone in port index (T33 < T22 < T11 < T00). Of the six port pairs the model orders
-2 correctly and 2 wrongly, and ties the remaining 2 — which is what a symmetric model must
+2<!--{switching.bar_il_vs_fig4e.pairs_ordered_correctly}--> correctly and 2<!--{switching.bar_il_vs_fig4e.pairs_ordered_wrongly}--> wrongly, and ties the remaining 2<!--{switching.bar_il_vs_fig4e.pairs_tied_in_the_model}--> — which is what a symmetric model must
 do against an asymmetric chip, and is a statement about the loss model rather than about
 the fabrication spread. These are the `switching.bar_il_vs_fig4e` keys.
 
@@ -843,7 +843,7 @@ the fabrication spread. These are the `switching.bar_il_vs_fig4e` keys.
 spreads from `SIGMA_SPLIT` and `SIGMA_PHASE` and takes the coupler's 3-dB wavelength and
 slope as its free parameters. With both spreads assumed rather than fitted, there is
 nothing to alternate with: one pass fixes λ₀ and the slope, and refitting at the converged
-values reproduces them exactly. The fitted λ₀ is 1574.6785 ± 0.6093 nm, which is what
+values reproduces them exactly. The fitted λ₀ is 1574.6785<!--{fig4d_mesh_fit.lambda0_nm}--> ± 0.6093<!--{fig4d_mesh_fit.lambda0_se_nm}--> nm, which is what
 `DC_LAMBDA_3DB` = 1574.7 nm carries.
 
 **Cross-check against the other panel.** The Fig 4d port pair T20 is not drawn anywhere in
@@ -882,8 +882,8 @@ sample sizes (die, challenge and bootstrap counts) and defined physical constant
 
 | Parameter | Value | Used in | Source found |
 |---|---|---|---|
-| `DC_LAMBDA_3DB` | 1574.7 nm | `coupler.py:27`; every coupler and switch spectrum | §6.1 — fit of `mesh_t20_model` to the 25 points of `data/fig4d_T20_digitized.csv`, digitized from the paper's Fig 4d. Both fabrication spreads are assumed rather than fitted, so the fit is solved in one pass and refitting at the converged value reproduces it |
-| `DC_SLOPE` | 0.0026 rad/nm | `coupler.py:28`; the same spectra | §6.1 — the same fit; pairs bootstrap [0.00239, 0.00285] rad/nm |
+| `DC_LAMBDA_3DB` | 1574.7 nm | `coupler.py:27`; every coupler and switch spectrum | §6.1 — fit of `mesh_t20_model` to the 25<!--{fig4d_mesh_fit.n_points}--> points of `data/fig4d_T20_digitized.csv`, digitized from the paper's Fig 4d. Both fabrication spreads are assumed rather than fitted, so the fit is solved in one pass and refitting at the converged value reproduces it |
+| `DC_SLOPE` | 0.0026 rad/nm | `coupler.py:28`; the same spectra | §6.1 — the same fit; pairs bootstrap [0.00239<!--{fig4d_mesh_fit.slope_pairs_p05}-->, 0.00285<!--{fig4d_mesh_fit.slope_pairs_p95}-->] rad/nm |
 | `PROP_LOSS_DB_CM`, `alpha_db_cm`, `loss_db_cm` | 2.0 dB/cm | `coupler.py:38,111`; `recirculating.py:47,127,136,163,175,202,234,258` | `coupler.py` module docstring — 2.14 dB/cm (arXiv:2111.01792), 2.2 ± 0.8 dB/cm over 19 dies (arXiv:1203.0767), ~2 dB/cm (nanoph-2023-0836) |
 | `excess_loss_db` | 0.1 dB per coupler | `coupler.py:60,69`, called from `switching.py:60,95` | `coupler.py` module docstring — directional-coupler excess loss ~0.1–0.8 dB (Optica jlt-35-22-4916) |
 | `kappa0` (nominal split) | 0.5 | `coupler.py:49,60,69,88`; `switching.py:51` | no source recorded |
@@ -898,7 +898,7 @@ sample sizes (die, challenge and bootstrap counts) and defined physical constant
 | `DEMO_TRUE_QUAD` | −8e-6 rad/nm² | `coupler.py:46`; synthetic demo dataset only | no source recorded |
 | `FIG4D_FLOOR_DB` | −26.2 dB | `switching.py:19`; recorded, not added to any reported crosstalk | §6.1 — fitted to the digitized Fig 4d alongside λ₀ and slope; §6.1 also states that its physical origin is not established |
 | `prop_db_per_stage` | 0.25 dB per stage | `switching.py:40,86,224`; on-chip insertion loss, all switch spectra | no source recorded |
-| `SIGMA_SPLIT` | 0.02, clipped to [0.3, 0.7] | `switching.py`; bar-state crosstalk | no source recorded — the digitized Fig 4e curve was fitted for it and the fitted value was not adopted, because the model does no better on those points than a constant and the result ranges over a factor of 4.6 with the ensemble percentile. 0.02 falls inside that range, so §6.1 records the panel as a consistency check on this value rather than a source for it |
+| `SIGMA_SPLIT` | 0.02, clipped to [0.3, 0.7] | `switching.py`; bar-state crosstalk | no source recorded — the digitized Fig 4e curve was fitted for it and the fitted value was not adopted, because the model does no better on those points than a constant and the result ranges over a factor of 4.6<!--{fig4e_fit.sensitivity.sigma_split_range_factor}--> with the ensemble percentile. 0.02<!--{cross_check.sigma_split}--> falls inside that range, so §6.1 records the panel as a consistency check on this value rather than a source for it |
 | `SIGMA_PHASE` | 0.02 rad | `switching.py`; bar-state crosstalk | no source recorded — the Fig 4e curve constrains only the combination of the two spreads, so this one is held rather than fitted (§6.1) |
 | `ARM_LOSS_DB` | (0.0, 0.0) dB | `switching.py:172`; the MZI phase section | no source recorded |
 | `MEAS_NOISE_SIGMA` | 0.01 rad per MZI | `ppuf.py:30`; PUF reliability | recorded in the code itself, `MEAS_NOISE_SOURCE`: "assumed value, not taken from the paper; reliability scales with it" |
@@ -969,7 +969,7 @@ Published values are those already recorded in this repository, in `results.json
 | Intra-die Hamming distance, 2 dies | 2.55% (§2.5) | 2.55% | same |
 | Inter-die Hamming distance, 2 dies | 57.71% (§2.5) | 57.71% | same |
 | Two-die uniformity (mean proportion of '1') | 42.33% (§2.5) | 42.62% | **differs** |
-| 100-die simulated uniqueness | 49.97% (§2.5) | 49.97% | same |
+| 100-die simulated uniqueness | 49.97% (§2.5) | 49.97%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.paper_uniqueness}--> | same |
 | 100-die simulated uniformity | 50.15% (§2.5) | 50.15% | same |
 | Switch crosstalk at 1560 nm | at least −20 dB, up to −40 dB (§2.4) | −45 to <−20 dB | **differs** (best case 5 dB apart) |
 | Switch crosstalk bandwidth | under −15/−20 dB over more than **2 nm** (§2.4) | over more than **20 nm** | **differs** by a factor of ten |
@@ -981,8 +981,8 @@ Two of these need more than a value comparison.
 
 **The effective-bit rows differ in convention as well as in value.** The preprint's figures
 are log₂(2/σ²) on the variance: log₂(2/0.0012) = 10.70 and log₂(2/0.0125) = 7.32. The
-published figures are log₂(2/σ) on the standard deviation: log₂(2/0.0269) = 6.2163 and
-log₂(2/0.0453) = 5.4643. `lightin/metrics.py` implements the published convention, and the
+published figures are log₂(2/σ) on the standard deviation: log₂(2/0.0269) = 6.2163<!--{unitary.enob_at_sigma_0.0269}--> and
+log₂(2/0.0453) = 5.4643<!--{nonunitary.enob_at_sigma_0.0453}-->. `lightin/metrics.py` implements the published convention, and the
 noise figures themselves also moved between versions (σ² = 0.0012 corresponds to
 σ = 0.0346, not to the published 0.0269). Neither the convention nor the noise figure
 carries over, so nothing from the preprint is used for these rows.
