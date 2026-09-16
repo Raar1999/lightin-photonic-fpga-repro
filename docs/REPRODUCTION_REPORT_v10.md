@@ -156,9 +156,9 @@ Two controls put the number in context, both on the same splits:
   features: 96.53%<!--{iris.logistic_baseline.full_acc_mean}--> ± 0.88%<!--{iris.logistic_baseline.full_acc_std}--> full set, 94.89%<!--{iris.logistic_baseline.test_acc_mean}--> ± 3.45%<!--{iris.logistic_baseline.test_acc_std}--> held out. Because the two sweeps run
   the same seeds and the seed fixes the split, they can be differenced seed by seed
   (`paired_logistic_minus_photonic`). On the full set the logistic model is ahead by
-  1.07 ± 1.30 points, winning on 7<!--{iris.paired_logistic_minus_photonic.full_n_logistic_higher}--> of the 10 seeds, tying on 2<!--{iris.paired_logistic_minus_photonic.full_n_equal}--> and losing on 1<!--{iris.paired_logistic_minus_photonic.full_n_photonic_higher}-->; the
+  1.07<!--{iris.paired_logistic_minus_photonic.full_mean|pct}--> ± 1.30<!--{iris.paired_logistic_minus_photonic.full_std|pct}--> points, winning on 7<!--{iris.paired_logistic_minus_photonic.full_n_logistic_higher}--> of the 10 seeds, tying on 2<!--{iris.paired_logistic_minus_photonic.full_n_equal}--> and losing on 1<!--{iris.paired_logistic_minus_photonic.full_n_photonic_higher}-->; the
   absolute paired mean is smaller than the paired standard deviation, so that difference
-  is within the seed-to-seed spread. On the held-out split it is ahead by 5.56 ± 3.67
+  is within the seed-to-seed spread. On the held-out split it is ahead by 5.56<!--{iris.paired_logistic_minus_photonic.test_mean|pct}--> ± 3.67<!--{iris.paired_logistic_minus_photonic.test_std|pct}-->
   points, winning on 9<!--{iris.paired_logistic_minus_photonic.test_n_logistic_higher}--> seeds, tying on 1<!--{iris.paired_logistic_minus_photonic.test_n_equal}--> and losing on none; there the absolute paired
   mean exceeds the paired standard deviation, so that is a consistent difference. The Iris
   demonstration shows that the mesh can be trained to classify; it does not show that the
@@ -387,7 +387,7 @@ distribution whose mean is 49.89%<!--{ppuf_recirc.C4_FREE_1.population_sweep.uni
 deviations from that mean. The match to four significant figures was luck, and no claim
 that this model reproduces the paper's uniqueness exactly is supportable. What the sweep
 supports is narrower: over 40-die populations the recirculating model is consistently the
-nearer of the two, by 0.88 points, with both models inside a point of the paper.
+nearer of the two, by 0.88<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.mean|pct}--> points, with both models inside a point of the paper.
 
 **What agreement on uniqueness is worth.** A uniqueness near 50% is the default outcome of
 comparing two nominally identical outputs, not a discriminating result: any construction in
@@ -439,7 +439,7 @@ feed-forward sweep shows at that spread. By sigma = 0.1 the ties are gone and un
 is 0.4937<!--{ppuf_recirc.C4_FREE_1.sensitivity_sweep[2].uniqueness}-->.
 
 The two wirings agree on uniqueness to 0.0002<!--{ppuf_recirc.wiring_robustness.uniqueness_difference}--> on the single headline run, and their
-population means differ by 0.04 points against a seed spread of about 0.25 points, well
+population means differ by 0.04 points against a seed spread of about 0.25<!--{ppuf_recirc.C4_FREE_1.population_sweep.uniqueness_std|pct}--> points, well
 inside the stated tolerance of 0.05<!--{ppuf_recirc.wiring_robustness.tolerance}-->. That is the check that the conclusion does not rest on
 the wiring, and a test enforces it.
 
@@ -561,10 +561,10 @@ Six results do not simply confirm the paper:
    state at 0.9942<!--{expressivity.coupler_ceiling_fidelity_at_1560}--> at 1560 nm, and at 0.9469<!--{expressivity.coupler_ceiling_min_fidelity}--> at the worst point of 1530<!--{expressivity.coupler_ceiling_range_nm[0]}-->–1565<!--{expressivity.coupler_ceiling_range_nm[1]}--> nm.
 4. A multinomial logistic regression with 15 parameters (four weights for each of three
    classes, plus three biases) is ahead of the photonic Iris classifier on the same splits.
-   Differenced seed by seed, it leads by 1.07 ± 1.30 points on the full set, winning on 7<!--{iris.paired_logistic_minus_photonic.full_n_logistic_higher}-->
+   Differenced seed by seed, it leads by 1.07<!--{iris.paired_logistic_minus_photonic.full_mean|pct}--> ± 1.30<!--{iris.paired_logistic_minus_photonic.full_std|pct}--> points on the full set, winning on 7<!--{iris.paired_logistic_minus_photonic.full_n_logistic_higher}-->
    of the 10 seeds, tying on 2<!--{iris.paired_logistic_minus_photonic.full_n_equal}--> and losing on 1<!--{iris.paired_logistic_minus_photonic.full_n_photonic_higher}-->; the absolute paired mean is smaller than
    the paired standard deviation, so that difference is within the seed-to-seed spread. On
-   the held-out split it leads by 5.56 ± 3.67 points, winning on 9<!--{iris.paired_logistic_minus_photonic.test_n_logistic_higher}--> seeds, tying on 1<!--{iris.paired_logistic_minus_photonic.test_n_equal}--> and
+   the held-out split it leads by 5.56<!--{iris.paired_logistic_minus_photonic.test_mean|pct}--> ± 3.67<!--{iris.paired_logistic_minus_photonic.test_std|pct}--> points, winning on 9<!--{iris.paired_logistic_minus_photonic.test_n_logistic_higher}--> seeds, tying on 1<!--{iris.paired_logistic_minus_photonic.test_n_equal}--> and
    losing on none; there the absolute paired mean exceeds the paired standard deviation, so
    that is a consistent difference. The identity control shows the unitary contributes about
    10 points over the readout alone, so the mesh is doing real work — but Iris does not
@@ -728,7 +728,7 @@ reason on `adopted_note`. The three paragraphs that follow are that reason.
 until it is read against the most trivial model that could be fitted to the same points,
 which is a constant. The least-squares constant on the 27<!--{fig4e_fit.n_points}--> digitized points is −20.158<!--{fig4e_fit.shape_check.constant_db}--> dB
 and its RMS is their standard deviation, 0.4170<!--{fig4e_fit.shape_check.constant_rms_db}--> dB. The bar model at its own best-fit
-spread scores 0.4176<!--{fig4e_fit.shape_check.model_rms_db}--> dB, which is 0.0006 dB *worse*. Across the band the measured points
+spread scores 0.4176<!--{fig4e_fit.shape_check.model_rms_db}--> dB, which is 0.0006<!--{fig4e_fit.shape_check.rms_advantage_db|abs}--> dB *worse*. Across the band the measured points
 vary by 1.620<!--{fig4e_fit.shape_check.data_ptp_db}--> dB peak to peak and the model by 0.0022<!--{fig4e_fit.shape_check.model_ptp_db}--> dB, 0.14%<!--{fig4e_fit.shape_check.model_ptp_over_data_ptp}--> of that. The model's
 wavelength dependence is two orders of magnitude below the scatter of the data, so the
 panel fixes a level and not a curve, and a level is one number. These are the

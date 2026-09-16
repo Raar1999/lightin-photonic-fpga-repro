@@ -11,7 +11,15 @@ naming its `results.json` path, for example
     cross **-16.77<!--{switching.cross_worst_xtalk_fitrange_db}--> dB**
 
 GitHub's renderer strips the comment, so the markup is invisible to a reader and visible to
-this test. Numbers the report does not annotate are listed, with their provenance, in
+this test. A path may carry one modifier after a pipe, which says how the written value was
+derived from the stored one:
+
+    `|pct`   the document writes a percentage or a percentage-point difference where
+             `results.json` stores a fraction; the stored value is multiplied by 100
+    `|abs`   the document writes a magnitude and carries the sign in words; the stored
+             value is compared by absolute value
+
+Numbers the report does not annotate are listed, with their provenance, in
 `docs/REPORT_UNCHECKED.md`.
 """
 
@@ -25,12 +33,14 @@ ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results.json"
 DOCS = ["docs/REPRODUCTION_REPORT_v10.md", "README.md"]
 
-# value, optional percent sign, then the path in an HTML comment. A leading minus may be
+# value, optional percent sign, then the target in an HTML comment. A leading minus may be
 # written as a hyphen or as U+2212; a leading plus is allowed for signed differences. The
 # en dash U+2013 is deliberately excluded: this document uses it as a range separator.
 ANNOTATION = re.compile(
     r"([-−+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)(%?)<!--\{([^}]+)\}-->"
 )
+
+MODIFIERS = ("pct", "abs")
 
 MISSING = object()
 
@@ -38,6 +48,12 @@ MISSING = object()
 def _load_results():
     with RESULTS.open(encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def split_target(target):
+    """`path` or `path|modifier` -> (path, modifier). The modifier may be unknown here."""
+    path, pipe, modifier = target.partition("|")
+    return path.strip(), (modifier.strip() if pipe else "")
 
 
 def resolve(data, path):
@@ -78,11 +94,6 @@ def resolve(data, path):
     return node
 
 
-def _as_float(written):
-    """The written token as a float, with U+2212 normalised and a leading plus dropped."""
-    return float(written.replace("−", "-").lstrip("+"))
-
-
 def _significant_figures(written):
     mantissa = re.split(r"[eE]", written)[0].lstrip("+-")
     digits = mantissa.replace(".", "").lstrip("0")
@@ -96,22 +107,30 @@ def _round_to_significant(value, figures):
     return round(value, -(int(floor(log10(abs(value)))) - (figures - 1)))
 
 
-def agrees(written, percent, stored):
+def agrees(written, percent, stored, modifier=""):
     """Does the written value equal the stored one at the precision it was written to?
 
     Decimal notation is compared at the number of decimal places written, so `-16.77`
     accepts -16.76775. Scientific notation is compared at the number of significant
     figures written, so `7.8e-16` accepts 7.7715e-16 and does not accept anything merely
-    smaller than 0.05. A trailing `%` means the document writes a percentage where
-    `results.json` stores a fraction, and the stored value is scaled by 100 before the
-    comparison; a percentage-point difference written without a `%` cannot be checked and
-    is recorded in `docs/REPORT_UNCHECKED.md` instead.
+    smaller than 0.05.
+
+    A trailing `%` on the written value, or a `pct` modifier on the path, means the
+    document writes a percentage where `results.json` stores a fraction, and the stored
+    value is scaled by 100 first. The two are alternatives, never both: `%` is for a value
+    the document calls a percentage, `pct` for one it calls a difference in points. An
+    `abs` modifier compares magnitudes, for a value whose sign the document carries in
+    words.
     """
     if not isinstance(stored, (int, float)) or isinstance(stored, bool):
         return False
     token = written.replace("−", "-").lstrip("+")
     value = float(token)
-    actual = stored * 100.0 if percent else float(stored)
+    actual = float(stored)
+    if modifier == "abs":
+        actual = abs(actual)
+    if percent or modifier == "pct":
+        actual *= 100.0
     if "e" in token or "E" in token:
         figures = _significant_figures(token)
         return _round_to_significant(actual, figures) == _round_to_significant(value, figures)
@@ -120,12 +139,16 @@ def agrees(written, percent, stored):
 
 
 def annotations(doc):
-    """Every annotated number in one document, as (line number, written, percent, path)."""
+    """Every annotated number in one document.
+
+    Yields (line number, written value, percent sign, path, modifier).
+    """
     text = (ROOT / doc).read_text(encoding="utf-8")
     found = []
     for match in ANNOTATION.finditer(text):
         line = text.count("\n", 0, match.start()) + 1
-        found.append((line, match.group(1), match.group(2), match.group(3)))
+        path, modifier = split_target(match.group(3))
+        found.append((line, match.group(1), match.group(2), path, modifier))
     return found
 
 
@@ -140,17 +163,27 @@ def test_report_numbers_match_results_json():
     assert checked, "no annotated numbers found -- has the markup been removed?"
 
     bad = []
-    for doc, line, written, percent, path in checked:
+    for doc, line, written, percent, path, modifier in checked:
+        shown = written + percent + (f"|{modifier}" if modifier else "")
+        if modifier and modifier not in MODIFIERS:
+            bad.append((doc, line, path, shown,
+                        f"unknown modifier {modifier!r}, expected one of {MODIFIERS}"))
+            continue
+        if percent and modifier == "pct":
+            bad.append((doc, line, path, shown,
+                        "written with a % sign and a pct modifier: the x100 scale would "
+                        "be applied twice"))
+            continue
         stored = resolve(results, path)
         if stored is MISSING:
-            bad.append((doc, line, path, written + percent, "no such path"))
-        elif not agrees(written, percent, stored):
-            bad.append((doc, line, path, written + percent, repr(stored)))
+            bad.append((doc, line, path, shown, "no such path"))
+        elif not agrees(written, percent, stored, modifier):
+            bad.append((doc, line, path, shown, repr(stored)))
 
     if bad:
         width = max(len(row[2]) for row in bad)
         rows = "\n".join(
-            f"  {doc}:{line:<5} {path:<{width}}  written {written:<12} stored {stored}"
+            f"  {doc}:{line:<5} {path:<{width}}  written {written:<14} stored {stored}"
             for doc, line, path, written, stored in bad
         )
         pytest.fail(
@@ -164,12 +197,26 @@ def test_every_annotated_path_resolves():
     """A renamed or removed `results.json` key fails here by name."""
     results = _load_results()
     unresolved = sorted(
-        {(doc, path) for doc, _, _, _, path in _all_annotations()
+        {(doc, path) for doc, _, _, _, path, _ in _all_annotations()
          if resolve(results, path) is MISSING}
     )
     if unresolved:
         rows = "\n".join(f"  {doc}: {path}" for doc, path in unresolved)
         pytest.fail(f"{len(unresolved)} annotated paths do not resolve:\n{rows}")
+
+
+def test_every_modifier_is_known():
+    """A misspelled modifier fails by name rather than being ignored."""
+    unknown = sorted(
+        {(doc, path, modifier) for doc, _, _, _, path, modifier in _all_annotations()
+         if modifier and modifier not in MODIFIERS}
+    )
+    if unknown:
+        rows = "\n".join(f"  {doc}: {path}|{modifier}" for doc, path, modifier in unknown)
+        pytest.fail(
+            f"{len(unknown)} annotations carry an unknown modifier "
+            f"(known: {', '.join(MODIFIERS)}):\n{rows}"
+        )
 
 
 def test_unchecked_inventory_exists():
@@ -182,12 +229,20 @@ def test_unchecked_inventory_exists():
 if __name__ == "__main__":
     results = _load_results()
     checked = _all_annotations()
-    failures = [
-        (doc, line, path, written + percent, resolve(results, path))
-        for doc, line, written, percent, path in checked
-        if resolve(results, path) is MISSING
-        or not agrees(written, percent, resolve(results, path))
-    ]
+    failures = []
+    for doc, line, written, percent, path, modifier in checked:
+        if modifier and modifier not in MODIFIERS:
+            failures.append((doc, line, path, written, f"unknown modifier {modifier!r}"))
+        elif percent and modifier == "pct":
+            failures.append((doc, line, path, written, "double x100 scale"))
+        else:
+            stored = resolve(results, path)
+            if stored is MISSING or not agrees(written, percent, stored, modifier):
+                failures.append((doc, line, path, written, stored))
     for doc, line, path, written, stored in failures:
         print(f"{doc}:{line} {path} written {written} stored {stored}")
+    by_mod = {}
+    for _, _, _, _, _, modifier in checked:
+        by_mod[modifier or "(none)"] = by_mod.get(modifier or "(none)", 0) + 1
     print(f"{len(checked) - len(failures)} of {len(checked)} annotated numbers agree")
+    print("  by modifier: " + ", ".join(f"{k} {v}" for k, v in sorted(by_mod.items())))

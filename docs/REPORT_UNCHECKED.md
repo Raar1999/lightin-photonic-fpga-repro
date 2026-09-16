@@ -94,6 +94,7 @@ path to a value that path does not hold.
 | 0.42 dB | §6 | the percentile scan's RMS column rounded to a common value |
 | 0.008 | §3 | the largest of the three arm-length-sign changes |
 | 10 points | §3, §5 | the identity control's contribution, to the nearest point |
+| 0.04 points | §3 | the gap between the two wirings' population uniqueness means, `C4_FREE_2` minus `C4_FREE_1`; no single path holds a difference of two stored values |
 | 142/150, 71/75, 140/150, 70/75, 42/45, 28/30 | §3 | the fractions the paper's percentages equal |
 | ~1e-15 | §5 | an order-of-magnitude summary of the solver validation |
 | 4.1% | §4 | the demo slope offset |
@@ -119,15 +120,20 @@ reliability **0.00719**, and the phase mean **+0.7604** rad. `results.json` hold
 corrected values, which are annotated beside them. Keeping the old numbers unannotated is
 what makes the sentence readable as a before-and-after.
 
-## 7. Scale and sign the markup cannot express
+## 7. Scale and sign — covered by modifiers
 
-Two small classes where a path exists but the written form does not let the test bind it.
+Nothing is listed here. A value the document writes on a different scale from the one
+`results.json` stores it on, or whose sign the document carries in a word rather than a
+character, is annotated with a modifier after a pipe and is checked like any other number:
 
-| Value | Section | Why not |
-|---|---|---|
-| 1.07 ± 1.30, 5.56 ± 3.67 points | §3, §5 | `iris.paired_logistic_minus_photonic.full_mean`/`full_std`/`test_mean`/`test_std` are stored as fractions. The report writes them as percentage *points* with no `%` sign, and the test infers the ×100 scale from the `%` sign alone. The seed counts on the same sentences are annotated. |
-| 0.88 points, 0.04 points, 0.25 points | §3 | the same, for `ppuf_recirc.vs_feedforward.paired_uniqueness`. The `+0.88% ± 0.42%` form earlier in §3 carries `%` and *is* annotated. |
-| 0.0006 dB | §6 | the magnitude of `fig4e_fit.shape_check.rms_advantage_db`, which is stored negative; the sign is carried by the word "worse". |
+* `|pct` multiplies the stored value by 100. It carries the paired differences the report
+  writes in percentage *points* — the Iris full-set and held-out means and standard
+  deviations, the recirculating-minus-feed-forward uniqueness difference, and the seed
+  spread it is judged against. A value that already carries a `%` sign must not also carry
+  `|pct`; the test fails if both appear, so the scale can never be applied twice.
+* `|abs` compares magnitudes. It carries the one value whose sign lives in a word: the
+  0.0006 dB by which the bar model is *worse* than a constant, stored negative as
+  `fig4e_fit.shape_check.rms_advantage_db`.
 
 ## 8. Structure, not measurement
 
