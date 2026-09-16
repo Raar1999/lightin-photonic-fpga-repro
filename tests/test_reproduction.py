@@ -331,25 +331,36 @@ def test_fig4e_sigma_split_falls_as_the_reported_percentile_rises():
 
 
 def test_fig4e_sensitivity_block_is_self_consistent():
-    """The keys report v9 quotes must agree with the scan they are derived from.
+    """The keys the report quotes must agree with the scan they are derived from.
 
-    The headline uncertainty on SIGMA_SPLIT is the full range across the scan and the
-    offset test, quoted instead of the bootstrap interval. That swap is only honest if the
-    range really is the wider of the two and really does cover every variant, so both are
-    checked here rather than left to the prose.
+    The range across the scan and the offset test is what the report quotes as the spread
+    the panel is compatible with, and the reason the fitted value was not adopted. That is
+    only honest if the range really does cover every variant and really is far wider than
+    the one bootstrap interval still computed, so both are checked here rather than left
+    to the prose. The scan itself is no longer bootstrapped, and the interval comparison
+    is therefore driven entirely by the adopted_boot the caller supplies.
     """
     import os, sys
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
     import fit_fig4e
     lam, db = fit_fig4e.load_points()
-    s = fit_fig4e.sensitivity(lam, db, pcts=(90.0, 99.0), n_boot=3, n_real=200,
-                              verbose=False)
+    s = fit_fig4e.sensitivity(lam, db, pcts=(90.0, 99.0), n_real=200, verbose=False)
     vals = [v["sigma_split"] for v in s["percentile_scan"].values()]
     vals.append(s["offset_test_sigma_split"])
     lo, hi = s["sigma_split_full_range"]
     assert lo == min(vals) and hi == max(vals)
     assert s["offset_test_db"] < 0.0        # the digitized scale reads high, not low
-    assert s["range_over_bootstrap_factor"] > 1.0
+    assert s["scan_is_bootstrapped"] is False
+    for entry in s["percentile_scan"].values():
+        assert set(entry) == {"pct", "sigma_split", "se", "rms_db"}, entry
+    # without an adopted-fit interval the comparison keys are absent, not invented
+    assert s["range_over_bootstrap_factor"] is None
+    assert s["adopted_bootstrap_param"] is None
+
+    s2 = fit_fig4e.sensitivity(lam, db, pcts=(90.0, 99.0), n_real=200, verbose=False,
+                               adopted_boot={"param_p05": 0.0180, "param_p95": 0.0184,
+                                             "n_boot": 500})
+    assert s2["range_over_bootstrap_factor"] > 1.0
 
 
 def test_fig4e_model_is_flat_against_the_digitized_curve():

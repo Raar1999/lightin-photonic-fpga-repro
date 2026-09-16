@@ -648,16 +648,15 @@ def bar_il_vs_digitized(max_nm=DIAG_CONTINUOUS_MAX_NM, path=DIAG_CSV, verbose=Tr
 # --------------------------------------------------------------------------- Step 2b
 
 SCAN_PCTS = (50.0, 75.0, 90.0, 95.0, 99.0, 99.9)
-SCAN_BOOT_FRACTION = 3             # the percentile scan resamples n_boot // this many
-# times per percentile, against the full n_boot for the adopted fit. Six percentiles at
-# full strength would cost six times what the whole Fig 4e block costs now, and the scan's
-# intervals do not need that precision: what they have to establish is that the interval
-# at any one percentile is far narrower than the spread across percentiles, and that gap
-# is two orders of magnitude. The adopted percentile keeps its full-strength interval,
-# computed once in main() and passed in here, and that is the one the comparison uses.
+# The scan reports point estimates and RMS only. It used to bootstrap every percentile,
+# and those intervals were not worth their cost: each one came out two orders of magnitude
+# narrower than the spread across percentiles it sits inside, so they answered a question
+# nobody was asking while accounting for most of this script's runtime. One full-strength
+# bootstrap is still run, at the adopted percentile, in main(); it is passed in here as
+# adopted_boot and it is the only interval the comparison below uses.
 
 
-def sensitivity(lam=None, db=None, pcts=SCAN_PCTS, n_boot=150, seed=0, param_seed=1,
+def sensitivity(lam=None, db=None, pcts=SCAN_PCTS,
                 floor_db=FLOOR_DB, n_real=N_REAL, adopted_pct=PCT, adopted_boot=None,
                 offset_db=None, verbose=True):
     """How far sigma_split moves under the two choices the digitized curve cannot settle.
@@ -676,6 +675,10 @@ def sensitivity(lam=None, db=None, pcts=SCAN_PCTS, n_boot=150, seed=0, param_see
 
     Neither is a bootstrap. The bootstrap describes the scatter of 27 points about a model
     of a fixed form; these two describe the form itself, and they are much the larger.
+    That is also why the scan itself is not bootstrapped: an interval two orders of
+    magnitude narrower than the effect it sits inside adds nothing to the conclusion.
+    adopted_boot carries the one full-strength interval, computed once by the caller at
+    adopted_pct; without it the comparison keys below are None rather than invented.
     """
     if lam is None or db is None:
         lam, db = load_points()
@@ -685,21 +688,12 @@ def sensitivity(lam=None, db=None, pcts=SCAN_PCTS, n_boot=150, seed=0, param_see
     scan = {}
     for p in pcts:
         r = fit_one("split", lam, db, floor_db=floor_db, n_real=n_real, pct=p)
-        b = bootstrap_one("split", lam, db, n_boot=n_boot, seed=seed,
-                          param_seed=param_seed, floor_db=floor_db, n_real=n_real,
-                          p0=r["value"], pct=p)
         scan[f"p{p:g}"] = {
             "pct": float(p), "sigma_split": r["value"], "se": r["se"],
-            "rms_db": r["rms_db"], "n_boot": int(n_boot),
-            "boot_pairs_p05": b["pairs_p05"], "boot_pairs_p95": b["pairs_p95"],
-            "boot_param_p05": b["param_p05"], "boot_param_p95": b["param_p95"],
-            "boot_n_pairs_failed": b["n_pairs_failed"],
-            "boot_n_param_failed": b["n_param_failed"],
+            "rms_db": r["rms_db"],
         }
         if verbose:
             print(f"    pct={p:5.1f}:  sigma_split = {r['value']:.5f} +/- {r['se']:.5f}"
-                  f"   pairs [{b['pairs_p05']:.5f}, {b['pairs_p95']:.5f}]"
-                  f"   parametric [{b['param_p05']:.5f}, {b['param_p95']:.5f}]"
                   f"   RMS = {r['rms_db']:.3f} dB")
 
     off = fit_one("split", lam, db + offset_db, floor_db=floor_db, n_real=n_real,
@@ -711,14 +705,12 @@ def sensitivity(lam=None, db=None, pcts=SCAN_PCTS, n_boot=150, seed=0, param_see
 
     vals = [v["sigma_split"] for v in scan.values()] + [off["value"]]
     lo, hi = float(min(vals)), float(max(vals))
-    adopted = scan.get(f"p{adopted_pct:g}")
     if adopted_boot is None:
-        b_lo, b_hi = adopted["boot_param_p05"], adopted["boot_param_p95"]
-        b_src = f"percentile scan, n_boot={n_boot}"
+        b_lo = b_hi = b_src = factor = None
     else:
         b_lo, b_hi = adopted_boot["param_p05"], adopted_boot["param_p95"]
         b_src = f"adopted fit, n_boot={adopted_boot['n_boot']}"
-    factor = (hi - lo) / (b_hi - b_lo)
+        factor = (hi - lo) / (b_hi - b_lo)
 
     out = {
         "percentile_scan": scan,
@@ -733,19 +725,28 @@ def sensitivity(lam=None, db=None, pcts=SCAN_PCTS, n_boot=150, seed=0, param_see
         "adopted_pct": float(adopted_pct),
         "sigma_split_full_range": [lo, hi],
         "sigma_split_full_range_width": float(hi - lo),
-        "adopted_bootstrap_param": [float(b_lo), float(b_hi)],
-        "adopted_bootstrap_param_width": float(b_hi - b_lo),
+        "sigma_split_range_factor": float(hi / lo),
+        "adopted_bootstrap_param": None if b_lo is None else [float(b_lo), float(b_hi)],
+        "adopted_bootstrap_param_width": None if b_lo is None else float(b_hi - b_lo),
         "adopted_bootstrap_source": b_src,
-        "range_over_bootstrap_factor": float(factor),
+        "range_over_bootstrap_factor": None if factor is None else float(factor),
+        "scan_is_bootstrapped": False,
+        "scan_note": ("point estimates and RMS only: an interval at one percentile is "
+                      "two orders of magnitude narrower than the spread across "
+                      "percentiles, so bootstrapping every percentile cost most of the "
+                      "runtime and changed no conclusion"),
     }
     if verbose:
         print(f"    sigma_split over every variant above: {lo:.5f} to {hi:.5f} "
-              f"(width {hi - lo:.5f})")
-        print(f"    parametric bootstrap of the adopted pct={adopted_pct:g} fit "
-              f"({b_src}): [{b_lo:.5f}, {b_hi:.5f}] (width {b_hi - b_lo:.5f})")
-        print(f"    The model-form range is the larger of the two, by a factor of "
-              f"{factor:.0f}; the bootstrap describes the scatter of the points at one "
-              f"percentile, the range describes the choice of percentile.")
+              f"(width {hi - lo:.5f}, a factor of {hi / lo:.1f})")
+        if factor is None:
+            print("    no adopted-fit bootstrap was supplied, so no interval comparison")
+        else:
+            print(f"    parametric bootstrap of the adopted pct={adopted_pct:g} fit "
+                  f"({b_src}): [{b_lo:.5f}, {b_hi:.5f}] (width {b_hi - b_lo:.5f})")
+            print(f"    The model-form range is the larger of the two, by a factor of "
+                  f"{factor:.0f}; the bootstrap describes the scatter of the points at "
+                  f"one percentile, the range describes the choice of percentile.")
     return out
 
 
@@ -863,8 +864,8 @@ def main(verbose=True, n_boot=500, seed=0, fig_path=FIG, n_real=N_REAL):
 
     if verbose:
         print("  sensitivity of sigma_split to the two choices the curve cannot settle:")
-    sens = sensitivity(lam, db, n_boot=max(10, n_boot // SCAN_BOOT_FRACTION),
-                       n_real=n_real, adopted_boot=boots["split"], verbose=verbose)
+    sens = sensitivity(lam, db, n_real=n_real, adopted_boot=boots["split"],
+                       verbose=verbose)
 
     if fig_path:
         _figure(lam, db, fits, boots, fig_path, n_real, verbose)

@@ -11,6 +11,7 @@ import argparse
 import json
 import os
 import platform
+import time
 import sys
 from importlib.metadata import version
 import numpy as np
@@ -65,6 +66,31 @@ QUICK_POP_DIES, QUICK_POP_CHALLENGES = 10, 16
 NOISE_SIGMAS = (0.002, 0.005, 0.01, 0.02, 0.05)
 QUICK_NOISE_SIGMAS = (0.01, 0.05)
 PAPER_PUF_UNIQUENESS = 0.4997      # paper's 100-die simulated uniqueness
+
+
+_SECTIONS = []      # [label, start, end] per numbered block, for the runtime summary
+
+
+def section(label):
+    """Print a numbered block's heading and time it.
+
+    The block runtime is a number the report quotes and a budget the campaign is held to,
+    so it is measured here rather than estimated afterwards from a stopwatch on the whole
+    script. Each call closes the previous block, so the timings partition the run.
+    """
+    now = time.perf_counter()
+    if _SECTIONS:
+        _SECTIONS[-1][2] = now
+    _SECTIONS.append([label, now, None])
+    print(f"\n--- {label} ---")
+
+
+def close_sections():
+    """Stop the last block and return (label, seconds) sorted slowest first."""
+    if _SECTIONS and _SECTIONS[-1][2] is None:
+        _SECTIONS[-1][2] = time.perf_counter()
+    return sorted(((lab, end - start) for lab, start, end in _SECTIONS),
+                  key=lambda t: -t[1])
 
 
 def figpath(name):
@@ -397,7 +423,7 @@ def paired_logistic_minus_photonic(seed_sweep, logistic_baseline):
     return out
 
 
-PUF_RECIRC_HEADING = "\n--- 6b. Photonic PUF on the recirculating mesh ---"
+PUF_RECIRC_HEADING = "6b. Photonic PUF on the recirculating mesh"
 
 
 def print_population_sweep(label, sweep):
@@ -574,22 +600,22 @@ def main(quick=False):
           + ("  [quick mode]" if quick else ""))
     print("=" * 72)
 
-    print("\n--- 1. Unitary matrix multiplication ---")
+    section("1. Unitary matrix multiplication")
     u = unitary.run()
-    print("\n--- 2. Non-unitary matrix multiplication ---")
+    section("2. Non-unitary matrix multiplication")
     nu = nonunitary.run()
-    print("\n--- 3. Iris unitary neural network ---")
+    section("3. Iris unitary neural network")
     ir = nn_iris.run(seeds=seeds)
-    print("\n--- 4. MRM wavelength locking (differentiator) ---")
+    section("4. MRM wavelength locking (differentiator)")
     mr = mrm.run()
-    print("\n--- 5. Optical switching crosstalk ---")
+    section("5. Optical switching crosstalk")
     sw = switching.run()
     onchip_il = switching.onchip_insertion_loss()
     paper_lo, paper_hi = switching.ONCHIP_IL_PAPER_RANGE_DB
     print(f"[switching] modelled on-chip insertion loss over 8 intended paths: "
           f"{onchip_il['min_db']:.2f} to {onchip_il['max_db']:.2f} dB; "
           f"paper measured {paper_lo:.2f} to {paper_hi:.2f} dB")
-    print("\n--- 6. Photonic PUF ---")
+    section("6. Photonic PUF")
     pp = ppuf.run(n_dies=100)
     pop_seeds = QUICK_POP_SEEDS if quick else POP_SEEDS
     pop_dies = QUICK_POP_DIES if quick else POP_DIES
@@ -597,28 +623,28 @@ def main(quick=False):
     pp["population_sweep"] = ppuf.population_sweep(seeds=pop_seeds, n_dies=pop_dies,
                                                    n_challenges=pop_ch)
     print_population_sweep("feed-forward", pp["population_sweep"])
-    print(PUF_RECIRC_HEADING)
+    section(PUF_RECIRC_HEADING)
     pr = recirc_puf_block(quick=quick, feedforward=pp)
-    print("\n--- 7. Throughput & energy ---")
+    section("7. Throughput & energy")
     te = throughput.reproduce()
-    print("\n--- 8. CMT directional coupler (physical model) ---")
+    section("8. CMT directional coupler (physical model)")
     cp = coupler.run()
-    print("\n--- 9. Single-theta PUC expressivity ---")
+    section("9. Single-theta PUC expressivity")
     ex = expressivity.run()
-    print("\n--- 10. Recirculating mesh with feedback loops ---")
+    section("10. Recirculating mesh with feedback loops")
     rc = recirculating.run()
-    print("\n--- 11. Fig 4d coupler dispersion fit (bootstrapped) ---")
+    section("11. Fig 4d coupler dispersion fit (bootstrapped)")
     f4_all = fit_fig4.main(n_boot=n_boot,
                            fig_path=figpath("fig4_digitized.png"))
     f4 = {k: v for k, v in f4_all.items() if k in FIG4D_KEYS}
     f4_mesh = f4_all["mesh"]
 
-    print("\n--- 12. Fig 4e bar-state fabrication-spread fit (bootstrapped) ---")
+    section("12. Fig 4e bar-state fabrication-spread fit (bootstrapped)")
     f4e = fit_fig4e.main(n_boot=n_boot,
                          fig_path=figpath("fig4e_digitized.png"))
     xc = cross_check(f4_mesh, f4e)
 
-    print("\n--- 12a. Fig 4e diagonals vs the paper's on-chip insertion loss ---")
+    section("12a. Fig 4e diagonals vs the paper's on-chip insertion loss")
     f4e_diag = fit_fig4e.diagonal_summary()
     bar_il = fit_fig4e.bar_il_vs_digitized()
 
@@ -723,6 +749,12 @@ def main(quick=False):
         "latency_on_chip_ps": propagation_latency(4.5e-3) * 1e12,
         "environment": environment(),
     }
+    timings = close_sections()
+    total = sum(t for _, t in timings)
+    print(f"\n--- Block runtimes (total {total / 60:.1f} min) ---")
+    for lab, t in timings:
+        print(f"  {t / 60:6.2f} min  {t / total * 100:5.1f}%  {lab}")
+
     out = os.path.join(os.path.dirname(__file__), "..", results_name)
     with open(out, "w") as f:
         json.dump(results, f, indent=2)
