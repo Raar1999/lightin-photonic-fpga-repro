@@ -126,19 +126,19 @@
   },
   "switching": {
     "cross_xtalk_center_db": [
-      -21.47556232499371,
-      -27.157264764991332
+      -21.058179020840075,
+      -27.159661481407493
     ],
     "bar_xtalk_center_db": [
-      -31.159282628913452,
-      -107.79948888759537
+      -30.500238841570884,
+      -106.67211074284721
     ],
-    "cross_worst_xtalk_cband_db": -11.898251371119635,
-    "bar_worst_xtalk_cband_db": -31.156431901458767,
+    "cross_worst_xtalk_cband_db": -11.797091608954688,
+    "bar_worst_xtalk_cband_db": -30.4976929835669,
     "cross_structural_zeros": 0,
     "bar_structural_zeros": 0,
-    "cross_worst_xtalk_fitrange_db": -17.02695536833854,
-    "cross_worst_xtalk_extrapolated_db": -11.898251371119635,
+    "cross_worst_xtalk_fitrange_db": -16.76775295806134,
+    "cross_worst_xtalk_extrapolated_db": -11.797091608954688,
     "fit_range_nm": [
       1549,
       1565
@@ -150,56 +150,56 @@
     "chip_crosstalk_floor_db": -26.2,
     "floor_note": "phenomenological floor fitted to Fig 4d; the mesh model has no floor term, so modelled crosstalk below this level is not reached on the chip",
     "fibre_to_fibre_loss_db": 11.433333333333335,
-    "onchip_il_min_db": -1.800000000000011,
-    "onchip_il_max_db": -1.400000000000007,
+    "onchip_il_min_db": -1.8000000000000065,
+    "onchip_il_max_db": -1.4000000000000052,
     "onchip_il_paths": [
       [
         "cross",
         0,
         3,
-        -1.6711023559286353
+        -1.6762026917226793
       ],
       [
         "cross",
         1,
         2,
-        -1.677958448284761
+        -1.6838106401123853
       ],
       [
         "cross",
         2,
         1,
-        -1.677958448284761
+        -1.6838106401123853
       ],
       [
         "cross",
         3,
         0,
-        -1.6711023559286353
+        -1.6762026917226793
       ],
       [
         "bar",
         0,
         0,
-        -1.400000000000007
+        -1.4000000000000052
       ],
       [
         "bar",
         1,
         1,
-        -1.800000000000011
+        -1.8000000000000065
       ],
       [
         "bar",
         2,
         2,
-        -1.800000000000011
+        -1.8000000000000065
       ],
       [
         "bar",
         3,
         3,
-        -1.400000000000007
+        -1.4000000000000052
       ]
     ],
     "onchip_il_paper_range_db": [
@@ -207,16 +207,86 @@
       -1.85
     ],
     "leak_mechanism_check": {
-      "bar_cell_leak_db_model": -30.203584489750327,
-      "bar_cell_leak_db_equal_arm_loss": -30.203584489750327,
+      "bar_cell_leak_db_model": -29.806945985145695,
+      "bar_cell_leak_db_equal_arm_loss": -29.806945985145695,
       "bar_cell_leak_db_ideal_coupler": -32.87220846548636,
-      "cross_cell_leak_db_model": -25.692815285832168,
-      "cross_cell_leak_db_equal_arm_loss": -25.692815285832168,
+      "cross_cell_leak_db_model": -25.689436227959874,
+      "cross_cell_leak_db_equal_arm_loss": -25.689436227959874,
       "cross_cell_leak_db_ideal_coupler": -32.87220846548639,
       "bar_center_db_equal_arm_loss": [
-        -31.159282628913452,
-        -107.79948888759537
+        -30.500238841570884,
+        -106.67211074284721
       ]
+    },
+    "bar_il_vs_fig4e": {
+      "band_nm": [
+        1550.0,
+        1574.0
+      ],
+      "n_wavelengths": 17,
+      "per_port": [
+        {
+          "trace": "T00",
+          "in_port": 0,
+          "out_port": 0,
+          "model_db": -1.400000000000001,
+          "digitized_db": -2.43,
+          "difference_db": 1.029999999999999,
+          "model_min_db": -1.400000000000007,
+          "model_max_db": -1.3999999999999986,
+          "digitized_min_db": -2.77,
+          "digitized_max_db": -2.2,
+          "n_points": 17
+        },
+        {
+          "trace": "T11",
+          "in_port": 1,
+          "out_port": 1,
+          "model_db": -1.7999999999999994,
+          "digitized_db": -2.2670588235294113,
+          "difference_db": 0.46705882352941225,
+          "model_min_db": -1.800000000000011,
+          "model_max_db": -1.799999999999995,
+          "digitized_min_db": -2.44,
+          "digitized_max_db": -2.15,
+          "n_points": 17
+        },
+        {
+          "trace": "T22",
+          "in_port": 2,
+          "out_port": 2,
+          "model_db": -1.7999999999999994,
+          "digitized_db": -1.7458823529411764,
+          "difference_db": -0.05411764705882307,
+          "model_min_db": -1.800000000000011,
+          "model_max_db": -1.799999999999995,
+          "digitized_min_db": -2.26,
+          "digitized_max_db": -1.45,
+          "n_points": 17
+        },
+        {
+          "trace": "T33",
+          "in_port": 3,
+          "out_port": 3,
+          "model_db": -1.400000000000001,
+          "digitized_db": -1.4823529411764707,
+          "difference_db": 0.08235294117646945,
+          "model_min_db": -1.400000000000007,
+          "model_max_db": -1.3999999999999986,
+          "digitized_min_db": -2.01,
+          "digitized_max_db": -1.1,
+          "n_points": 17
+        }
+      ],
+      "mean_abs_diff_db": 0.4907352941176466,
+      "mean_signed_diff_db": 0.38132352941176445,
+      "model_order_least_to_most_lossy": "T00 = T33 < T11 = T22",
+      "digitized_order_least_to_most_lossy": "T33 < T22 < T11 < T00",
+      "pairs_ordered_correctly": 2,
+      "pairs_ordered_wrongly": 2,
+      "pairs_tied_in_the_model": 2,
+      "order_reproduced": false,
+      "note": "model minus digitized, so a positive signed mean means the model predicts less loss than the chip shows; the model uses nominal 50:50 couplers, so no fabrication spread enters it"
     }
   },
   "ppuf": {
@@ -827,15 +897,15 @@
   },
   "coupler": {
     "extinction_at_3db_db": null,
-    "extinction_at_1560_db": 22.642019939010154,
-    "extinction_at_1520_db": 11.11520773605761,
+    "extinction_at_1560_db": 22.342005997481344,
+    "extinction_at_1520_db": 11.037589889855484,
     "link_budget_db": 11.433333333333335,
     "demo_fit_kappa0": 0.49803730802390517,
     "demo_fit_slope": 0.0043703889023811,
     "demo_true_kappa0": 0.5,
     "demo_true_slope": 0.0042,
     "demo_fit_lam0_nm": 1560.0,
-    "power_coupling_at_1560": 0.4631135409547755,
+    "power_coupling_at_1560": 0.461817209506274,
     "demo_fit_note": "recovered from the synthetic _demo_measured_dataset, not from chip data",
     "extinction_note": "ideal null: model contains no loss or coupler imbalance, so the extinction is unbounded"
   },
@@ -852,12 +922,12 @@
       "two_dof_universal": 0.9999999999999988
     },
     "realizable_unitary_fidelity": 1.0,
-    "coupler_ceiling_min_fidelity": 0.9480972575197208,
+    "coupler_ceiling_min_fidelity": 0.946937684953625,
     "coupler_ceiling_range_nm": [
       1530.0,
       1565.0
     ],
-    "coupler_ceiling_fidelity_at_1560": 0.9945575565564198
+    "coupler_ceiling_fidelity_at_1560": 0.9941682980404486
   },
   "fig4d_fit": {
     "lambda0_median_nm": 1571.0154701756662,
@@ -880,22 +950,22 @@
   },
   "fig4d_mesh_fit": {
     "model": "4x4 mesh T20 normalised to total output",
-    "lambda0_nm": 1574.1673593897594,
-    "slope": 0.002637688462786212,
-    "floor_db": -26.185081923418508,
-    "lambda0_se_nm": 0.5917982632654981,
-    "slope_se": 0.00011770169831742837,
-    "floor_se_db": 0.4086105338851505,
-    "rms_db": 0.7857877783024255,
+    "lambda0_nm": 1574.678458181731,
+    "slope": 0.0026085639014737333,
+    "floor_db": -26.186675078409916,
+    "lambda0_se_nm": 0.6092902856976796,
+    "slope_se": 0.00011703177545442932,
+    "floor_se_db": 0.4119488374070718,
+    "rms_db": 0.7918223382854097,
     "n_points": 25,
-    "lambda0_pairs_p05_nm": 1573.222818727242,
-    "lambda0_pairs_p95_nm": 1574.9903250743866,
-    "slope_pairs_p05": 0.002413057500663773,
-    "slope_pairs_p95": 0.0028811285013213674,
-    "lambda0_param_p05_nm": 1571.8530744758475,
-    "lambda0_param_p95_nm": 1577.0930562528852,
-    "slope_param_p05": 0.0022077508633712105,
-    "slope_param_p95": 0.0031003741049422436,
+    "lambda0_pairs_p05_nm": 1573.691176706262,
+    "lambda0_pairs_p95_nm": 1575.5261933572208,
+    "slope_pairs_p05": 0.002386454154653565,
+    "slope_pairs_p95": 0.0028505078490591814,
+    "lambda0_param_p05_nm": 1572.3387010443544,
+    "lambda0_param_p95_nm": 1577.67367858362,
+    "slope_param_p05": 0.0021854736664645713,
+    "slope_param_p95": 0.003063092658789635,
     "n_pairs_failed": 0,
     "n_param_failed": 0,
     "digitization_sd_db": 2.0
@@ -910,149 +980,112 @@
     "floor_db": -60.0,
     "digitization_sd_db": 0.3,
     "pct": 99.0,
+    "adopted": false,
+    "adopted_note": "the fitted value was not adopted: the model fits these points no better than a constant and the percentile choice moves the result by a factor of 4.6",
     "data_is_upper_envelope": true,
     "model": "4x4 mesh all-bar T32, 99th percentile of the fabrication ensemble, normalised to total output",
     "statistic_note": "the digitized points are a peak-hold over the fast wavelength ripple, so the model reports a high quantile of the fabrication ensemble; fitting its mean instead absorbs the quantile-to-mean offset into the fitted spread",
     "joint_fit_not_adopted": {
-      "sigma_split": 0.018513150176815478,
-      "sigma_phase": 1.6989801946707198e-06,
-      "sigma_split_se": 0.030510636850975454,
-      "sigma_phase_se": 12854.495010284656,
+      "sigma_split": 0.018513163686010966,
+      "sigma_phase": 4.597335069693193e-06,
+      "sigma_split_se": 0.0029823783387598213,
+      "sigma_phase_se": 137362.98236473926,
       "correlation": [
         [
           1.0,
-          0.9999829059231513
+          -0.9982093600216138
         ],
         [
-          0.9999829059231513,
-          0.9999999999999998
+          -0.9982093600216138,
+          1.0
         ]
       ],
-      "rms_db": 0.4170001957282483
+      "rms_db": 0.4170001957803724
     },
     "sensitivity": {
       "percentile_scan": {
         "p50": {
           "pct": 50.0,
-          "sigma_split": 0.07073862030556952,
-          "se": 0.0007001115526124033,
-          "rms_db": 0.41772641829316143,
-          "n_boot": 166,
-          "boot_pairs_p05": 0.06970783042340836,
-          "boot_pairs_p95": 0.0719094630970529,
-          "boot_param_p05": 0.06996793144685715,
-          "boot_param_p95": 0.0716669777674538,
-          "boot_n_pairs_failed": 0,
-          "boot_n_param_failed": 0
+          "sigma_split": 0.0707386513151781,
+          "se": 0.0006999960160546305,
+          "rms_db": 0.4177178315024253
         },
         "p75": {
           "pct": 75.0,
-          "sigma_split": 0.04184961658743067,
-          "se": 0.000393626448325967,
-          "rms_db": 0.4163932801703024,
-          "n_boot": 166,
-          "boot_pairs_p05": 0.04129902066221823,
-          "boot_pairs_p95": 0.04248826856529467,
-          "boot_param_p05": 0.04142108631988708,
-          "boot_param_p95": 0.04228501660389976,
-          "boot_n_pairs_failed": 0,
-          "boot_n_param_failed": 0
+          "sigma_split": 0.04184982998305426,
+          "se": 0.00039364739975079454,
+          "rms_db": 0.4164154717451439
         },
         "p90": {
           "pct": 90.0,
-          "sigma_split": 0.02830281008962374,
-          "se": 0.0002673848420182307,
-          "rms_db": 0.41702582820426654,
-          "n_boot": 166,
-          "boot_pairs_p05": 0.027928882002438173,
-          "boot_pairs_p95": 0.028732665796453873,
-          "boot_param_p05": 0.028011536730814024,
-          "boot_param_p95": 0.028596463671667967,
-          "boot_n_pairs_failed": 0,
-          "boot_n_param_failed": 0
+          "sigma_split": 0.028302801187965784,
+          "se": 0.00026738462804876644,
+          "rms_db": 0.4170255520268173
         },
         "p95": {
           "pct": 95.0,
-          "sigma_split": 0.023717501679838743,
-          "se": 0.00023678902470495813,
-          "rms_db": 0.4177933548794364,
-          "n_boot": 166,
-          "boot_pairs_p05": 0.02338623953323382,
-          "boot_pairs_p95": 0.024097754978754195,
-          "boot_param_p05": 0.02345996311739324,
-          "boot_param_p95": 0.023977030645464664,
-          "boot_n_pairs_failed": 0,
-          "boot_n_param_failed": 0
+          "sigma_split": 0.023717399757075822,
+          "se": 0.0002367801568565817,
+          "rms_db": 0.4177792436580348
         },
         "p99": {
           "pct": 99.0,
-          "sigma_split": 0.018191583898139876,
-          "se": 0.00018083607122602936,
-          "rms_db": 0.4176175250816665,
-          "n_boot": 166,
-          "boot_pairs_p05": 0.017958973291055298,
-          "boot_pairs_p95": 0.018482162839362958,
-          "boot_param_p05": 0.018001487926516915,
-          "boot_param_p95": 0.018389861195735012,
-          "boot_n_pairs_failed": 0,
-          "boot_n_param_failed": 0
+          "sigma_split": 0.018191575664044453,
+          "se": 0.00018082950376887744,
+          "rms_db": 0.4176039386154543
         },
         "p99.9": {
           "pct": 99.9,
-          "sigma_split": 0.015217288194996105,
-          "se": 0.00014855007491160964,
-          "rms_db": 0.4173914829343761,
-          "n_boot": 166,
-          "boot_pairs_p05": 0.015009571886161518,
-          "boot_pairs_p95": 0.015456042440090618,
-          "boot_param_p05": 0.015055578939132681,
-          "boot_param_p95": 0.015380273079588518,
-          "boot_n_pairs_failed": 0,
-          "boot_n_param_failed": 0
+          "sigma_split": 0.015217290394995128,
+          "se": 0.0001485464720510627,
+          "rms_db": 0.41738247072638796
         }
       },
       "offset_test_db": -0.35,
-      "offset_test_sigma_split": 0.01745628901016405,
+      "offset_test_sigma_split": 0.017456380304659486,
       "offset_test_pct": 99.0,
-      "offset_test_rms_db": 0.4167730295132569,
+      "offset_test_rms_db": 0.4167727415792373,
       "offset_test_note": "a sensitivity test, not a correction: diagonal_summary() finds the digitized dB scale and the paper's insertion-loss range differ by different amounts at the two ends, which a constant calibration offset cannot produce",
       "adopted_pct": 99.0,
       "sigma_split_full_range": [
-        0.015217288194996105,
-        0.07073862030556952
+        0.015217290394995128,
+        0.0707386513151781
       ],
-      "sigma_split_full_range_width": 0.05552133211057341,
+      "sigma_split_full_range_width": 0.05552136092018298,
+      "sigma_split_range_factor": 4.648570769106411,
       "adopted_bootstrap_param": [
-        0.01799434712104689,
-        0.018390507986442296
+        0.017993843178206643,
+        0.018403018018317646
       ],
-      "adopted_bootstrap_param_width": 0.0003961608653954077,
-      "adopted_bootstrap_source": "adopted fit, n_boot=500",
-      "range_over_bootstrap_factor": 140.14845220806362
+      "adopted_bootstrap_param_width": 0.00040917484011100333,
+      "adopted_bootstrap_source": "adopted fit, n_boot=250",
+      "range_over_bootstrap_factor": 135.69104323501617,
+      "scan_is_bootstrapped": false,
+      "scan_note": "point estimates and RMS only: an interval at one percentile is two orders of magnitude narrower than the spread across percentiles, so bootstrapping every percentile cost most of the runtime and changed no conclusion"
     },
     "shape_check": {
       "constant_db": -20.158148148148147,
       "constant_rms_db": 0.41700019572814523,
-      "model_rms_db": 0.4176175250816665,
+      "model_rms_db": 0.4176039386154543,
       "data_ptp_db": 1.620000000000001,
-      "model_ptp_db": 0.002341062704498853,
-      "model_ptp_over_data_ptp": 0.0014451004348758343,
-      "rms_advantage_db": -0.0006173293535212676,
+      "model_ptp_db": 0.002228897977097688,
+      "model_ptp_over_data_ptp": 0.0013758629488257324,
+      "rms_advantage_db": -0.0006037428873090778,
       "point_sd_db": 0.3,
-      "corr_model_data": -0.8707074171732033,
-      "sigma_split": 0.018191583898139876,
+      "corr_model_data": -0.8577734773922198,
+      "sigma_split": 0.018191575664044453,
       "sigma_phase": 0.02,
       "pct": 99.0,
       "n_points": 27
     },
     "sigma_split_fit": {
       "fitted": "split",
-      "value": 0.018191583898139876,
-      "se": 0.00018083607122602936,
+      "value": 0.018191575664044453,
+      "se": 0.00018082950376887744,
       "at_bound": false,
       "held": "phase",
       "held_value": 0.02,
-      "rms_db": 0.4176175250816665,
+      "rms_db": 0.4176039386154543,
       "n_points": 27,
       "floor_db": -60.0,
       "n_real": 3200,
@@ -1061,25 +1094,22 @@
         1550,
         1589
       ],
-      "boot_pairs_p05": 0.017912376283720093,
-      "boot_pairs_p95": 0.01848264872088056,
-      "boot_pairs_median": 0.01819402719137088,
-      "boot_param_p05": 0.01799434712104689,
-      "boot_param_p95": 0.018390507986442296,
-      "boot_param_median": 0.01816670074926835,
-      "boot_n_boot": 500,
-      "boot_n_pairs_failed": 0,
+      "n_boot": 250,
+      "boot_param_p05": 0.017993843178206643,
+      "boot_param_p95": 0.018403018018317646,
+      "boot_param_median": 0.01816635085198057,
       "boot_n_param_failed": 0,
-      "boot_noise_sd_db": 0.3
+      "boot_noise_sd_db": 0.3,
+      "bootstrap_note": "the interval is reported only to show that it is far narrower than the percentile dependence; the fit itself was not adopted"
     },
     "sigma_phase_fit": {
       "fitted": "phase",
-      "value": 1.1481654167179445e-07,
+      "value": 1.1558661841461898e-07,
       "se": null,
       "at_bound": true,
       "held": "split",
       "held_value": 0.02,
-      "rms_db": 0.7881300921036075,
+      "rms_db": 0.7881300921036093,
       "n_points": 27,
       "floor_db": -60.0,
       "n_real": 3200,
@@ -1186,14 +1216,17 @@
     "note": "Fig 4e is the all-bar state, so its four diagonals are four of the eight intended paths the paper's range covers; the other four are the all-cross paths, which this panel does not draw"
   },
   "cross_check": {
-    "fig4d_rms_after_fig4e_fit_db": 0.789947005438906,
-    "fig4d_rms_at_fit_db": 0.7857877783024255,
-    "fig4d_rms_at_assumed_spreads_db": 0.8171679732019936,
-    "fig4e_rms_db": 0.41763492902308846,
-    "fig4e_rms_at_assumed_spreads_db": 0.9012807375561803,
-    "sigma_split": 0.0182,
+    "fig4d_rms_after_fig4e_fit_db": 0.7920608680578537,
+    "fig4d_rms_at_fit_db": 0.7918223382854097,
+    "fig4d_rms_at_assumed_spreads_db": 0.7920608680578537,
+    "fig4e_rms_db": 0.9012712161039624,
+    "fig4e_rms_at_assumed_spreads_db": 0.9012712161039624,
+    "fig4d_rms_at_fitted_spread_db": 0.8024595118902733,
+    "fig4e_rms_at_fitted_spread_db": 0.4176039386154543,
+    "fitted_spread_not_adopted": 0.018191575664044453,
+    "sigma_split": 0.02,
     "sigma_phase": 0.02,
-    "note": "no parameter is refitted here; the Fig 4d numbers are the same model on the same 25 points, evaluated at the two spreads"
+    "note": "no parameter is refitted here; the Fig 4d numbers are the same model on the same 25 points, evaluated at the shipped spreads, at the 0.02 they also carry, and at the Fig 4e fitted spread that was not adopted"
   },
   "recirculating": {
     "ring_rms": 2.8792312954364084e-16,
