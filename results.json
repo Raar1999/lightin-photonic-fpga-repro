@@ -118,7 +118,8 @@
       "test_n_logistic_higher": 9,
       "test_n_equal": 1,
       "test_n_photonic_higher": 0
-    }
+    },
+    "unitary_minus_identity_full_acc": 0.09866666666666657
   },
   "mrm": {
     "lock_bias": -0.4481203007518797,
@@ -206,6 +207,9 @@
       -2.99,
       -1.85
     ],
+    "onchip_il_gap_nearest_db": 0.049999999999993605,
+    "onchip_il_gap_least_lossy_db": 0.44999999999999485,
+    "onchip_il_gap_most_lossy_db": 1.1899999999999937,
     "leak_mechanism_check": {
       "bar_cell_leak_db_model": -29.806945985145695,
       "bar_cell_leak_db_equal_arm_loss": -29.806945985145695,
@@ -216,7 +220,8 @@
       "bar_center_db_equal_arm_loss": [
         -30.500238841570884,
         -106.67211074284721
-      ]
+      ],
+      "cross_ideal_coupler_improvement_db": 7.182772237526514
     },
     "bar_il_vs_fig4e": {
       "band_nm": [
@@ -356,6 +361,7 @@
     "tie_tol": 1e-12,
     "measurement_noise_sigma": 0.01,
     "measurement_noise_source": "assumed value, not taken from the paper; reliability scales with it",
+    "uniqueness_over_reliability": 66.53941111433141,
     "sensitivity_sweep": [
       {
         "sigma_phase": 0.001,
@@ -858,6 +864,7 @@
       "tolerance": 0.05,
       "wirings_agree": true
     },
+    "wiring_uniqueness_gap": 0.00046006944444459963,
     "vs_feedforward": {
       "uniqueness": 0.01056375385802616,
       "uniformity": -0.0006401909722222321,
@@ -906,6 +913,8 @@
     "demo_true_slope": 0.0042,
     "demo_fit_lam0_nm": 1560.0,
     "power_coupling_at_1560": 0.461817209506274,
+    "demo_kappa0_abs_error": 0.0019626919760948325,
+    "demo_slope_offset_frac": 0.04056878628121429,
     "demo_fit_note": "recovered from the synthetic _demo_measured_dataset, not from chip data",
     "extinction_note": "ideal null: model contains no loss or coupler imbalance, so the extinction is unbounded"
   },
@@ -968,7 +977,8 @@
     "slope_param_p95": 0.003063092658789635,
     "n_pairs_failed": 0,
     "n_param_failed": 0,
-    "digitization_sd_db": 2.0
+    "digitization_sd_db": 2.0,
+    "lambda0_minus_proxy_nm": 3.632156822803381
   },
   "fig4e_fit": {
     "n_points": 27,
@@ -1223,6 +1233,8 @@
     "fig4e_rms_at_assumed_spreads_db": 0.9012712161039624,
     "fig4d_rms_at_fitted_spread_db": 0.8024595118902733,
     "fig4e_rms_at_fitted_spread_db": 0.4176039386154543,
+    "fig4e_rms_improvement_at_fitted_spread_db": 0.48366727748850813,
+    "fig4d_rms_penalty_at_fitted_spread_db": 0.010398643832419618,
     "fitted_spread_not_adopted": 0.018191575664044453,
     "sigma_split": 0.02,
     "sigma_phase": 0.02,
