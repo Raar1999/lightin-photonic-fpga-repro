@@ -3,7 +3,7 @@
 This was the plan for the work, written before any of it was done. The work has since been
 carried out: `data/fig4e_bar_digitized.csv` holds the digitized curve and `SIGMA_SPLIT` in
 `lightin/switching.py` is fitted to it. What was actually found, including the two places
-this plan guessed wrong, is in `docs/REPRODUCTION_REPORT_v8.md` §6.1. The plan is kept as
+this plan guessed wrong, is in `docs/REPRODUCTION_REPORT_v9.md` §6.1. The plan is kept as
 written, because its check 3 is the pre-registered criterion that rejected the first fit.
 
 ## Which panel carries the bar-state spectra
