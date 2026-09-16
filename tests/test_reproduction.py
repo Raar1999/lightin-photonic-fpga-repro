@@ -309,6 +309,48 @@ def test_fig4e_diagonal_paper_comparison_is_not_a_constant_offset():
         # the ends do not move together, so the gap is not a constant offset
         assert c["end_difference_db"] > 0.3
 
+
+def test_fig4e_sigma_split_falls_as_the_reported_percentile_rises():
+    """The percentile scan has to be monotonic, or the number it produces is meaningless.
+
+    bar_model reports the pct-th quantile of the fabrication ensemble, and that quantile
+    rises with pct at any fixed spread. Matching the same measured level therefore needs
+    less spread at a higher percentile, so sigma_split must fall as pct rises. If it did
+    not, the scan would not be measuring the modelling choice it claims to measure, and
+    the range report v9 quotes as the headline uncertainty would be noise. Run at a small
+    ensemble because the direction, not the value, is what is asserted.
+    """
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    import fit_fig4e
+    lam, db = fit_fig4e.load_points()
+    vals = [fit_fig4e.fit_one("split", lam, db, n_real=200, pct=p)["value"]
+            for p in (75.0, 90.0, 99.0)]
+    assert np.all(np.diff(vals) < 0), vals
+    assert vals[0] > 2 * vals[-1]      # the scan spans a factor of more than two
+
+
+def test_fig4e_sensitivity_block_is_self_consistent():
+    """The keys report v9 quotes must agree with the scan they are derived from.
+
+    The headline uncertainty on SIGMA_SPLIT is the full range across the scan and the
+    offset test, quoted instead of the bootstrap interval. That swap is only honest if the
+    range really is the wider of the two and really does cover every variant, so both are
+    checked here rather than left to the prose.
+    """
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    import fit_fig4e
+    lam, db = fit_fig4e.load_points()
+    s = fit_fig4e.sensitivity(lam, db, pcts=(90.0, 99.0), n_boot=3, n_real=200,
+                              verbose=False)
+    vals = [v["sigma_split"] for v in s["percentile_scan"].values()]
+    vals.append(s["offset_test_sigma_split"])
+    lo, hi = s["sigma_split_full_range"]
+    assert lo == min(vals) and hi == max(vals)
+    assert s["offset_test_db"] < 0.0        # the digitized scale reads high, not low
+    assert s["range_over_bootstrap_factor"] > 1.0
+
 def test_fig4e_cells_match_the_shipped_mzi():
     """fit_fig4e._cell is mzi_single_theta over a whole ensemble; check it cell by cell.
 

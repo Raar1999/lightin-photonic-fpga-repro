@@ -516,6 +516,110 @@ def bootstrap_one(which, lam, db, n_boot=500, seed=0, param_seed=1,
     }
 
 
+# --------------------------------------------------------------------------- Step 2b
+
+SCAN_PCTS = (50.0, 75.0, 90.0, 95.0, 99.0, 99.9)
+SCAN_BOOT_FRACTION = 3             # the percentile scan resamples n_boot // this many
+# times per percentile, against the full n_boot for the adopted fit. Six percentiles at
+# full strength would cost six times what the whole Fig 4e block costs now, and the scan's
+# intervals do not need that precision: what they have to establish is that the interval
+# at any one percentile is far narrower than the spread across percentiles, and that gap
+# is two orders of magnitude. The adopted percentile keeps its full-strength interval,
+# computed once in main() and passed in here, and that is the one the comparison uses.
+
+
+def sensitivity(lam=None, db=None, pcts=SCAN_PCTS, n_boot=150, seed=0, param_seed=1,
+                floor_db=FLOOR_DB, n_real=N_REAL, adopted_pct=PCT, adopted_boot=None,
+                offset_db=None, verbose=True):
+    """How far sigma_split moves under the two choices the digitized curve cannot settle.
+
+    The first is PCT. The digitized points are the upper envelope of a truncated band, so
+    their model counterpart is a high quantile of the fabrication ensemble, but which
+    quantile is a judgement about how many independent ripple samples fall inside one
+    digitization window, not something the figure fixes. Fitting at each of pcts shows
+    what that judgement is worth.
+
+    The second is the dB calibration of the digitized scale. diagonal_summary() finds that
+    the digitized through paths and the paper's insertion-loss range do not differ by a
+    constant, so there is no offset to correct; offset_db is nonetheless applied to every
+    point and the fit repeated, as a sensitivity test, so that the size of the effect is
+    on the record rather than argued about.
+
+    Neither is a bootstrap. The bootstrap describes the scatter of 27 points about a model
+    of a fixed form; these two describe the form itself, and they are much the larger.
+    """
+    if lam is None or db is None:
+        lam, db = load_points()
+    if offset_db is None:
+        offset_db = -diagonal_summary(verbose=False)["offset_db"]
+
+    scan = {}
+    for p in pcts:
+        r = fit_one("split", lam, db, floor_db=floor_db, n_real=n_real, pct=p)
+        b = bootstrap_one("split", lam, db, n_boot=n_boot, seed=seed,
+                          param_seed=param_seed, floor_db=floor_db, n_real=n_real,
+                          p0=r["value"], pct=p)
+        scan[f"p{p:g}"] = {
+            "pct": float(p), "sigma_split": r["value"], "se": r["se"],
+            "rms_db": r["rms_db"], "n_boot": int(n_boot),
+            "boot_pairs_p05": b["pairs_p05"], "boot_pairs_p95": b["pairs_p95"],
+            "boot_param_p05": b["param_p05"], "boot_param_p95": b["param_p95"],
+            "boot_n_pairs_failed": b["n_pairs_failed"],
+            "boot_n_param_failed": b["n_param_failed"],
+        }
+        if verbose:
+            print(f"    pct={p:5.1f}:  sigma_split = {r['value']:.5f} +/- {r['se']:.5f}"
+                  f"   pairs [{b['pairs_p05']:.5f}, {b['pairs_p95']:.5f}]"
+                  f"   parametric [{b['param_p05']:.5f}, {b['param_p95']:.5f}]"
+                  f"   RMS = {r['rms_db']:.3f} dB")
+
+    off = fit_one("split", lam, db + offset_db, floor_db=floor_db, n_real=n_real,
+                  pct=adopted_pct)
+    if verbose:
+        print(f"    offset test, {offset_db:+.2f} dB on every point, at pct="
+              f"{adopted_pct:g}:  sigma_split = {off['value']:.5f} +/- {off['se']:.5f}"
+              f"   RMS = {off['rms_db']:.3f} dB")
+
+    vals = [v["sigma_split"] for v in scan.values()] + [off["value"]]
+    lo, hi = float(min(vals)), float(max(vals))
+    adopted = scan.get(f"p{adopted_pct:g}")
+    if adopted_boot is None:
+        b_lo, b_hi = adopted["boot_param_p05"], adopted["boot_param_p95"]
+        b_src = f"percentile scan, n_boot={n_boot}"
+    else:
+        b_lo, b_hi = adopted_boot["param_p05"], adopted_boot["param_p95"]
+        b_src = f"adopted fit, n_boot={adopted_boot['n_boot']}"
+    factor = (hi - lo) / (b_hi - b_lo)
+
+    out = {
+        "percentile_scan": scan,
+        "offset_test_db": float(offset_db),
+        "offset_test_sigma_split": off["value"],
+        "offset_test_pct": float(adopted_pct),
+        "offset_test_rms_db": off["rms_db"],
+        "offset_test_note": ("a sensitivity test, not a correction: diagonal_summary() "
+                             "finds the digitized dB scale and the paper's insertion-loss "
+                             "range differ by different amounts at the two ends, which a "
+                             "constant calibration offset cannot produce"),
+        "adopted_pct": float(adopted_pct),
+        "sigma_split_full_range": [lo, hi],
+        "sigma_split_full_range_width": float(hi - lo),
+        "adopted_bootstrap_param": [float(b_lo), float(b_hi)],
+        "adopted_bootstrap_param_width": float(b_hi - b_lo),
+        "adopted_bootstrap_source": b_src,
+        "range_over_bootstrap_factor": float(factor),
+    }
+    if verbose:
+        print(f"    sigma_split over every variant above: {lo:.5f} to {hi:.5f} "
+              f"(width {hi - lo:.5f})")
+        print(f"    parametric bootstrap of the adopted pct={adopted_pct:g} fit "
+              f"({b_src}): [{b_lo:.5f}, {b_hi:.5f}] (width {b_hi - b_lo:.5f})")
+        print(f"    The model-form range is the larger of the two, by a factor of "
+              f"{factor:.0f}; the bootstrap describes the scatter of the points at one "
+              f"percentile, the range describes the choice of percentile.")
+    return out
+
+
 def main(verbose=True, n_boot=500, seed=0, fig_path=FIG, n_real=N_REAL):
     lam, db = load_points()
     fits = {w: fit_one(w, lam, db, n_real=n_real) for w in ("split", "phase")}
@@ -569,6 +673,11 @@ def main(verbose=True, n_boot=500, seed=0, fig_path=FIG, n_real=N_REAL):
               f"reports the ensemble's {PCT:g}th percentile rather than its mean; "
               f"quantile_sensitivity() gives the fit at other percentiles.")
 
+    if verbose:
+        print("  sensitivity of sigma_split to the two choices the curve cannot settle:")
+    sens = sensitivity(lam, db, n_boot=max(10, n_boot // SCAN_BOOT_FRACTION),
+                       n_real=n_real, adopted_boot=boots["split"], verbose=verbose)
+
     if fig_path:
         _figure(lam, db, fits, boots, fig_path, n_real, verbose)
 
@@ -583,7 +692,8 @@ def main(verbose=True, n_boot=500, seed=0, fig_path=FIG, n_real=N_REAL):
                               "wavelength ripple, so the model reports a high quantile of "
                               "the fabrication ensemble; fitting its mean instead absorbs "
                               "the quantile-to-mean offset into the fitted spread"),
-           "joint_fit_not_adopted": joint}
+           "joint_fit_not_adopted": joint,
+           "sensitivity": sens}
     for w in ("split", "phase"):
         block = dict(fits[w])
         if boots[w] is None:
