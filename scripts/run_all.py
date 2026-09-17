@@ -20,7 +20,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from lightin import (unitary, nonunitary, nn_iris, ppuf, mrm, switching, throughput,
-                     coupler, expressivity, recirculating, ppuf_recirc)
+                     coupler, expressivity, recirculating, ppuf_recirc, wiring_search)
 from lightin.metrics import enob, propagation_latency
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -98,7 +98,59 @@ def figpath(name):
     return os.path.join(_figdir, name)
 
 
+def wiring_search_block():
+    """The counts §6.5 quotes for the vertex-wiring enumeration.
+
+    The wiring is a stated choice, not the paper's, so the report has to say how wide the
+    space was and how it was narrowed. The counts were prose only; storing them means a
+    change to the enumeration or the ranking shows up as a failing check rather than as a
+    sentence nobody re-derives.
+    """
+    rows = wiring_search.search_report()
+    invariant = wiring_search.invariant_rules()
+    usable = [r for r in rows
+              if r[2]["n_cells_reachable"] == N_MESH_CELLS and r[2]["beams_interfere"]]
+    return {
+        "n_interior_matchings": _double_factorial(N_INTERIOR_PORTS - 1),
+        "n_boundary_matchings": _double_factorial(N_BOUNDARY_PORTS - 1),
+        "n_half_turn_invariant": len(invariant),
+        "n_reaches_all_cells_and_interferes": len(usable),
+        "selected": [name for name, _ in wiring_search.selected()],
+    }
+
+
+def _double_factorial(n):
+    """n!! -- the number of perfect matchings of n+1 labelled ports."""
+    result = 1
+    while n > 1:
+        result *= n
+        n -= 2
+    return result
+
+
+N_INTERIOR_PORTS = 8       # waveguide ends meeting at an interior lattice vertex
+N_BOUNDARY_PORTS = 6       # the same at a degree-3 boundary vertex
+N_MESH_CELLS = 40          # cells a usable wiring must reach from one injection port
+
+
 NULL_SCAN_NM = (1540.0, 1600.0, 0.1)   # diagnostic grid for the T20 null
+
+
+
+def digitized_curve_extremes():
+    """The span of the digitized Fig 4d curve and its worst point.
+
+    §3 quotes the worst digitized crosstalk to say how close the measurement itself comes
+    to the -15 dB figure, which is the comparison the model is then judged against.
+    """
+    lam, db = fit_fig4.load_points()
+    worst = int(np.argmax(db))
+    return {
+        "digitized_lambda_min_nm": float(lam.min()),
+        "digitized_lambda_max_nm": float(lam.max()),
+        "digitized_worst_db": float(db[worst]),
+        "digitized_worst_lambda_nm": float(lam[worst]),
+    }
 
 
 def mesh_fit_derived(f4_mesh, f4_proxy, design_nm=coupler.LAMBDA0):
@@ -822,6 +874,7 @@ def main(quick=False):
                                          float(ex["coupler_ceiling_lambdas"].max())],
             "coupler_ceiling_fidelity_at_1560": ex["coupler_ceiling_at_1560"],
         },
+        "wiring_search": wiring_search_block(),
         "fig4d_fit": f4,
         "fig4d_mesh_fit": dict(f4_mesh,
                                digitization_sd_db=fit_fig4.DIGITIZATION_SD_DB,
@@ -829,7 +882,8 @@ def main(quick=False):
                                # coupler's 3-dB wavelength, from the two fits above.
                                lambda0_minus_proxy_nm=float(f4_mesh["lambda0_nm"]
                                                             - f4["lambda0_nm"]),
-                               **mesh_fit_derived(f4_mesh, f4)),
+                               **mesh_fit_derived(f4_mesh, f4),
+                               **digitized_curve_extremes()),
         "fig4e_fit": f4e,
         "fig4e_diagonals": f4e_diag,
         "cross_check": xc,

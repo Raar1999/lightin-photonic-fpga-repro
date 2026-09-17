@@ -125,6 +125,8 @@ report writes it:
 | 2.9× | §6 | `fig4d_mesh_fit.param_over_pairs_width` |
 | 13.7, 12.3 nm | §5, §6 | `fig4d_mesh_fit.pairs_p05_over_design_nm`, `param_p05_over_design_nm` |
 | 7.5, 2.3 interval widths | §6 | `fig4d_mesh_fit.pairs_p05_over_design_in_widths`, `param_p05_over_design_in_widths` |
+| −14.1 dB at 1549.0 nm, the 1549–1587 nm span | §3, §5, §6 | `fig4d_mesh_fit.digitized_worst_db`, `digitized_worst_lambda_nm`, `digitized_lambda_min_nm`, `digitized_lambda_max_nm` |
+| 105, 15, 25, 12 | §6 | `wiring_search.n_interior_matchings`, `n_boundary_matchings`, `n_half_turn_invariant`, `n_reaches_all_cells_and_interferes` |
 | 4.1% | §4 | `coupler.demo_slope_offset_frac` |
 | 0.002 | §4 | `coupler.demo_kappa0_abs_error` |
 
@@ -132,14 +134,17 @@ Two of them are written to a precision the prose had rounded past: the λ₀ gap
 difference of the two fitted wavelengths rather than of the two rounded ones the report
 displays, and the wiring gap is written rounded rather than truncated.
 
+The last two are not arithmetic on other values at all -- one reads the digitized CSV, the
+other re-runs the vertex-wiring enumeration -- but they belong here rather than in §5
+because they now carry a path like the rest. The count the report used to write as
+"twelve" is written as a numeral, because the check needs a digit to read.
+
 ## 5. Values computed outside `results.json`
 
 | Value | Section | Where it comes from |
 |---|---|---|
 | 1e-32 | §2 | a test assertion in `tests/test_reproduction.py`; the report says so in the row |
-| −14.1 dB at 1549.0 nm | §3, §5 | read directly from `data/fig4d_T20_digitized.csv`; the report says so |
 | 1574.5–1588.3, 1589.0, 1.5 nm grid | §6 | the legend-box occlusion read off the figure during digitization |
-| 105, 15, 25, twelve | §6 | matching counts from `lightin/wiring_search.py`, not written to `results.json` |
 | 1550–1590, 0 to −25 dB | §6 | the Fig 4e axis limits, read off the panel |
 | 32×32, 64×64 | §6 | the scaling projection the missing PDK sub-values would drive |
 

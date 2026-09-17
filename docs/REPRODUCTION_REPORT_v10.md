@@ -198,8 +198,8 @@ them is backed by data:
 
 Inside the fitted range, the model meets the −15 dB figure (worst −16.77<!--{switching.cross_worst_xtalk_fitrange_db}--> dB) but not the
 −20 dB figure. These are predictions of a model constrained by one digitized port pair,
-not measurements of the other port pairs. The digitized T20 curve itself reaches −14.1 dB
-at 1549.0 nm, within its ±2 dB digitization uncertainty. (That −14.1 dB is read directly
+not measurements of the other port pairs. The digitized T20 curve itself reaches −14.1<!--{fig4d_mesh_fit.digitized_worst_db}--> dB
+at 1549.0<!--{fig4d_mesh_fit.digitized_worst_lambda_nm}--> nm, within its ±2 dB digitization uncertainty. (That −14.1 dB is read directly
 from `data/fig4d_T20_digitized.csv` and is not a `results.json` value.) The extrapolated
 number is 5.0 dB worse again, and it rests entirely on the model: no digitized point
 exists below 1549 nm, so −11.80<!--{switching.cross_worst_xtalk_extrapolated_db}--> dB is what the coupled-mode-theory coupler predicts when
@@ -547,7 +547,7 @@ Six results do not simply confirm the paper:
    question. Inside the fitted range, the model meets the −15 dB figure (worst −16.77<!--{switching.cross_worst_xtalk_fitrange_db}--> dB)
    but not the −20 dB figure. These are predictions of a model constrained by one digitized
    port pair, not measurements of the other port pairs. The digitized T20 curve itself
-   reaches −14.1 dB at 1549.0 nm, within its ±2 dB digitization uncertainty. Extrapolated
+   reaches −14.1<!--{fig4d_mesh_fit.digitized_worst_db}--> dB at 1549.0<!--{fig4d_mesh_fit.digitized_worst_lambda_nm}--> nm, within its ±2 dB digitization uncertainty. Extrapolated
    below the data, over 1530–1549 nm, the model degrades to −11.80<!--{switching.cross_worst_xtalk_extrapolated_db}--> dB — but that half of
    the band has no digitized point behind it and is a model projection.
 2. The coupler's 3-dB wavelength is not the design wavelength. Fitting the mesh model to
@@ -623,7 +623,7 @@ chip-specific values below. These are the paper's numbers, used as inputs to the
 ### 6.1 Fig 4d digitized, and the coupler 3-dB wavelength decided by that data
 
 The all-cross-state T20 crosstalk curve was colour-digitized from Fig 4d
-(`data/fig4d_T20_digitized.csv`, 25<!--{fig4d_mesh_fit.n_points}--> points spanning 1549–1587 nm; dB scale anchored to
+(`data/fig4d_T20_digitized.csv`, 25<!--{fig4d_mesh_fit.n_points}--> points spanning 1549<!--{fig4d_mesh_fit.digitized_lambda_min_nm}-->–1587<!--{fig4d_mesh_fit.digitized_lambda_max_nm}--> nm; dB scale anchored to
 figure-read endpoints, ~±2 dB) and fitted with `scripts/fit_fig4.py`.
 
 Two models are fitted to the same 25<!--{fig4d_mesh_fit.n_points}--> points, with the same three free parameters (λ₀, slope,
@@ -1004,10 +1004,10 @@ is a stated choice, and every number from the recirculating mesh is conditional 
 
 It was searched rather than picked. An interior vertex of the lattice carries **eight**
 ports, not four -- each of the four incident PUC ends has two waveguides -- so a vertex
-wiring is a perfect matching of eight labelled ports, of which there are 7!! = 105; a
-degree-3 boundary vertex has six ports and 15 matchings. `lightin/wiring_search.py`
-generates all 105 and keeps the **25** that are invariant under the half turn. Of those,
-**twelve** reach all 40 cells from one injection port with both injected beams able to
+wiring is a perfect matching of eight labelled ports, of which there are 7!! = 105<!--{wiring_search.n_interior_matchings}-->; a
+degree-3 boundary vertex has six ports and 15<!--{wiring_search.n_boundary_matchings}--> matchings. `lightin/wiring_search.py`
+generates all 105<!--{wiring_search.n_interior_matchings}--> and keeps the **25<!--{wiring_search.n_half_turn_invariant}-->** that are invariant under the half turn. Of those,
+**12<!--{wiring_search.n_reaches_all_cells_and_interferes}-->** reach all 40 cells from one injection port with both injected beams able to
 interfere. The two best by a stated ranking -- all cells reachable, then interference, then
 the port split, then the number of response pairs carrying light -- are `WIRING_C4_FREE_1`
 and `WIRING_C4_FREE_2`.

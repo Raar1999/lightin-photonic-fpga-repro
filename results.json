@@ -938,6 +938,16 @@
     ],
     "coupler_ceiling_fidelity_at_1560": 0.9941682980404486
   },
+  "wiring_search": {
+    "n_interior_matchings": 105,
+    "n_boundary_matchings": 15,
+    "n_half_turn_invariant": 25,
+    "n_reaches_all_cells_and_interferes": 12,
+    "selected": [
+      "C4_FREE_1",
+      "C4_FREE_2"
+    ]
+  },
   "fig4d_fit": {
     "lambda0_median_nm": 1571.0154701756662,
     "lambda0_p05_nm": 1570.0518930520402,
@@ -993,7 +1003,11 @@
     "pairs_p05_over_design_nm": 13.691176706262013,
     "param_p05_over_design_nm": 12.338701044354366,
     "pairs_p05_over_design_in_widths": 7.461064017652651,
-    "param_p05_over_design_in_widths": 2.3127934379369526
+    "param_p05_over_design_in_widths": 2.3127934379369526,
+    "digitized_lambda_min_nm": 1549.0,
+    "digitized_lambda_max_nm": 1587.0,
+    "digitized_worst_db": -14.12,
+    "digitized_worst_lambda_nm": 1549.0
   },
   "fig4e_fit": {
     "n_points": 27,
