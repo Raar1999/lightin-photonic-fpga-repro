@@ -1157,39 +1157,51 @@ document is what changes.
 
 ### 7.3 Work that would resolve or narrow an item above
 
-* The Iris accuracies depend on the installed library versions, and the size of that
-  dependence has now been measured. The second stack the measurement needed was already
-  running: the CI jobs install with `pip install -e .[dev]`, which resolves against the lower
-  bounds in `pyproject.toml` and not against `requirements-lock.txt`, so each of the three
-  jobs is a stack that picks its own versions of numpy, scipy, scikit-learn and matplotlib.
+* The Iris accuracies depend on the installed library versions, and measuring how much led
+  to a larger effect that was not known to be there. The second stack the measurement needed
+  was already running: the CI jobs install with `pip install -e .[dev]`, which resolves
+  against the lower bounds in `pyproject.toml` and not against `requirements-lock.txt`, so
+  each job picks its own versions of numpy, scipy, scikit-learn and matplotlib.
   `scripts/report_environment.py` prints those versions and the seed-0 accuracies as one line
-  of JSON, and every job runs it after the test step, so the drift is visible in the log of
-  each run rather than needing an environment built for the purpose. On the pinned stack here
-  -- Python 3.11.9 with numpy 2.4.4, scipy 1.17.1, scikit-learn 1.9.0 and matplotlib 3.11.1 --
-  seed 0 gives a full-set accuracy of 95.33%<!--{environment.seed0_reference.iris_full_acc}-->,
-  held out 93.33%<!--{environment.seed0_reference.iris_test_acc}-->, identity control
+  of JSON, and every job runs it after the test step, so the numbers appear in the log of
+  every run. On the pinned stack here -- Python 3.11.9 with numpy 2.4.4, scipy 1.17.1,
+  scikit-learn 1.9.0 and matplotlib 3.11.1 -- seed 0 gives a full-set accuracy of
+  95.33%<!--{environment.seed0_reference.iris_full_acc}-->, held out
+  93.33%<!--{environment.seed0_reference.iris_test_acc}-->, identity control
   86.00%<!--{environment.seed0_reference.identity_full_acc}--> and logistic baseline
-  95.33%<!--{environment.seed0_reference.logistic_full_acc}-->. CI on Python 3.11.16, with
-  numpy 2.4.6, scipy 1.17.1, scikit-learn 1.9.1 and matplotlib 3.11.2, gives a full-set
-  accuracy of 94.67%; on Python 3.12.14, with numpy 2.5.3, scipy 1.18.1, scikit-learn 1.9.1
-  and matplotlib 3.11.2, 95.33%; and on Python 3.13.15 with those same four library versions,
-  96.00%. The held-out, identity-control and logistic-baseline accuracies are identical on all
-  four stacks, so the entire movement is in the trained photonic layer, which is the one
-  non-convex fit among them. The largest spread in full-set accuracy is 1.33 points, between
-  the Python 3.11 and Python 3.13 jobs. That is larger than the
-  1.26<!--{iris.seed_sweep.full_acc_std|pct}-->-point seed-to-seed standard deviation reported
-  in §2, so the item stays open rather than being answered: the stack moves a single-seed
-  accuracy by about as much as the seed does, and quoting one to the hundredth of a point
-  without naming the stack overstates what it fixes. One thing it does settle is the 94.67%
-  an earlier environment here recorded and this report could not reconstruct -- the Python
-  3.11 job produces that value again, which identifies it as a reachable point of the version
-  space rather than a transcription error, though it does not establish that the earlier
-  environment was that one. What remains unknown is which library is responsible. The 3.12 and
-  3.13 jobs declare identical versions of all four libraries and still differ by 0.67 points,
-  so no single library version accounts for the spread; the interpreter, and the wheels
-  compiled against it, move the number too. Attributing it would need a matrix varying one
-  library at a time against a fixed interpreter, which is a much larger experiment than the
-  one CI performs for nothing.
+  95.33%<!--{environment.seed0_reference.logistic_full_acc}-->, and three consecutive runs on
+  this machine gave that line unchanged. CI resolved Python 3.11.16 with numpy 2.4.6, scipy
+  1.17.1, scikit-learn 1.9.1 and matplotlib 3.11.2, and Python 3.12.14 and 3.13.15 both with
+  numpy 2.5.3, scipy 1.18.1, scikit-learn 1.9.1 and matplotlib 3.11.2. Over three runs of the
+  same commit those jobs gave full-set accuracies of 94.67%, 94.67% and 96.00% on 3.11;
+  95.33%, 95.33% and 95.33% on 3.12; and 96.00%, 95.33% and 95.33% on 3.13. The held-out,
+  identity-control and logistic-baseline accuracies were identical on every stack and every
+  run.
+* The largest spread in seed-0 full-set accuracy between any two of those observations is
+  1.33 points -- and the same 1.33 points separates two runs of a single job, Python 3.11.16,
+  at unchanged library versions and unchanged code. The between-stack differences are
+  therefore not separable from the run-to-run ones, and what the exercise measured is not
+  version drift but the fit's own irreproducibility on those machines. Only three values ever
+  appear, 94.67%, 95.33% and 96.00%, which are 142, 143 and 144 of the 150 samples, so what
+  moves is one or two samples changing class. The available explanation is the fit: `train`
+  keeps the best of a set of random restarts of a non-convex L-BFGS-B optimisation, and if
+  the leading restarts are close in loss, last-bit differences in multithreaded BLAS
+  reductions -- which vary with a runner's core count and with what else is on it -- suffice
+  to change which restart wins. That is consistent with the observations and is not
+  established by them. The test is to pin the BLAS thread count in the job and see whether
+  the variation stops; this machine, where the thread count and the hardware do not change
+  between runs, cannot perform it.
+* The item therefore stays open, and what is unknown about it has changed. The 1.33-point
+  spread is larger than the 1.26<!--{iris.seed_sweep.full_acc_std|pct}-->-point seed-to-seed
+  standard deviation reported in §2, so a single-seed accuracy still cannot be quoted to the
+  hundredth of a point without naming the machine that produced it. But the original question
+  -- how far the numbers move on a different version stack -- is not answered, because an
+  effect of the same size sits on top of the version difference, and no number of CI runs
+  separates the two. Separating them requires the fit to be made reproducible first, by
+  pinning the thread count, and only then a matrix that varies one library at a time against
+  a fixed interpreter. One thing the exercise does settle is the 94.67% an earlier environment
+  here recorded, which this report could not reconstruct: unchanged code in CI reaches it, so
+  it is a value this fit can land on rather than a fingerprint of a lost library stack.
 * The population spread of the PUF metrics is reported across ten seeds; the die counts
   used here (40 for the sweeps, 100 for the headline run) are smaller than a full
   characterisation would use. Enlarging them is bounded by runtime rather than by method:

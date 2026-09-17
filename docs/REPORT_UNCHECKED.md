@@ -197,8 +197,9 @@ is unchecked there is the drift measurement itself, because it is not a pipeline
 | Value | Sections | What it is |
 |---|---|---|
 | 3.11.16, 3.12.14, 3.13.15, and the numpy, scipy, scikit-learn and matplotlib versions beside them | §7.3 | the versions the CI jobs resolved, read out of the job log. `results.json` records the pinned stack this machine ran, not another one |
-| 94.67%, 95.33%, 96.00% where they are the CI full-set accuracies | §7.3 | the seed-0 accuracies those jobs printed, from the same log |
-| 1.33, 0.67 (points) | §7.3 | differences between the CI accuracies above and the pinned one |
+| 94.67%, 95.33%, 96.00% where they are the CI full-set accuracies | §7.3 | the seed-0 accuracies those jobs printed over three runs of one commit, from the same log |
+| 1.33 (points) | §7.3 | the largest difference between two of those accuracies |
+| 142, 143, 144, 150 | §7.3 | the sample counts those three percentages correspond to, arithmetic on the Iris set size |
 
 The two runtimes quoted where the test suite is described are measurements of this machine
 rather than pipeline outputs.
