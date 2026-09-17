@@ -71,7 +71,9 @@ signature. The values did not change; naming them is what brought them inside th
 
 Where a row names more than one thing -- `PROP_LOSS_DB_CM`, `alpha_db_cm` and `loss_db_cm`,
 all 2.0 dB/cm -- the row is checked through the module-level name, and the others are
-default arguments carrying the same value.
+default arguments carrying the same value. Those other names, and every other place a paper
+value is transcribed a second time, are compared against the constant by
+`tests/test_transcriptions_agree.py`.
 
 The line citations of all thirty-three rows are checked by
 `tests/test_source_lines_documented.py`, which requires each cited line to name the

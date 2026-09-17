@@ -1076,6 +1076,15 @@ correct in one document and stale in the other. Which report they read is itself
 suite requires the newest `REPRODUCTION_REPORT` in `docs/` to be the one under test, so a
 new version cannot be written and left unverified.
 
+One thing none of that reaches is a paper value the code records twice. The square-mesh side
+length is a constant in `coupler` and again in `square_mesh`; the matrix design wavelength is
+a constant in `coupler` and again in `ppuf_recirc`; the phase index and the propagation loss
+are constants in `coupler` and default arguments of the ring and mesh builders. §6.3 documents
+one of each, so editing the other would leave every check above green while the two models
+disagreed about the same chip. `tests/test_transcriptions_agree.py` reads them back against
+each other, taking the defaults from the live signatures so that renaming or moving a
+function cannot hide one.
+
 Every row of that table, checked or not, names the file and line where its parameter lives,
 and `tests/test_source_lines_documented.py` reads each cited line and requires it to name
 the parameter or carry the documented value. Line numbers move when a module is edited, so
