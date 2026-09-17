@@ -10,11 +10,13 @@ the code records twice. Several of the paper's numbers are recorded twice: the s
 side length is `coupler.SQUARE_SIDE_UM` and again `square_mesh.SIDE_UM`; the matrix design
 wavelength is `coupler.LAMBDA0` and again `ppuf_recirc.LAMBDA_NM`; the phase index and the
 propagation loss are module constants in `coupler` and default arguments of the ring and
-mesh builders in `recirculating` and `square_mesh`.
+mesh builders in `recirculating` and `square_mesh`; and the Fig 4e fit script, which
+reproduces `switching.power_spectra` rather than calling it, keeps its own copies of the
+coupler excess loss, the per-stage propagation loss and the assumed split spread.
 
 §6.3 documents one of each pair, so editing the other leaves every document check green
 while the two models quietly disagree about the same chip. This test reads them back
-against each other.
+against each other, across `lightin` and `scripts` alike.
 
 The default arguments are read from the live signatures rather than from the source text,
 so renaming a function or moving it between modules does not hide one.
@@ -27,7 +29,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-PACKAGE = "lightin"
+PACKAGES = ("lightin", "scripts")
 
 # One paper quantity, every module-level constant that records it.
 DUPLICATED_CONSTANTS = {
@@ -38,6 +40,25 @@ DUPLICATED_CONSTANTS = {
     "matrix design wavelength (nm)": [
         ("lightin.coupler", "LAMBDA0"),
         ("lightin.ppuf_recirc", "LAMBDA_NM"),
+    ],
+    # The Fig 4e fit reproduces switching.power_spectra rather than calling it, so it keeps
+    # its own copies of the three parameters that model uses. Its comments say as much --
+    # "as switching.power_spectra uses", "likewise". If the module moved and the script did
+    # not, the fit would quietly be of a different chip than the one the report describes.
+    "directional-coupler excess loss (dB)": [
+        ("lightin.coupler", "DC_EXCESS_LOSS_DB"),
+        ("scripts.fit_fig4e", "EXCESS_LOSS_DB"),
+    ],
+    "propagation loss per mesh stage (dB)": [
+        ("lightin.switching", "PROP_DB_PER_STAGE"),
+        ("scripts.fit_fig4e", "PROP_DB_PER_STAGE"),
+    ],
+    # SIGMA_ASSUMED is the baseline the Fig 4e fit is compared against, and §6.1 records
+    # that the fitted value was not adopted, so the baseline is still what the model
+    # carries. Adopting a fitted spread would mean changing both together, deliberately.
+    "assumed bar-state split spread": [
+        ("lightin.switching", "SIGMA_SPLIT"),
+        ("scripts.fit_fig4e", "SIGMA_ASSUMED"),
     ],
 }
 
@@ -50,10 +71,14 @@ SHARED_DEFAULTS = {
 
 
 def modules():
-    """Every module of the package, imported."""
-    names = sorted(path.stem for path in (ROOT / PACKAGE).glob("*.py")
-                   if path.stem != "__init__")
-    return [importlib.import_module(f"{PACKAGE}.{name}") for name in names]
+    """Every module of the package and of the scripts beside it, imported."""
+    found = []
+    for package in PACKAGES:
+        for path in sorted((ROOT / package).glob("*.py")):
+            if path.stem == "__init__":
+                continue
+            found.append(importlib.import_module(f"{package}.{path.stem}"))
+    return found
 
 
 def constant(target):

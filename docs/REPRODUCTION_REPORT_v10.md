@@ -1083,7 +1083,10 @@ are constants in `coupler` and default arguments of the ring and mesh builders. 
 one of each, so editing the other would leave every check above green while the two models
 disagreed about the same chip. `tests/test_transcriptions_agree.py` reads them back against
 each other, taking the defaults from the live signatures so that renaming or moving a
-function cannot hide one.
+function cannot hide one. It covers `scripts/` as well: the Fig 4e fit reproduces
+`switching.power_spectra` rather than calling it, so it keeps its own copies of the coupler
+excess loss, the per-stage propagation loss and the assumed split spread, and if the module
+moved without the script the fit would be of a different chip than the one §6.1 describes.
 
 Every row of that table, checked or not, names the file and line where its parameter lives,
 and `tests/test_source_lines_documented.py` reads each cited line and requires it to name
