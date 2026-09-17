@@ -87,19 +87,21 @@ where §6.3 documents them.
 
 ## 4. Arithmetic on other values
 
-Derived in the prose from numbers that are themselves checked. A value that is a difference
-or a ratio of exactly two stored values is stored in its own right: `scripts/run_all.py`
-computes it from the values its block already holds, and the report annotates it like any
-other number. The second table below lists those. The first lists what carries no path,
-because it is derived from more than two stored values, from something `results.json` does
-not hold, or by a rule that is not arithmetic.
+Derived in the prose from numbers that are themselves checked. A value that a script can
+recompute from what its block already holds is stored in its own right: `scripts/run_all.py`
+computes it, and the report annotates it like any other number. That covers differences and
+ratios of two stored values, the ratios and offsets that measure the two Fig 4d bootstrap
+intervals against each other and against the design wavelength, and the grid scan of the T20
+null, which is not arithmetic at all but is deterministic given the fit. The second table
+below lists those. The first lists what still carries no path: a difference of two code
+constants, which `results.json` does not hold; an interpolation to one of the paper's
+measured values, which is the paper's number and not this repository's; a summary of a
+whole column or of a set; the paper's own fractions; and a magnitude written with a `~`.
 
 | Value | Section | Derivation | Why it cannot carry a path |
 |---|---|---|---|
-| 5.0 nm, 1569.7 nm | §3, §6 | a 0.1 nm grid scan of the null | a scan, not arithmetic; the report states it is not a `results.json` value |
-| 2.9×, 13.7, 12.3, 7.5, 2.3 | §5, §6 | ratios and offsets of the Fig 4d bootstrap bounds; §6.1 says so explicitly | each combines four stored bounds, or a stored bound with the 1560 nm design wavelength, which is a code constant |
 | 14.7 nm | §3 | the dispersion displacement used in the ruling-out argument | the difference of two code constants, `DC_LAMBDA_3DB` and `LAMBDA0`, neither of them a model output |
-| 0.032 rad | §3 | linear interpolation between the 0.02 and 0.05 noise-sweep rows | an interpolation to a crossing, over four stored values and a threshold, not a difference of two |
+| 0.032 rad | §3 | linear interpolation between the 0.02 and 0.05 noise-sweep rows | the crossing is the paper's measured 2.55% intra-die Hamming distance, so the value is an interpolation to one of the paper's numbers rather than an output of this model |
 | 0.42 dB | §6 | the percentile scan's RMS column rounded to a common value | a statement about a whole column; the per-row values are annotated |
 | 0.008 | §3 | the largest of the three arm-length-sign changes | a maximum over three differences, not one of them |
 | 142/150, 71/75, 140/150, 70/75, 42/45, 28/30 | §3 | the fractions the paper's percentages equal | the paper's values, as in §1 |
@@ -118,6 +120,11 @@ report writes it:
 | 67 | §3 | `ppuf.uniqueness_over_reliability` |
 | 10 points | §3, §5 | `iris.unitary_minus_identity_full_acc`, with `\|pct` |
 | 0.046 points | §3 | `ppuf_recirc.wiring_uniqueness_gap`, with `\|pct` |
+| 1569.7 nm, 5.0 nm | §3, §6 | `fig4d_mesh_fit.t20_null_nm`, `t20_null_displacement_nm` |
+| 1540, 1600, 0.1 nm | §6 | `fig4d_mesh_fit.null_scan_grid_nm`, indexed |
+| 2.9× | §6 | `fig4d_mesh_fit.param_over_pairs_width` |
+| 13.7, 12.3 nm | §5, §6 | `fig4d_mesh_fit.pairs_p05_over_design_nm`, `param_p05_over_design_nm` |
+| 7.5, 2.3 interval widths | §6 | `fig4d_mesh_fit.pairs_p05_over_design_in_widths`, `param_p05_over_design_in_widths` |
 | 4.1% | §4 | `coupler.demo_slope_offset_frac` |
 | 0.002 | §4 | `coupler.demo_kappa0_abs_error` |
 
@@ -133,7 +140,6 @@ displays, and the wiring gap is written rounded rather than truncated.
 | −14.1 dB at 1549.0 nm | §3, §5 | read directly from `data/fig4d_T20_digitized.csv`; the report says so |
 | 1574.5–1588.3, 1589.0, 1.5 nm grid | §6 | the legend-box occlusion read off the figure during digitization |
 | 105, 15, 25, twelve | §6 | matching counts from `lightin/wiring_search.py`, not written to `results.json` |
-| 1540, 1600, 0.1 nm | §6 | the diagnostic grid bounds of the null scan |
 | 1550–1590, 0 to −25 dB | §6 | the Fig 4e axis limits, read off the panel |
 | 32×32, 64×64 | §6 | the scaling projection the missing PDK sub-values would drive |
 

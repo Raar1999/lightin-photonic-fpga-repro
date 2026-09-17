@@ -554,7 +554,7 @@ Six results do not simply confirm the paper:
    Fig 4d puts it at 1574.7<!--{fig4d_mesh_fit.lambda0_nm}--> nm, with the parametric bootstrap interval
    [1572.3<!--{fig4d_mesh_fit.lambda0_param_p05_nm}-->, 1577.7<!--{fig4d_mesh_fit.lambda0_param_p95_nm}-->] nm.
    Both bootstrap intervals exclude 1560 nm: the pairs interval [1573.7<!--{fig4d_mesh_fit.lambda0_pairs_p05_nm}-->, 1575.5<!--{fig4d_mesh_fit.lambda0_pairs_p95_nm}-->] nm by
-   13.7 nm and the parametric interval by 12.3 nm (§6.1). The proxy and mesh models place
+   13.7<!--{fig4d_mesh_fit.pairs_p05_over_design_nm}--> nm and the parametric interval by 12.3<!--{fig4d_mesh_fit.param_p05_over_design_nm}--> nm (§6.1). The proxy and mesh models place
    λ₀ 3.6<!--{fig4d_mesh_fit.lambda0_minus_proxy_nm}--> nm apart. The bootstrap intervals describe the uncertainty within the mesh model,
    not the uncertainty in the choice of model. Both models exclude 1560 nm.
 3. The ideal-coupler fidelities do not survive the chip's own coupler. Rows 3 and 5 reach
@@ -644,10 +644,10 @@ floor):
 The mesh fit is the one used for `DC_LAMBDA_3DB`, because the proxy's λ₀ is not a property
 of the mesh. The proxy is a formula for a single coupler pair. The chip's T20 path crosses
 four stages, and the interference along that path displaces the T20 null away from the
-wavelength at which the couplers themselves are 50:50. Evaluated on a 0.1 nm grid from 1540
-to 1600 nm at the fitted mesh parameters, the floor-free null of T20/Tout sits at 1569.7 nm
-while the couplers are 50:50 at 1574.7 nm — a 5.0 nm displacement. (That grid scan is a
-diagnostic computed from `mesh_t20_model`; it is not a `results.json` value.) The proxy,
+wavelength at which the couplers themselves are 50:50. Evaluated on a 0.1<!--{fig4d_mesh_fit.null_scan_grid_nm[2]}--> nm grid from 1540<!--{fig4d_mesh_fit.null_scan_grid_nm[0]}-->
+to 1600<!--{fig4d_mesh_fit.null_scan_grid_nm[1]}--> nm at the fitted mesh parameters, the floor-free null of T20/Tout sits at 1569.7<!--{fig4d_mesh_fit.t20_null_nm}--> nm
+while the couplers are 50:50 at 1574.7 nm — a 5.0<!--{fig4d_mesh_fit.t20_null_displacement_nm}--> nm displacement. (That scan is a
+diagnostic computed from `mesh_t20_model` and stored as the `fig4d_mesh_fit` null keys.) The proxy,
 having no multi-stage path, has nowhere to put those 5 nm except into λ₀, which is why it
 reports 1571.0 nm. Its λ₀ is a parameter of the proxy formula; the mesh's λ₀ is the coupler
 parameter the rest of the code needs. The mesh also fits the data better, 0.79<!--{fig4d_mesh_fit.rms_db}--> dB against
@@ -665,15 +665,15 @@ either:
   uncertainty, which the pairs bootstrap cannot see. λ₀ [1572.3<!--{fig4d_mesh_fit.lambda0_param_p05_nm}-->, 1577.7<!--{fig4d_mesh_fit.lambda0_param_p95_nm}-->] nm, slope
   [0.00219<!--{fig4d_mesh_fit.slope_param_p05}-->, 0.00306<!--{fig4d_mesh_fit.slope_param_p95}-->] rad/nm.
 
-The parametric interval is 2.9× wider on λ₀ and is the more honest of the two, because the
+The parametric interval is 2.9<!--{fig4d_mesh_fit.param_over_pairs_width}-->× wider on λ₀ and is the more honest of the two, because the
 dominant uncertainty in this dataset is how accurately a curve could be read off a published
-figure, not how the 25<!--{fig4d_mesh_fit.n_points}--> points scatter about the model. (Both the 2.9× ratio and the interval
+figure, not how the 25<!--{fig4d_mesh_fit.n_points}--> points scatter about the model. (Both the 2.9<!--{fig4d_mesh_fit.param_over_pairs_width}-->× ratio and the interval
 widths quoted below are arithmetic on the `results.json` percentile values.)
 
 The decision rule was: if 1560.0 nm falls inside the λ₀ interval, keep 1560 nm as the
 coupler's 3-dB wavelength; otherwise adopt the fitted value. 1560.0 nm lies outside both
-intervals — 13.7 nm below the pairs lower bound (7.5 interval widths) and 12.3 nm below the
-parametric lower bound (2.3 interval widths) — so the second branch applies. `coupler.py`
+intervals — 13.7<!--{fig4d_mesh_fit.pairs_p05_over_design_nm}--> nm below the pairs lower bound (7.5<!--{fig4d_mesh_fit.pairs_p05_over_design_in_widths}--> interval widths) and 12.3<!--{fig4d_mesh_fit.param_p05_over_design_nm}--> nm below the
+parametric lower bound (2.3<!--{fig4d_mesh_fit.param_p05_over_design_in_widths}--> interval widths) — so the second branch applies. `coupler.py`
 therefore defines
 
 ```python

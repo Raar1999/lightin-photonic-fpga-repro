@@ -978,7 +978,22 @@
     "n_pairs_failed": 0,
     "n_param_failed": 0,
     "digitization_sd_db": 2.0,
-    "lambda0_minus_proxy_nm": 3.632156822803381
+    "lambda0_minus_proxy_nm": 3.632156822803381,
+    "t20_null_nm": 1569.699999999973,
+    "t20_null_displacement_nm": 4.978458181758015,
+    "null_scan_grid_nm": [
+      1540.0,
+      1600.0,
+      0.1
+    ],
+    "lambda0_pairs_width_nm": 1.835016650958778,
+    "lambda0_param_width_nm": 5.334977539265537,
+    "param_over_pairs_width": 2.9073183267727107,
+    "design_wavelength_nm": 1560.0,
+    "pairs_p05_over_design_nm": 13.691176706262013,
+    "param_p05_over_design_nm": 12.338701044354366,
+    "pairs_p05_over_design_in_widths": 7.461064017652651,
+    "param_p05_over_design_in_widths": 2.3127934379369526
   },
   "fig4e_fit": {
     "n_points": 27,

@@ -98,6 +98,48 @@ def figpath(name):
     return os.path.join(_figdir, name)
 
 
+NULL_SCAN_NM = (1540.0, 1600.0, 0.1)   # diagnostic grid for the T20 null
+
+
+def mesh_fit_derived(f4_mesh, f4_proxy, design_nm=coupler.LAMBDA0):
+    """Values §3, §5 and §6 quote that are arithmetic on the mesh fit, stored so each
+    one has a path of its own.
+
+    The T20 null is where the mesh routes least power to port 2. It is displaced from
+    the wavelength at which the couplers are 50:50, because the path crosses four
+    stages, and the size of that displacement is the argument for fitting the mesh
+    rather than the single-coupler proxy. It is a grid scan, not arithmetic, so it is
+    computed here rather than derived from the values above; the floor is pushed far
+    down so that it cannot fill the null in.
+
+    The rest measure the two bootstrap intervals against each other and against the
+    design wavelength, which is where §6.1 argues the parametric interval is the more
+    honest of the two.
+    """
+    lo, hi, step = NULL_SCAN_NM
+    lam = np.arange(lo, hi + step / 2, step)
+    depth = fit_fig4.mesh_t20_model(lam, f4_mesh["lambda0_nm"], f4_mesh["slope"], -300.0)
+    null_nm = float(lam[int(np.argmin(depth))])
+
+    pairs_width = f4_mesh["lambda0_pairs_p95_nm"] - f4_mesh["lambda0_pairs_p05_nm"]
+    param_width = f4_mesh["lambda0_param_p95_nm"] - f4_mesh["lambda0_param_p05_nm"]
+    pairs_gap = f4_mesh["lambda0_pairs_p05_nm"] - design_nm
+    param_gap = f4_mesh["lambda0_param_p05_nm"] - design_nm
+    return {
+        "t20_null_nm": null_nm,
+        "t20_null_displacement_nm": float(f4_mesh["lambda0_nm"] - null_nm),
+        "null_scan_grid_nm": [lo, hi, step],
+        "lambda0_pairs_width_nm": float(pairs_width),
+        "lambda0_param_width_nm": float(param_width),
+        "param_over_pairs_width": float(param_width / pairs_width),
+        "design_wavelength_nm": float(design_nm),
+        "pairs_p05_over_design_nm": float(pairs_gap),
+        "param_p05_over_design_nm": float(param_gap),
+        "pairs_p05_over_design_in_widths": float(pairs_gap / pairs_width),
+        "param_p05_over_design_in_widths": float(param_gap / param_width),
+    }
+
+
 def cross_check(f4_mesh, f4e):
     """Each fitted model measured against the panel it was not fitted to.
 
@@ -786,7 +828,8 @@ def main(quick=False):
                                # Mesh minus proxy: the model-form uncertainty on the
                                # coupler's 3-dB wavelength, from the two fits above.
                                lambda0_minus_proxy_nm=float(f4_mesh["lambda0_nm"]
-                                                            - f4["lambda0_nm"])),
+                                                            - f4["lambda0_nm"]),
+                               **mesh_fit_derived(f4_mesh, f4)),
         "fig4e_fit": f4e,
         "fig4e_diagonals": f4e_diag,
         "cross_check": xc,
