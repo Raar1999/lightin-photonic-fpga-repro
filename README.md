@@ -265,13 +265,13 @@ The chip parameters below were taken from the paper's Methods and Supplementary
 parameters that are not from the paper, with their sources where recorded, are listed in
 docs/REPRODUCTION_REPORT_v10.md §6.3:
 
-- group index **n_g = 4.0** (stated); phase index **n_eff ≈ 2.36** (450×220 nm SOI TE)
-- directional coupler **11.5 µm long, 200 nm gap**; square-mesh unit **500 µm**; arm **208 µm**
+- group index **n_g = 4.0<!--[lightin.coupler.N_GROUP]-->** (stated); phase index **n_eff ≈ 2.36<!--[lightin.coupler.N_EFF]-->** (450<!--[lightin.coupler.WG_WIDTH_NM]-->×220 nm SOI TE)
+- directional coupler **11.5<!--[lightin.coupler.DC_LENGTH_UM]--> µm long, 200<!--[lightin.coupler.DC_GAP_NM]--> nm gap**; square-mesh unit **500<!--[lightin.coupler.SQUARE_SIDE_UM]--> µm**; arm **208<!--[lightin.coupler.ARM_LENGTH_UM]--> µm**
 - heater **3 V for π across 100 Ω → 90 mW**, E[θ]=π/2 → **45 mW/MZI**, ×40 → **1.8 W**
 - PUF arm-length spread **N(−0.08 µm, 0.11 µm)** → phase N(−0.76, 1.05) rad via n_eff
   (the sign is the preprint's; see docs/PREPRINT_NOTES.md)
 - coupler dispersion **fitted to the digitized Fig 4d crosstalk** (`scripts/fit_fig4.py`)
-- bar-state coupler-split spread **assumed at 0.02**, not fitted: the digitized Fig 4e
+- bar-state coupler-split spread **assumed at 0.02<!--[lightin.switching.SIGMA_SPLIT]-->**, not fitted: the digitized Fig 4e
   crosstalk was fitted for it (`scripts/fit_fig4e.py`) and the fitted value was **not
   adopted**, the model doing no better on those points than a constant and the result
   ranging from **0.0152<!--{fig4e_fit.sensitivity.sigma_split_full_range[0]}--> to 0.0707<!--{fig4e_fit.sensitivity.sigma_split_full_range[1]}-->** with a choice the figure does not fix. 0.02<!--{cross_check.sigma_split}-->

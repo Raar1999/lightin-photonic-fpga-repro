@@ -1,5 +1,5 @@
 """
-The §6.3 parameter table must still match the modules it documents.
+Every constant these documents state must still match the module it documents.
 
 Run directly:  PYTHONPATH=. python3 tests/test_constants_documented.py
 Or with pytest: PYTHONPATH=. pytest -q
@@ -11,8 +11,13 @@ it in a square-bracket comment beside the documented value,
     | `SIGMA_SPLIT` | 0.02<!--[lightin.switching.SIGMA_SPLIT]--> | ... |
 
 and this test imports the module and compares. A tuple constant is indexed, as in
-`ARM_LOSS_DB[0]`. Rows that document a default argument or an inline literal rather than a
-module-level constant carry no comment and are listed in `docs/REPORT_UNCHECKED.md`.
+`ARM_LOSS_DB[0]`.
+
+The markup is not confined to that table, and not to one document. It also carries the
+chip geometry the §6 table takes from the paper's Methods, the design wavelengths, the
+structural-zero threshold, and the geometry the README restates in its own words. Those
+are the paper's numbers, but they are also transcriptions into this repository, and a
+transcription that nothing reads back is a claim with no check behind it.
 
 The numeric comparison is the one `test_report_consistency` uses, imported rather than
 copied so the two files cannot drift apart on what "equal to the precision written" means.
@@ -27,7 +32,7 @@ import pytest
 from test_report_consistency import agrees
 
 ROOT = Path(__file__).resolve().parents[1]
-DOC = "docs/REPRODUCTION_REPORT_v10.md"
+DOCS = ["docs/REPRODUCTION_REPORT_v10.md", "README.md"]
 
 # value, then module.attribute (optionally indexed) in a square-bracket HTML comment
 CONSTANT = re.compile(
@@ -65,13 +70,17 @@ def lookup(module, attribute, index):
 
 
 def documented():
-    """Every annotated constant in the report, as (line, written, module, attr, index)."""
-    text = (ROOT / DOC).read_text(encoding="utf-8")
+    """Every annotated constant in both documents.
+
+    Yields (document, line, written value, module, attribute, index or None).
+    """
     found = []
-    for match in CONSTANT.finditer(text):
-        line = text.count("\n", 0, match.start()) + 1
-        module, attribute, index = split_target(match.group(2))
-        found.append((line, match.group(1), module, attribute, index))
+    for doc in DOCS:
+        text = (ROOT / doc).read_text(encoding="utf-8")
+        for match in CONSTANT.finditer(text):
+            line = text.count("\n", 0, match.start()) + 1
+            module, attribute, index = split_target(match.group(2))
+            found.append((doc, line, match.group(1), module, attribute, index))
     return found
 
 
@@ -81,21 +90,22 @@ def test_documented_constants_match_the_modules():
     assert rows, "no documented constants found -- has the markup been removed?"
 
     bad = []
-    for line, written, module, attribute, index in rows:
+    for doc, line, written, module, attribute, index in rows:
         name = attribute if index is None else f"{attribute}[{index}]"
         live = lookup(module, attribute, index)
         if live is MISSING:
-            bad.append((line, module, name, written, "no such attribute"))
+            bad.append((doc, line, module, name, written, "no such attribute"))
         elif not agrees(written, "", live):
-            bad.append((line, module, name, written, repr(live)))
+            bad.append((doc, line, module, name, written, repr(live)))
 
     if bad:
-        mod_width = max(len(row[1]) for row in bad)
-        name_width = max(len(row[2]) for row in bad)
+        doc_width = max(len(row[0]) for row in bad)
+        mod_width = max(len(row[2]) for row in bad)
+        name_width = max(len(row[3]) for row in bad)
         table = "\n".join(
-            f"  {DOC}:{line:<5} {module:<{mod_width}}  {name:<{name_width}}  "
+            f"  {doc:<{doc_width}}:{line:<5} {module:<{mod_width}}  {name:<{name_width}}  "
             f"documented {written:<12} live {live}"
-            for line, module, name, written, live in bad
+            for doc, line, module, name, written, live in bad
         )
         pytest.fail(
             f"{len(bad)} of {len(rows)} documented constants disagree with the modules.\n"
@@ -107,7 +117,7 @@ def test_every_documented_constant_exists():
     """A renamed or deleted constant fails here by attribute name."""
     gone = sorted(
         {(module, attribute if index is None else f"{attribute}[{index}]")
-         for _, _, module, attribute, index in documented()
+         for _, _, _, module, attribute, index in documented()
          if lookup(module, attribute, index) is MISSING}
     )
     if gone:
@@ -118,11 +128,11 @@ def test_every_documented_constant_exists():
 if __name__ == "__main__":
     rows = documented()
     failures = []
-    for line, written, module, attribute, index in rows:
+    for doc, line, written, module, attribute, index in rows:
         name = attribute if index is None else f"{attribute}[{index}]"
         live = lookup(module, attribute, index)
         if live is MISSING or not agrees(written, "", live):
-            failures.append((line, module, name, written, live))
-    for line, module, name, written, live in failures:
-        print(f"{DOC}:{line} {module}.{name} documented {written} live {live}")
+            failures.append((doc, line, module, name, written, live))
+    for doc, line, module, name, written, live in failures:
+        print(f"{doc}:{line} {module}.{name} documented {written} live {live}")
     print(f"{len(rows) - len(failures)} of {len(rows)} documented constants match the modules")

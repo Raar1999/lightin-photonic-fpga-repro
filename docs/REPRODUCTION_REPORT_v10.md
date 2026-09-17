@@ -1064,12 +1064,14 @@ literals with no name to import; each was given one and the defaults and call si
 reference it, so the row names both the argument and the constant. Naming them changed no
 value -- it is what brought them inside the check.
 
-The same square-bracket markup is used outside that table, wherever this report states a
+The same square-bracket markup is used outside that table, wherever either document states a
 value that a module holds under a name: the chip geometry the §6 table takes from the paper's
 Methods, the two design wavelengths, the grating pitch and waveguide length taken from the
-preprint, and the structural-zero threshold quoted in §3. Those are the paper's and the
-preprint's numbers, but they are also transcriptions, and the check is what keeps the
-transcription honest.
+preprint, the structural-zero threshold quoted in §3, and the geometry the README restates in
+its own words. Those are the paper's and the preprint's numbers, but they are also
+transcriptions, and the check is what keeps the transcription honest. Both the consistency
+test and the constants test read `README.md` as well as this report, so a value cannot be
+correct in one document and stale in the other.
 
 Every row of that table, checked or not, names the file and line where its parameter lives,
 and `tests/test_source_lines_documented.py` reads each cited line and requires it to name

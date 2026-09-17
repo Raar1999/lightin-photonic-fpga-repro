@@ -178,7 +178,11 @@ is described are measurements of this machine rather than pipeline outputs.
 
 # `README.md`
 
-The headline table's reproduction column is annotated and checked. What is left:
+The headline table's reproduction column is annotated and checked, and the chip geometry
+the parameter list restates -- the two indices, the waveguide width, the coupler length and
+gap, the mesh side, the arm length and the assumed split spread -- carries a square-bracket
+comment and is checked against the module by `tests/test_constants_documented.py`, which
+reads this file's two documents rather than the report alone. What is left:
 
 | Value | Where | Why not checked |
 |---|---|---|
