@@ -1172,14 +1172,16 @@ document is what changes.
   95.33%<!--{environment.seed0_reference.logistic_full_acc}-->, and three consecutive runs on
   this machine gave that line unchanged. CI resolved Python 3.11.16 with numpy 2.4.6, scipy
   1.17.1, scikit-learn 1.9.1 and matplotlib 3.11.2, and Python 3.12.14 and 3.13.15 both with
-  numpy 2.5.3, scipy 1.18.1, scikit-learn 1.9.1 and matplotlib 3.11.2. Over three runs of the
-  same commit those jobs gave full-set accuracies of 94.67%, 94.67% and 96.00% on 3.11;
-  95.33%, 95.33% and 95.33% on 3.12; and 96.00%, 95.33% and 95.33% on 3.13. The held-out,
+  numpy 2.5.3, scipy 1.18.1, scikit-learn 1.9.1 and matplotlib 3.11.2. Over four runs, which
+  differ from one another only in this document and not at all in `nn_iris.py`, those jobs
+  gave full-set accuracies of 94.67%, 94.67%, 96.00% and 94.67% on 3.11; 95.33% every time on
+  3.12; and 96.00%, 95.33%, 95.33% and 95.33% on 3.13. Two of the four are one commit run
+  twice, and it is that pair on which 3.11 gave first 94.67% and then 96.00%. The held-out,
   identity-control and logistic-baseline accuracies were identical on every stack and every
   run.
 * The largest spread in seed-0 full-set accuracy between any two of those observations is
-  1.33 points -- and the same 1.33 points separates two runs of a single job, Python 3.11.16,
-  at unchanged library versions and unchanged code. The between-stack differences are
+  1.33 points -- and the same 1.33 points separates the two runs of that one commit on Python
+  3.11.16, at library versions, interpreter and code all unchanged. The between-stack differences are
   therefore not separable from the run-to-run ones, and what the exercise measured is not
   version drift but the fit's own irreproducibility on those machines. Only three values ever
   appear, 94.67%, 95.33% and 96.00%, which are 142, 143 and 144 of the 150 samples, so what
