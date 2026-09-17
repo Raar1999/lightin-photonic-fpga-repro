@@ -808,6 +808,11 @@ def main(quick=False):
                  "identity_control": ir["identity_control"],
                  "logistic_baseline": ir["logistic_baseline"],
                  "paired_logistic_minus_photonic": paired,
+                 # The seed-0 fit keeps the lowest-objective restart, and the restarts
+                 # just behind it reach different accuracies. This says how close they
+                 # are, so the reported accuracy can be read with the margin that chose
+                 # it. Taken from the restarts of the fit reported above, not refitted.
+                 "restart_degeneracy": nn_iris.degeneracy_summary(ir["restarts"]),
                  # The identity control runs the same seeds on the same splits, so the
                  # difference of the two full-set means is what the unitary contributes.
                  "unitary_minus_identity_full_acc": float(

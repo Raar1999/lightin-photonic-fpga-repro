@@ -145,6 +145,63 @@ def train(seed=0, restarts=N_RESTARTS):
     }
 
 
+DEGENERACY_TOL = 1e-05    # objective window treated as indistinguishable from the best
+
+
+def restart_table(seed=0, restarts=N_RESTARTS):
+    """Every restart of one seed's fit: its final objective and its two accuracies.
+
+    Sorted by objective, lowest first, so the first row is the restart the fit keeps and
+    the rows below it are the optima it rejected. They are not interchangeable: their
+    accuracies differ by up to two points while their objectives differ in the fourth
+    decimal, which is what makes the selected accuracy sensitive to arithmetic noise.
+    """
+    return train(seed=seed, restarts=restarts)["restarts"]
+
+
+def degeneracy_summary(rows, tol=DEGENERACY_TOL):
+    """How degenerate the selected optimum is, given a sorted restart table.
+
+    `n_within_tol` counts the restarts whose objective is within `tol` of the best, the
+    best included, and `full_acc_min` to `full_acc_max` is their accuracy span. Where the
+    count is one, those three say only that nothing ties the winner at that tolerance;
+    they do not say the selection is safe. The last three fields are what carry that: the
+    accuracies of all fifteen optima span `all_full_acc_min` to `all_full_acc_max`, and
+    `min_adjacent_gap` is the closest two ranked objectives come to each other anywhere in
+    the table. A machine whose arithmetic moves the objectives by more than that gap
+    reorders the table and reports a different accuracy, which is what is observed.
+
+    It takes the table rather than computing one so that the summary is of the same fit
+    whose accuracy is reported beside it, and cannot drift from it.
+    """
+    best = rows[0]["objective"]
+    near = [r for r in rows if r["objective"] - best <= tol]
+    fulls = [r["full_acc"] for r in near]
+    all_fulls = [r["full_acc"] for r in rows]
+    gaps = [rows[i + 1]["objective"] - rows[i]["objective"] for i in range(len(rows) - 1)]
+    return {
+        "n_restarts": len(rows),
+        "tol": float(tol),
+        "best_objective": best,
+        "best_restart": rows[0]["restart"],
+        "gap_to_second": float(rows[1]["objective"] - best) if len(rows) > 1 else None,
+        "n_within_tol": len(near),
+        "full_acc_min": min(fulls),
+        "full_acc_max": max(fulls),
+        "full_acc_range": float(max(fulls) - min(fulls)),
+        "selected_full_acc": rows[0]["full_acc"],
+        "all_full_acc_min": min(all_fulls),
+        "all_full_acc_max": max(all_fulls),
+        "min_adjacent_gap": float(min(gaps)) if gaps else None,
+    }
+
+
+def restart_degeneracy(seed=0, restarts=N_RESTARTS, tol=DEGENERACY_TOL):
+    """`degeneracy_summary` for one seed, fitting it first."""
+    return dict(degeneracy_summary(restart_table(seed=seed, restarts=restarts), tol=tol),
+                seed=int(seed))
+
+
 def _accuracy(p, X, y, N=4, n_classes=3):
     probs, _ = _forward(p, X, N, n_classes)
     return float(np.mean(probs.argmax(1) == y))

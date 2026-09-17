@@ -119,6 +119,21 @@
       "test_n_equal": 1,
       "test_n_photonic_higher": 0
     },
+    "restart_degeneracy": {
+      "n_restarts": 15,
+      "tol": 1e-05,
+      "best_objective": 0.19053345652406165,
+      "best_restart": 3,
+      "gap_to_second": 0.0003775138185339866,
+      "n_within_tol": 1,
+      "full_acc_min": 0.9533333333333334,
+      "full_acc_max": 0.9533333333333334,
+      "full_acc_range": 0.0,
+      "selected_full_acc": 0.9533333333333334,
+      "all_full_acc_min": 0.94,
+      "all_full_acc_max": 0.96,
+      "min_adjacent_gap": 4.21400793043647e-06
+    },
     "unitary_minus_identity_full_acc": 0.09866666666666657
   },
   "mrm": {
