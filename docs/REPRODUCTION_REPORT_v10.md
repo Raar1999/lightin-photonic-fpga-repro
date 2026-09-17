@@ -1071,7 +1071,9 @@ preprint, the structural-zero threshold quoted in §3, and the geometry the READ
 its own words. Those are the paper's and the preprint's numbers, but they are also
 transcriptions, and the check is what keeps the transcription honest. Both the consistency
 test and the constants test read `README.md` as well as this report, so a value cannot be
-correct in one document and stale in the other.
+correct in one document and stale in the other. Which report they read is itself checked: the
+suite requires the newest `REPRODUCTION_REPORT` in `docs/` to be the one under test, so a
+new version cannot be written and left unverified.
 
 Every row of that table, checked or not, names the file and line where its parameter lives,
 and `tests/test_source_lines_documented.py` reads each cited line and requires it to name
@@ -1145,8 +1147,12 @@ document is what changes.
 * The population spread of the PUF metrics is reported across ten seeds; the die counts
   used here (40 for the sweeps, 100 for the headline run) are smaller than a full
   characterisation would use.
-* Earlier report versions are not covered by the consistency test and are kept only as
-  history.
+* Earlier report versions are kept as history and are deliberately not checked: each holds
+  the values that were current when it was written, so asserting them against today's
+  `results.json` would fail by design. A test now requires the newest report in `docs/` to
+  be the one the suite checks, so a new version cannot be left unchecked while the suite
+  goes on verifying the old one. What stays unguarded is the content of the superseded
+  files themselves, which nothing reads.
 * Twenty-three of the parameters in §6.3 have no source recorded anywhere in this repository:
   the nominal 0.5 coupler split; `n_couplers_in_path` = 4 and `n_grating` = 2 in the link
   budget; the four synthetic-demo constants `DEMO_LAMBDA0`, `DEMO_TRUE_KAPPA0`,

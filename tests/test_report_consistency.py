@@ -226,6 +226,41 @@ def test_unchecked_inventory_exists():
     assert inventory.read_text(encoding="utf-8").strip(), "docs/REPORT_UNCHECKED.md is empty"
 
 
+REPORT_VERSION = re.compile(r"^REPRODUCTION_REPORT(?:_v(\d+))?\.md$")
+
+
+def report_versions():
+    """Every reproduction report in docs/, as {version number: filename}.
+
+    The first report carries no suffix, so it counts as version 1.
+    """
+    found = {}
+    for path in sorted((ROOT / "docs").glob("REPRODUCTION_REPORT*.md")):
+        match = REPORT_VERSION.match(path.name)
+        if match:
+            found[int(match.group(1)) if match.group(1) else 1] = path.name
+    return found
+
+
+def test_the_checked_report_is_the_newest_one():
+    """The suite checks the current report, not one a newer version has superseded.
+
+    Earlier versions are kept as history and are deliberately not checked: they hold the
+    values that were current when they were written, and asserting them against today's
+    `results.json` would fail by design. What has to be true is that the newest one is the
+    one under test. Without this, writing v11 would leave it unchecked while the suite went
+    on verifying v10 and reporting green.
+    """
+    versions = report_versions()
+    assert versions, "no reproduction report found in docs/"
+    newest = versions[max(versions)]
+    checked = [doc for doc in DOCS if doc.startswith("docs/REPRODUCTION_REPORT")]
+    assert checked == [f"docs/{newest}"], (
+        f"the suite checks {checked} but the newest report in docs/ is {newest}. "
+        f"Point DOCS at it -- the superseded versions stay as they are."
+    )
+
+
 if __name__ == "__main__":
     results = _load_results()
     checked = _all_annotations()
