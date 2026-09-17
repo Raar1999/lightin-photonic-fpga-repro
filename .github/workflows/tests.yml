@@ -15,3 +15,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e .[dev]
       - run: pytest -q
+      # This job installs from pyproject.toml, not requirements-lock.txt, so its
+      # library versions are whatever pip resolves on the day it runs. Printing them
+      # with the seed-0 accuracies makes that drift visible in every run. It runs
+      # after the tests so a failure there cannot hide it.
+      - name: environment and seed-0 accuracies
+        if: always()
+        run: python scripts/report_environment.py
