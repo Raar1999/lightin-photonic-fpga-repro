@@ -1143,10 +1143,22 @@ document is what changes.
   and recorded in the `environment` block, but the size of that variation across versions has
   not been measured, so how far the numbers move on another stack remains unknown. Measuring it
   would also narrow the item on the paper's Iris evaluation set, by separating how much of the
-  difference from the published accuracies is the library stack.
+  difference from the published accuracies is the library stack. It cannot be measured from
+  this repository: the installed versions are exactly the locked ones, so there is no second
+  stack here to compare against, and producing one means installing versions the lock does
+  not name, which removes the pinning the rest of the reproduction depends on. The earlier
+  environment that gave 94.67% was not recorded, so it cannot be reconstructed either. What
+  the measurement needs is a second pinned environment, added deliberately and recorded
+  alongside the first, not a change to this one.
 * The population spread of the PUF metrics is reported across ten seeds; the die counts
   used here (40 for the sweeps, 100 for the headline run) are smaller than a full
-  characterisation would use.
+  characterisation would use. Enlarging them is bounded by runtime rather than by method:
+  the recirculating-mesh PUF is 12.4 of the pipeline's 24.5 minutes, so doubling the dies
+  roughly doubles that block and puts a full run near 37 minutes. Enlarging only the
+  cheaper feed-forward model instead would cost about a minute, but the two are compared
+  die for die on the same counts, and changing one side alone would break that comparison.
+  Both would have to grow together, and that is a deliberate decision about run cost
+  rather than a gap to be closed in passing.
 * Earlier report versions are kept as history and are deliberately not checked: each holds
   the values that were current when it was written, so asserting them against today's
   `results.json` would fail by design. A test now requires the newest report in `docs/` to
