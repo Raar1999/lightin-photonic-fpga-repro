@@ -190,17 +190,21 @@ are annotated and the surrounding N-formulae are not, and the percentile labels 
 ---
 
 Sections 1–8 above cover §2 to §6. §1 carries no `results.json` values, being definitional.
-§7 is the open-items list and carries five: the four seed-0 accuracies of the pinned stack
-and the seed-to-seed standard deviation quoted beside them, all annotated and checked. What
-is unchecked there is the drift measurement itself, because it is not a pipeline output:
+§7 is the open-items list and carries nine: the four seed-0 accuracies of the pinned stack,
+the seed-to-seed standard deviation quoted beside them, and four values of the restart
+degeneracy, all annotated and checked. What is unchecked there is what was read out of the CI
+job logs, because none of it is a pipeline output:
 
 | Value | Sections | What it is |
 |---|---|---|
 | 3.11.16, 3.12.14, 3.13.15, and the numpy, scipy, scikit-learn and matplotlib versions beside them | §7.3 | the versions the CI jobs resolved, read out of the job log. `results.json` records the pinned stack this machine ran, not another one |
 | 94.00%, 94.67%, 95.33%, 96.00% where they are CI accuracies or the accuracies of individual restarts | §7.3 | the seed-0 accuracies the jobs printed, and the span of the fifteen restarts, neither of which `results.json` stores — it keeps the winning restart's accuracy, not the losers' |
 | 1.33 (points) | §7, §7.3, preamble | the largest difference between two of those accuracies |
-| 3.775e-04, 4.2e-06, 4e-17 | §7.3 | the objective gaps between the ranked restarts of the seed-0 fit, and double precision at that scale. Measured by running the restarts individually, which the pipeline does not do |
-| 971 | preamble | the number of leaf values in `results.json`, a count of the file rather than a value in it |
+| 4e-17 | §7.3 | double precision at the objective's scale, quoted to compare with the gaps that are annotated |
+| 0.19053, 0.19074, 0.19078, 0.19098, 0.19103 | §3, §7.3 | winning objectives. Only the local one, 0.19053, is in `results.json`, and it is annotated where §3 quotes it as the best objective; the others are what CI jobs printed and are transcribed from their logs |
+| 5, 3, 9 where they count restarts within the tolerance, CI rounds and CI jobs | §7.3 | counts of the runs made, not measurements |
+| AMD EPYC 7763, AMD EPYC 9V74, Xeon Platinum 8573C, Xeon 6973P-C | §7.3 | processor models the CI jobs reported, from their logs |
+| 971, 984 | preamble | the number of leaf values in `results.json`, a count of the file rather than a value in it |
 
 The two runtimes quoted where the test suite is described are measurements of this machine
 rather than pipeline outputs.
