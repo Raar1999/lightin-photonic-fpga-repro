@@ -189,9 +189,19 @@ are annotated and the surrounding N-formulae are not, and the percentile labels 
 
 ---
 
-Sections 1–8 above cover §2 to §6. §1 and §7 carry no `results.json` values: §1 is
-definitional and §7 is the open-items list. The two runtimes quoted where the test suite
-is described are measurements of this machine rather than pipeline outputs.
+Sections 1–8 above cover §2 to §6. §1 carries no `results.json` values, being definitional.
+§7 is the open-items list and carries five: the four seed-0 accuracies of the pinned stack
+and the seed-to-seed standard deviation quoted beside them, all annotated and checked. What
+is unchecked there is the drift measurement itself, because it is not a pipeline output:
+
+| Value | Sections | What it is |
+|---|---|---|
+| 3.11.16, 3.12.14, 3.13.15, and the numpy, scipy, scikit-learn and matplotlib versions beside them | §7.3 | the versions the CI jobs resolved, read out of the job log. `results.json` records the pinned stack this machine ran, not another one |
+| 94.67%, 95.33%, 96.00% where they are the CI full-set accuracies | §7.3 | the seed-0 accuracies those jobs printed, from the same log |
+| 1.33, 0.67 (points) | §7.3 | differences between the CI accuracies above and the pinned one |
+
+The two runtimes quoted where the test suite is described are measurements of this machine
+rather than pipeline outputs.
 
 ---
 

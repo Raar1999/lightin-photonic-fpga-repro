@@ -1105,6 +1105,13 @@ to 50<!--[scripts.run_all.QUICK_N_BOOT]--> resamples, writing `results_quick.jso
 overwrites the reported outputs. Quick-mode numbers are noisier and are not the ones quoted
 here.
 
+The suite also runs in CI on Python 3.11, 3.12 and 3.13, and those jobs install from
+`pyproject.toml` rather than from `requirements-lock.txt`, so they run on an unpinned stack
+whose library versions are whatever pip resolves on the day. Each job ends by running
+`scripts/report_environment.py`, which prints the installed versions and the seed-0 Iris,
+identity-control and logistic-baseline accuracies as one line of JSON, so version drift away
+from the pinned numbers is visible in every run rather than only when someone goes looking.
+
 When a number here disagrees with `results.json`, or with the module it documents, the
 document is what changes.
 
@@ -1150,19 +1157,39 @@ document is what changes.
 
 ### 7.3 Work that would resolve or narrow an item above
 
-* The Iris accuracies depend on the installed scipy and scikit-learn versions: with
-  `nn_iris.py` unchanged, seed 0 currently yields a full-set accuracy of 95.33% where an
-  earlier environment recorded 94.67%. The environment is now pinned by `requirements-lock.txt`
-  and recorded in the `environment` block, but the size of that variation across versions has
-  not been measured, so how far the numbers move on another stack remains unknown. Measuring it
-  would also narrow the item on the paper's Iris evaluation set, by separating how much of the
-  difference from the published accuracies is the library stack. It cannot be measured from
-  this repository: the installed versions are exactly the locked ones, so there is no second
-  stack here to compare against, and producing one means installing versions the lock does
-  not name, which removes the pinning the rest of the reproduction depends on. The earlier
-  environment that gave 94.67% was not recorded, so it cannot be reconstructed either. What
-  the measurement needs is a second pinned environment, added deliberately and recorded
-  alongside the first, not a change to this one.
+* The Iris accuracies depend on the installed library versions, and the size of that
+  dependence has now been measured. The second stack the measurement needed was already
+  running: the CI jobs install with `pip install -e .[dev]`, which resolves against the lower
+  bounds in `pyproject.toml` and not against `requirements-lock.txt`, so each of the three
+  jobs is a stack that picks its own versions of numpy, scipy, scikit-learn and matplotlib.
+  `scripts/report_environment.py` prints those versions and the seed-0 accuracies as one line
+  of JSON, and every job runs it after the test step, so the drift is visible in the log of
+  each run rather than needing an environment built for the purpose. On the pinned stack here
+  -- Python 3.11.9 with numpy 2.4.4, scipy 1.17.1, scikit-learn 1.9.0 and matplotlib 3.11.1 --
+  seed 0 gives a full-set accuracy of 95.33%<!--{environment.seed0_reference.iris_full_acc}-->,
+  held out 93.33%<!--{environment.seed0_reference.iris_test_acc}-->, identity control
+  86.00%<!--{environment.seed0_reference.identity_full_acc}--> and logistic baseline
+  95.33%<!--{environment.seed0_reference.logistic_full_acc}-->. CI on Python 3.11.16, with
+  numpy 2.4.6, scipy 1.17.1, scikit-learn 1.9.1 and matplotlib 3.11.2, gives a full-set
+  accuracy of 94.67%; on Python 3.12.14, with numpy 2.5.3, scipy 1.18.1, scikit-learn 1.9.1
+  and matplotlib 3.11.2, 95.33%; and on Python 3.13.15 with those same four library versions,
+  96.00%. The held-out, identity-control and logistic-baseline accuracies are identical on all
+  four stacks, so the entire movement is in the trained photonic layer, which is the one
+  non-convex fit among them. The largest spread in full-set accuracy is 1.33 points, between
+  the Python 3.11 and Python 3.13 jobs. That is larger than the
+  1.26<!--{iris.seed_sweep.full_acc_std|pct}-->-point seed-to-seed standard deviation reported
+  in §2, so the item stays open rather than being answered: the stack moves a single-seed
+  accuracy by about as much as the seed does, and quoting one to the hundredth of a point
+  without naming the stack overstates what it fixes. One thing it does settle is the 94.67%
+  an earlier environment here recorded and this report could not reconstruct -- the Python
+  3.11 job produces that value again, which identifies it as a reachable point of the version
+  space rather than a transcription error, though it does not establish that the earlier
+  environment was that one. What remains unknown is which library is responsible. The 3.12 and
+  3.13 jobs declare identical versions of all four libraries and still differ by 0.67 points,
+  so no single library version accounts for the spread; the interpreter, and the wheels
+  compiled against it, move the number too. Attributing it would need a matrix varying one
+  library at a time against a fixed interpreter, which is a much larger experiment than the
+  one CI performs for nothing.
 * The population spread of the PUF metrics is reported across ten seeds; the die counts
   used here (40 for the sweeps, 100 for the headline run) are smaller than a full
   characterisation would use. Enlarging them is bounded by runtime rather than by method:
@@ -1191,3 +1218,6 @@ document is what changes.
   the code; the rest are not. One of them, the 0.25 dB per-stage propagation loss, is a
   parameter behind the insertion-loss disagreement above, so sourcing it would say whether that
   gap is a parameter choice.
+* No further work on the consistency, constants, source-line or transcription checks is
+  planned; they cover every number that a script can recompute, and extending them further
+  would add runtime without adding assurance.
