@@ -36,7 +36,7 @@ pytest -q                              # 60 checks (or: PYTHONPATH=. python test
 On a typical laptop CPU, `scripts/run_all.py` takes about 22 minutes, most of which is
 the ten-seed Iris sweep, the Fig 4d and Fig 4e bootstraps and the recirculating PUF, and
 the test suite takes about 50 seconds. `python scripts/run_all.py --quick` runs a reduced
-version in about 4 minutes — the Iris sweep drops to two seeds and every bootstrap to 50
+version in about 4 minutes — the Iris sweep drops to two seeds and every bootstrap to 50<!--[scripts.run_all.QUICK_N_BOOT]-->
 resamples, and the outputs go to `results_quick.json` and `figures_quick/` so a quick run
 never overwrites the reported ones. No datasets to
 download (Iris ships with scikit-learn; the two digitized curves are in `data/`).

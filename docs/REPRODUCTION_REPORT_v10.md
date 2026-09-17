@@ -363,8 +363,8 @@ The vertex wiring is a stated choice, not the paper's; §6.5 records how it was 
 what is conditional on it. Two wirings are carried, and every number is reported for both.
 
 At the arm-length-derived spread, the three models over 10 independent population seeds
-(40 dies x 64 challenges each; the spread quoted is the sample standard deviation across
-seeds, which is the sampling spread of a metric computed on 40 dies, not an uncertainty of
+(40<!--[scripts.run_all.POP_DIES]--> dies x 64<!--[scripts.run_all.POP_CHALLENGES]--> challenges each; the spread quoted is the sample standard deviation across
+seeds, which is the sampling spread of a metric computed on 40<!--[scripts.run_all.POP_DIES]--> dies, not an uncertainty of
 the model):
 
 | | uniqueness | uniformity | reliability (intra-die HD) |
@@ -402,7 +402,7 @@ spread rather than by the construction of the comparison.
 
 **Reliability is set by an assumed number.** `MEAS_NOISE_SIGMA` has no recorded source
 (§6.3), and reliability is the metric it drives. Sweeping it over the recirculating model
-(40 dies x 64 challenges, wiring C4_FREE_1):
+(40<!--[scripts.run_all.POP_DIES]--> dies x 64<!--[scripts.run_all.POP_CHALLENGES]--> challenges, wiring C4_FREE_1):
 
 | assumed noise sigma (rad) | uniqueness | uniformity | reliability | tie fraction |
 |---|---|---|---|---|
@@ -421,7 +421,7 @@ therefore a statement about the assumed noise rather than a prediction of the ch
 and the two should not be read as agreeing or disagreeing.
 
 The spread sweep behaves the way a working PUF should, and the same way the feed-forward
-model does (20 dies x 32 challenges, mu_phase = 0):
+model does (20<!--[scripts.run_all.RECIRC_SWEEP_DIES]--> dies x 32<!--[scripts.run_all.RECIRC_SWEEP_CHALLENGES]--> challenges, mu_phase = 0):
 
 | sigma_phase (rad) | uniqueness | uniformity | tie fraction | reliability | live pairs |
 |---|---|---|---|---|---|
@@ -445,7 +445,7 @@ the wiring, and a test enforces it.
 
 Because the response is driven by physics rather than by construction, uniqueness is a
 function of the manufacturing spread, and the sweep is the honest way to report it
-(`sensitivity_sweep`, 40 dies × 64 challenges, μ_phase = 0):
+(`sensitivity_sweep`, 40<!--[scripts.run_all.POP_DIES]--> dies × 64<!--[scripts.run_all.POP_CHALLENGES]--> challenges, μ_phase = 0):
 
 | σ_phase (rad) | uniqueness | uniformity | tie fraction | reliability |
 |---|---|---|---|---|
@@ -1094,11 +1094,11 @@ without that check a citation can go stale silently while every other test stays
 `test_fig4d_digitized_fit` calls only the two single fits (`fit_proxy` and `fit_mesh`) instead
 of `fit_fig4.main()` with its bootstraps, `test_iris_accuracy` runs five random restarts rather
 than the fifteen the reported accuracies use, and every Fig 4e check runs at a few hundred
-fabrication realisations rather than 3200. The best restart is kept, so the test's accuracy is
+fabrication realisations rather than 3200<!--[scripts.fit_fig4e.N_REAL]-->. The best restart is kept, so the test's accuracy is
 a lower bound on the reported one. A full `python scripts/run_all.py` takes about 22 minutes
 and prints a per-block runtime summary at the end; `python scripts/run_all.py --quick` runs the
 same pipeline with the Iris seed sweep cut to two seeds and every Fig 4d and Fig 4e bootstrap
-to 50 resamples, writing `results_quick.json` and `figures_quick/` so that a quick run never
+to 50<!--[scripts.run_all.QUICK_N_BOOT]--> resamples, writing `results_quick.json` and `figures_quick/` so that a quick run never
 overwrites the reported outputs. Quick-mode numbers are noisier and are not the ones quoted
 here.
 

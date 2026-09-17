@@ -175,7 +175,13 @@ character, is annotated with a modifier after a pipe and is checked like any oth
 
 ## 8. Structure, not measurement
 
-Mesh and sweep dimensions that describe how a computation was set up: 4×4, 3×3, N = 4, 2×2,
+Mesh and sweep dimensions that describe how a computation was set up. The sample sizes
+among them are pipeline settings with names of their own, so where the report states one as
+the size a sweep was run at -- the population sweep's dies and challenges, the sensitivity
+sweep's, quick mode's bootstrap count and the Fig 4e ensemble size -- it carries a
+square-bracket comment naming the constant in `scripts/`, and
+`tests/test_constants_documented.py` imports it. What is left here describes the mesh and
+the model rather than the run: 4×4, 3×3, N = 4, 2×2,
 8 ports, 40 cells, 25 vertices, 5×5, 20 orbits, 20 bits, 40 dies, 64 challenges, 20 dies,
 32 challenges, 100 dies, 10 GBaud, 70/30, 15 parameters, 6/10/16 DOF where the DOF values
 are annotated and the surrounding N-formulae are not, and the percentile labels 50th, 75th,
