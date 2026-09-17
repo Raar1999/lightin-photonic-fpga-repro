@@ -33,8 +33,8 @@ supplementary, not from any computation in this repository.
 | ~60 (ps) | §2 | the paper's stated on-chip latency |
 | 1.92, 1.875 | §2 | the paper's throughput and energy, in the "Paper value" column |
 | 17–18 dB, Q 7–8, 17.10, 17.83, 7.17, 8.08 | §2, §6 | the paper's eye-diagram SNR and Q |
-| 4.0, 2.36, 11.5, 200, 450, 500, 208, 100, 3, 90, 96, 4.5 | §6 | the §6 paper-input table: indices, geometry, heater and op count |
-| 1560, 1555, 1545 | §2, §3, §4, §5, §6 | the paper's design wavelengths |
+| 3, 96, 4.5 | §6 | the §6 paper-input table: the heater drive, the op count and the on-chip path length. The eight geometry values of that table -- the two indices, the coupler length, gap and width, the mesh side, the arm length and the heater length -- are transcribed into `coupler.py` as module-level constants, so each now carries a square-bracket comment and `tests/test_constants_documented.py` checks it |
+| 1560, 1555, 1545 | §2, §3, §4, §5, §6 | the paper's design wavelengths. Where the §6 table states them as the design values they are checked against `coupler.LAMBDA0` and `coupler.LAMBDA_MRM`; the grating peak has no module-level name, and neither do the restatements elsewhere |
 | 0.08, 0.11, 0.76, 1.05 | §3, §6 | the paper's PUF arm-length spread and the phase it implies |
 | 49.97% where it appears in a "paper value" column with no adjacent published column | §2, §6 | see §2 below — the value *is* in `results.json` and is annotated wherever it is the repository's copy of it |
 
@@ -50,7 +50,7 @@ model output.
 | 2 (nm) | §6 | preprint crosstalk bandwidth, against the published 20 nm |
 | 10.7, 10.70, 0.0012, 7.32, 0.0125, 0.0346 | §6 | preprint ENOB figures and the variance convention behind them |
 | −0.08, +0.08 | §3, §6 | preprint arm-length mean, and the sign as `ppuf.py` had transcribed it |
-| 20, 222.22, 3.8, 3, 450, 250 | §6 | preprint port count, grating pitch, footprint and waveguide widths |
+| 20, 3.8, 3, 450 | §6 | preprint port count, footprint and waveguide widths. The grating pitch and the grating-to-MZI waveguide length are `square_mesh.GRATING_SPACING_UM` and `square_mesh.GRATING_WG_UM`, and are checked against those |
 
 ## 3. Code constants (§6.3 table, value column)
 
@@ -154,7 +154,6 @@ displays, and the wiring gap is written rounded rather than truncated.
 |---|---|---|
 | 1e-32 | §2 | a test assertion in `tests/test_reproduction.py`; the report says so in the row |
 | −14.1 dB at 1549.0 nm | §3, §5 | read directly from `data/fig4d_T20_digitized.csv`; the report says so |
-| 1e-20 | §3 | the structural-zero threshold, a constant in `switching.py` |
 | 1574.5–1588.3, 1589.0, 1.5 nm grid | §6 | the legend-box occlusion read off the figure during digitization |
 | 105, 15, 25, twelve | §6 | matching counts from `lightin/wiring_search.py`, not written to `results.json` |
 | 1540, 1600, 0.1 nm | §6 | the diagnostic grid bounds of the null scan |

@@ -227,7 +227,7 @@ Both are 0.02 with no recorded source (§6.3). The digitized Fig 4e curve was fi
 no better than a constant and the spread it returns moves by a factor of 4.6 with a choice
 the figure does not fix; 0.02 lies inside that range, so the panel is recorded as a
 consistency check (§6.1). Set both to zero and the bar state nulls exactly, below the
-1e-20 structural-zero threshold. Leave them and the cell leaks −29.81<!--{switching.leak_mechanism_check.bar_cell_leak_db_model}--> dB
+1e-20<!--[lightin.switching.ZERO_TOL]--> structural-zero threshold. Leave them and the cell leaks −29.81<!--{switching.leak_mechanism_check.bar_cell_leak_db_model}--> dB
 (`bar_cell_leak_db_model`); ideal 50:50 couplers, which remove the split imbalance but
 leave the phase error, give −32.87<!--{switching.leak_mechanism_check.bar_cell_leak_db_ideal_coupler}--> dB (`bar_cell_leak_db_ideal_coupler`).
 
@@ -253,7 +253,7 @@ hundredths of a dB while the cross-state values move by several.
 Both states report 0<!--{switching.cross_structural_zeros}--> structural zeros (`cross_structural_zeros` and
 `bar_structural_zeros`): no port pair was excluded from the crosstalk statistics for
 carrying no power, so the numbers above are over every off-target path. A pair is counted
-as a structural zero only when its raw linear transmission falls below 1e-20, and the test
+as a structural zero only when its raw linear transmission falls below 1e-20<!--[lightin.switching.ZERO_TOL]-->, and the test
 is made on that raw power rather than on a decibel value, so no additive constant can
 manufacture a floor. The lowest bar-state entry, input 0 to output 3, sits at a raw
 transmission well below the rest (−106.67<!--{switching.bar_xtalk_center_db[1]}--> dB); reaching that port takes three off-target
@@ -604,12 +604,12 @@ chip-specific values below. These are the paper's numbers, used as inputs to the
 
 | Quantity | Paper value (Methods / Supp) | Used in |
 |---|---|---|
-| Group index n_g | 4.0 (stated) | latency (60.04<!--{latency_on_chip_ps}--> ps) |
-| Phase index n_eff | ~2.36 (450×220 nm SOI TE, geometry) | recirculating, PPUF |
-| Directional coupler | length 11.5 µm, gap 200 nm, 450 nm width | coupler geometry |
-| Square-mesh unit side | 500 µm | recirculating loop length |
-| MZI arm length | 208 µm | mesh segments |
-| Heater | 100 µm, 3 V for π across 100 Ω → 90<!--{throughput_energy.P_pi_mW}--> mW, E[θ]=π/2 | energy |
+| Group index n_g | 4.0<!--[lightin.coupler.N_GROUP]--> (stated) | latency (60.04<!--{latency_on_chip_ps}--> ps) |
+| Phase index n_eff | ~2.36<!--[lightin.coupler.N_EFF]--> (450×220 nm SOI TE, geometry) | recirculating, PPUF |
+| Directional coupler | length 11.5<!--[lightin.coupler.DC_LENGTH_UM]--> µm, gap 200<!--[lightin.coupler.DC_GAP_NM]--> nm, 450<!--[lightin.coupler.WG_WIDTH_NM]--> nm width | coupler geometry |
+| Square-mesh unit side | 500<!--[lightin.coupler.SQUARE_SIDE_UM]--> µm | recirculating loop length |
+| MZI arm length | 208<!--[lightin.coupler.ARM_LENGTH_UM]--> µm | mesh segments |
+| Heater | 100<!--[lightin.coupler.HEATER_LENGTH_UM]--> µm, 3 V for π across 100 Ω → 90<!--{throughput_energy.P_pi_mW}--> mW, E[θ]=π/2 | energy |
 | Energy derivation | 40 PUCs × 45<!--{throughput_energy.P_avg_per_mzi_mW}--> mW = 1.8<!--{throughput_energy.P_total_W}--> W ÷ 9.6e11<!--{throughput_energy.mac_rate}--> MAC·s⁻¹ | throughput.py |
 | Throughput convention | 96 ops × 2 directions × 10 GBaud | throughput.py |
 | PUF arm-length spread | N(μ=0.08 µm, σ=0.11 µm) → phase N(0.76, 1.05) rad | ppuf.py |
@@ -617,7 +617,7 @@ chip-specific values below. These are the paper's numbers, used as inputs to the
 | PUF simulation (100 dies) | uniqueness 49.97%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.paper_uniqueness}-->, uniformity 50.15% | ppuf targets |
 | Switch crosstalk | −45 to <−20 dB at 1560 nm; <−15/−20 dB over >20 nm | switching targets |
 | On-chip insertion loss | −1.85<!--{switching.onchip_il_paper_range_db[1]}--> to −2.99<!--{switching.onchip_il_paper_range_db[0]}--> dB (8 measured paths) | switching comparison |
-| Design wavelengths | 1560 nm (matrix), 1555 nm (MRM), 1545 nm (grating peak) | all modules |
+| Design wavelengths | 1560<!--[lightin.coupler.LAMBDA0]--> nm (matrix), 1555<!--[lightin.coupler.LAMBDA_MRM]--> nm (MRM), 1545 nm (grating peak) | all modules |
 | MRM eye SNR / Q | 17.10 & 17.83 dB; Q 7.17–8.08 | mrm (hardware-only targets) |
 
 ### 6.1 Fig 4d digitized, and the coupler 3-dB wavelength decided by that data
@@ -935,7 +935,7 @@ the same material with the section reference for every item.
 **Chip and mesh**
 
 * The chip carries 20 optical ports, split equally between two opposite edges and coupled
-  through two fibre arrays, with the gratings spaced 222.22 µm apart (preprint §4.1;
+  through two fibre arrays, with the gratings spaced 222.22<!--[lightin.square_mesh.GRATING_SPACING_UM]--> µm apart (preprint §4.1;
   the fibre arrays are also mentioned in §2.1).
 * The chip footprint is 3.8 × 3 mm², and the mesh waveguides are 450 nm wide
   (preprint §4.1).
@@ -1019,7 +1019,7 @@ theorem about every wiring of the lattice.
 
 The preprint fixes the port count and placement -- 20 ports, ten on each of two opposite
 edges -- but not which boundary end each attaches to. `lightin/square_mesh.py` attaches a
-grating waveguide of a stated 250 um to each of 20 boundary ends, ten on the top edge and
+grating waveguide of a stated 250<!--[lightin.square_mesh.GRATING_WG_UM]--> um to each of 20 boundary ends, ten on the top edge and
 their half-turn images on the bottom, so that the set of 20 maps onto itself under the half
 turn. Which ten, and which pair is injected, are chosen by search on the stated criterion
 that every response pair should carry light. Under equal grating lengths that waveguide is
@@ -1062,6 +1062,13 @@ naming the module and attribute, as in `0.02<!--[lightin.switching.SIGMA_SPLIT]-
 value. Thirteen of the thirty-two rows are checked that way. The rest document a default
 argument or an inline literal, which has no module-level name to import, and are listed in
 [`docs/REPORT_UNCHECKED.md`](REPORT_UNCHECKED.md) with the reason.
+
+The same square-bracket markup is used outside that table, wherever this report states a
+value that a module holds under a name: the chip geometry the §6 table takes from the paper's
+Methods, the two design wavelengths, the grating pitch and waveguide length taken from the
+preprint, and the structural-zero threshold quoted in §3. Those are the paper's and the
+preprint's numbers, but they are also transcriptions, and the check is what keeps the
+transcription honest.
 
 Every row of that table, checked or not, names the file and line where its parameter lives,
 and `tests/test_source_lines_documented.py` reads each cited line and requires it to name
