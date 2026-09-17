@@ -66,6 +66,9 @@ documented value. They are not listed here:
 
 The remaining nineteen rows document a value that has no module-level name to import. Each
 row still records its own file, line and source, and several record that no source exists.
+The line citations of all thirty-two rows are checked by
+`tests/test_source_lines_documented.py`, which requires each cited line to name the
+parameter or carry the documented value; only the values of the nineteen are unchecked.
 
 | Value | Name as documented | Why it cannot be imported |
 |---|---|---|

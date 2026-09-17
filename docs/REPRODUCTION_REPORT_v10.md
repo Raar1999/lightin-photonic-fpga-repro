@@ -884,34 +884,34 @@ sample sizes (die, challenge and bootstrap counts) and defined physical constant
 | Parameter | Value | Used in | Source found |
 |---|---|---|---|
 | `DC_LAMBDA_3DB` | 1574.7<!--[lightin.coupler.DC_LAMBDA_3DB]--> nm | `coupler.py:27`; every coupler and switch spectrum | §6.1 — fit of `mesh_t20_model` to the 25<!--{fig4d_mesh_fit.n_points}--> points of `data/fig4d_T20_digitized.csv`, digitized from the paper's Fig 4d. Both fabrication spreads are assumed rather than fitted, so the fit is solved in one pass and refitting at the converged value reproduces it |
-| `DC_SLOPE` | 0.0026<!--[lightin.coupler.DC_SLOPE]--> rad/nm | `coupler.py:28`; the same spectra | §6.1 — the same fit; pairs bootstrap [0.00239<!--{fig4d_mesh_fit.slope_pairs_p05}-->, 0.00285<!--{fig4d_mesh_fit.slope_pairs_p95}-->] rad/nm |
-| `PROP_LOSS_DB_CM`, `alpha_db_cm`, `loss_db_cm` | 2.0<!--[lightin.coupler.PROP_LOSS_DB_CM]--> dB/cm | `coupler.py:38,111`; `recirculating.py:47,127,136,163,175,202,234,258` | `coupler.py` module docstring — 2.14 dB/cm (arXiv:2111.01792), 2.2 ± 0.8 dB/cm over 19 dies (arXiv:1203.0767), ~2 dB/cm (nanoph-2023-0836) |
-| `excess_loss_db` | 0.1 dB per coupler | `coupler.py:60,69`, called from `switching.py:60,95` | `coupler.py` module docstring — directional-coupler excess loss ~0.1–0.8 dB (Optica jlt-35-22-4916) |
-| `kappa0` (nominal split) | 0.5 | `coupler.py:49,60,69,88`; `switching.py:51` | no source recorded |
-| `peak_loss_db` | 4.4 dB | `coupler.py:105`; fibre-to-fibre link budget | `coupler.py` module docstring — ~4.4 dB grating-coupler insertion loss (arXiv:1203.0767) |
-| `bw_1p5db` | 45.0 nm | `coupler.py:105`; fibre-to-fibre link budget | `coupler.py` module docstring — ~45 nm 1.5-dB bandwidth (arXiv:1203.0767) |
-| `waveguide_cm` | 0.45 cm | `coupler.py:116`; fibre-to-fibre link budget | the paper's 4.5 mm on-chip path length, the same length the latency row uses; `DOCUMENT_SEARCH_LIST_superseded.md` marks n_g = 4.0 and 4.5 mm as exact from the paper. Not listed in the §6 table. |
-| `n_couplers_in_path` | 4 | `coupler.py:116`; fibre-to-fibre link budget | no source recorded |
-| `n_grating` | 2 | `coupler.py:117`; fibre-to-fibre link budget | no source recorded |
-| `DEMO_LAMBDA0` | 1560.0<!--[lightin.coupler.DEMO_LAMBDA0]--> nm | `coupler.py:41`; synthetic demo dataset only | no source recorded — §4.2 states it is deliberately independent of the chip fit and says nothing about this chip |
-| `DEMO_TRUE_KAPPA0` | 0.5<!--[lightin.coupler.DEMO_TRUE_KAPPA0]--> | `coupler.py:44`; synthetic demo dataset only | no source recorded |
-| `DEMO_TRUE_SLOPE` | 0.0042<!--[lightin.coupler.DEMO_TRUE_SLOPE]--> rad/nm | `coupler.py:45`; synthetic demo dataset only | no source recorded |
-| `DEMO_TRUE_QUAD` | −8e-6<!--[lightin.coupler.DEMO_TRUE_QUAD]--> rad/nm² | `coupler.py:46`; synthetic demo dataset only | no source recorded |
-| `FIG4D_FLOOR_DB` | −26.2<!--[lightin.switching.FIG4D_FLOOR_DB]--> dB | `switching.py:19`; recorded, not added to any reported crosstalk | §6.1 — fitted to the digitized Fig 4d alongside λ₀ and slope; §6.1 also states that its physical origin is not established |
-| `prop_db_per_stage` | 0.25 dB per stage | `switching.py:40,86,224`; on-chip insertion loss, all switch spectra | no source recorded |
+| `DC_SLOPE` | 0.0026<!--[lightin.coupler.DC_SLOPE]--> rad/nm | `coupler.py:32`; the same spectra | §6.1 — the same fit; pairs bootstrap [0.00239<!--{fig4d_mesh_fit.slope_pairs_p05}-->, 0.00285<!--{fig4d_mesh_fit.slope_pairs_p95}-->] rad/nm |
+| `PROP_LOSS_DB_CM`, `alpha_db_cm`, `loss_db_cm` | 2.0<!--[lightin.coupler.PROP_LOSS_DB_CM]--> dB/cm | `coupler.py:42,115`; `recirculating.py:47,156,165,192,204` | `coupler.py` module docstring — 2.14 dB/cm (arXiv:2111.01792), 2.2 ± 0.8 dB/cm over 19 dies (arXiv:1203.0767), ~2 dB/cm (nanoph-2023-0836) |
+| `excess_loss_db` | 0.1 dB per coupler | `coupler.py:64,73`, called from `switching.py:72,107` | `coupler.py` module docstring — directional-coupler excess loss ~0.1–0.8 dB (Optica jlt-35-22-4916) |
+| `kappa0` (nominal split) | 0.5 | `coupler.py:53,64,73,92`; `switching.py:63` | no source recorded |
+| `peak_loss_db` | 4.4 dB | `coupler.py:109`; fibre-to-fibre link budget | `coupler.py` module docstring — ~4.4 dB grating-coupler insertion loss (arXiv:1203.0767) |
+| `bw_1p5db` | 45.0 nm | `coupler.py:109`; fibre-to-fibre link budget | `coupler.py` module docstring — ~45 nm 1.5-dB bandwidth (arXiv:1203.0767) |
+| `waveguide_cm` | 0.45 cm | `coupler.py:120`; fibre-to-fibre link budget | the paper's 4.5 mm on-chip path length, the same length the latency row uses; `DOCUMENT_SEARCH_LIST_superseded.md` marks n_g = 4.0 and 4.5 mm as exact from the paper. Not listed in the §6 table. |
+| `n_couplers_in_path` | 4 | `coupler.py:120`; fibre-to-fibre link budget | no source recorded |
+| `n_grating` | 2 | `coupler.py:121`; fibre-to-fibre link budget | no source recorded |
+| `DEMO_LAMBDA0` | 1560.0<!--[lightin.coupler.DEMO_LAMBDA0]--> nm | `coupler.py:45`; synthetic demo dataset only | no source recorded — §4.2 states it is deliberately independent of the chip fit and says nothing about this chip |
+| `DEMO_TRUE_KAPPA0` | 0.5<!--[lightin.coupler.DEMO_TRUE_KAPPA0]--> | `coupler.py:48`; synthetic demo dataset only | no source recorded |
+| `DEMO_TRUE_SLOPE` | 0.0042<!--[lightin.coupler.DEMO_TRUE_SLOPE]--> rad/nm | `coupler.py:49`; synthetic demo dataset only | no source recorded |
+| `DEMO_TRUE_QUAD` | −8e-6<!--[lightin.coupler.DEMO_TRUE_QUAD]--> rad/nm² | `coupler.py:50`; synthetic demo dataset only | no source recorded |
+| `FIG4D_FLOOR_DB` | −26.2<!--[lightin.switching.FIG4D_FLOOR_DB]--> dB | `switching.py:31`; recorded, not added to any reported crosstalk | §6.1 — fitted to the digitized Fig 4d alongside λ₀ and slope; §6.1 also states that its physical origin is not established |
+| `prop_db_per_stage` | 0.25 dB per stage | `switching.py:52,65`; on-chip insertion loss, all switch spectra | no source recorded |
 | `SIGMA_SPLIT` | 0.02<!--[lightin.switching.SIGMA_SPLIT]-->, clipped to [0.3, 0.7] | `switching.py`; bar-state crosstalk | no source recorded — the digitized Fig 4e curve was fitted for it and the fitted value was not adopted, because the model does no better on those points than a constant and the result ranges over a factor of 4.6<!--{fig4e_fit.sensitivity.sigma_split_range_factor}--> with the ensemble percentile. 0.02<!--{cross_check.sigma_split}--> falls inside that range, so §6.1 records the panel as a consistency check on this value rather than a source for it |
 | `SIGMA_PHASE` | 0.02<!--[lightin.switching.SIGMA_PHASE]--> rad | `switching.py`; bar-state crosstalk | no source recorded — the Fig 4e curve constrains only the combination of the two spreads, so this one is held rather than fitted (§6.1) |
-| `ARM_LOSS_DB` | (0.0<!--[lightin.switching.ARM_LOSS_DB[0]]-->, 0.0<!--[lightin.switching.ARM_LOSS_DB[1]]-->) dB | `switching.py:172`; the MZI phase section | no source recorded |
+| `ARM_LOSS_DB` | (0.0<!--[lightin.switching.ARM_LOSS_DB[0]]-->, 0.0<!--[lightin.switching.ARM_LOSS_DB[1]]-->) dB | `switching.py:184`; the MZI phase section | no source recorded |
 | `MEAS_NOISE_SIGMA` | 0.01<!--[lightin.ppuf.MEAS_NOISE_SIGMA]--> rad per MZI | `ppuf.py:30`; PUF reliability | recorded in the code itself, `MEAS_NOISE_SOURCE`: "assumed value, not taken from the paper; reliability scales with it" |
-| `N` (PUF mesh ports) | 8 | `ppuf.py:57,68,99,162`; every PUF statistic | no source recorded |
+| `N` (PUF mesh ports) | 8 | `ppuf.py:57,68,100`; every PUF statistic | no source recorded |
 | `r` (ring self-coupling) | 0.92 | `mrm.py:20,29`; monitoring curve and extinction ratio | no source recorded — §6.2 records that the MRM ring is not tabulated in the paper; `DOCUMENT_SEARCH_LIST_superseded.md` DOC-3 lists r as a value to be obtained, and it was not obtained |
 | `a` (round-trip amplitude) | 0.90 | `mrm.py:20,29`; monitoring curve and extinction ratio | no source recorded — the same DOC-3 entry |
 | `data_swing` | 0.9 rad | `mrm.py:29`; the two symbol levels | no source recorded — DOC-3 lists the V_swing/V_π conversion as outstanding |
 | `bw` (eye one-pole bandwidth) | 0.45 per bit period | `mrm.py:65`; eye figure only | no source recorded — the eye is labelled illustrative |
 | `noise` (eye detector noise) | 0.02 a.u. | `mrm.py:65`; eye figure only | no source recorded — the same |
-| `ring_um` (all-pass validation ring) | 120.0 µm | `recirculating.py:127,136`; solver validation only | no source recorded — a validation geometry, not a chip value |
-| `ring_um` / `base_um` (add-drop and bus rings) | 600.0 µm | `recirculating.py:163,175,233,267`; solver validation and the comb figure | no source recorded — the same |
-| `detune` (ring-to-ring detuning) | 0.004 | `recirculating.py:233`; the comb figure | no source recorded — the same |
+| `ring_um` (all-pass validation ring) | 120.0 µm | `recirculating.py:156,165`; solver validation only | no source recorded — a validation geometry, not a chip value |
+| `ring_um` / `base_um` (add-drop and bus rings) | 600.0 µm | `recirculating.py:177,192,204,262,296`; solver validation and the comb figure | no source recorded — the same |
+| `detune` (ring-to-ring detuning) | 0.004 | `recirculating.py:262`; the comb figure | no source recorded — the same |
 | `N_RESTARTS` | 15<!--[lightin.nn_iris.N_RESTARTS]--> | `nn_iris.py:22`; every Iris accuracy | no source recorded |
 | `test_size` (Iris split) | 0.3 | `nn_iris.py:36`; every held-out Iris accuracy | no source recorded — §3 records that the paper's evaluation set is not established |
 | L2 penalty on the trained parameters (inline literal) | 1e-4 | `nn_iris.py:76`; every Iris accuracy | no source recorded |
@@ -1062,6 +1062,11 @@ naming the module and attribute, as in `0.02<!--[lightin.switching.SIGMA_SPLIT]-
 value. Thirteen of the thirty-two rows are checked that way. The rest document a default
 argument or an inline literal, which has no module-level name to import, and are listed in
 [`docs/REPORT_UNCHECKED.md`](REPORT_UNCHECKED.md) with the reason.
+
+Every row of that table, checked or not, names the file and line where its parameter lives,
+and `tests/test_source_lines_documented.py` reads each cited line and requires it to name
+the parameter or carry the documented value. Line numbers move when a module is edited, so
+without that check a citation can go stale silently while every other test stays green.
 
 `python -m pytest -q` takes about 50 seconds on this machine, because
 `test_fig4d_digitized_fit` calls only the two single fits (`fit_proxy` and `fit_mesh`) instead
