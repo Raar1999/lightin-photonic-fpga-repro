@@ -913,9 +913,9 @@ sample sizes (die, challenge and bootstrap counts) and defined physical constant
 | `ring_um` (all-pass validation ring) / `ALL_PASS_RING_UM` | 120.0<!--[lightin.recirculating.ALL_PASS_RING_UM]--> µm | `recirculating.py:23,160,169`; solver validation only | no source recorded — a validation geometry, not a chip value |
 | `ring_um` / `base_um` (add-drop and bus rings) / `ADD_DROP_RING_UM` | 600.0<!--[lightin.recirculating.ADD_DROP_RING_UM]--> µm | `recirculating.py:24,181,196,208,267,302`; solver validation and the comb figure | no source recorded — the same |
 | `detune` (ring-to-ring detuning) / `BUS_DETUNE` | 0.004<!--[lightin.recirculating.BUS_DETUNE]--> | `recirculating.py:25,267`; the comb figure | no source recorded — the same |
-| `N_RESTARTS` | 15<!--[lightin.nn_iris.N_RESTARTS]--> | `nn_iris.py:22`; every Iris accuracy | no source recorded |
-| `test_size` (Iris split) / `TEST_SIZE` | 0.3<!--[lightin.nn_iris.TEST_SIZE]--> | `nn_iris.py:23,38`; every held-out Iris accuracy | no source recorded — §3 records that the paper's evaluation set is not established |
-| L2 penalty on the trained parameters / `L2_PENALTY` | 1e-4<!--[lightin.nn_iris.L2_PENALTY]--> | `nn_iris.py:24,78`; every Iris accuracy | no source recorded |
+| `N_RESTARTS` | 15<!--[lightin.nn_iris.N_RESTARTS]--> | `nn_iris.py:24`; every Iris accuracy | no source recorded |
+| `test_size` (Iris split) / `TEST_SIZE` | 0.3<!--[lightin.nn_iris.TEST_SIZE]--> | `nn_iris.py:25,40`; every held-out Iris accuracy | no source recorded — §3 records that the paper's evaluation set is not established |
+| L2 penalty on the trained parameters / `L2_PENALTY` | 1e-4<!--[lightin.nn_iris.L2_PENALTY]--> | `nn_iris.py:26,80`; every Iris accuracy | no source recorded |
 
 Two of these carry more weight than the rest. The 0.25 dB per-stage propagation loss sets
 the on-chip insertion loss that §5 item 5 reports as low against the paper's measurement,

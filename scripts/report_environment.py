@@ -16,6 +16,8 @@ with its default restarts for the photonic layer, and `nn_iris.identity_control`
 Run directly:  python scripts/report_environment.py
 """
 
+import lightin._threads  # noqa: F401  (sets thread counts before numpy loads)
+
 import json
 import platform
 from importlib.metadata import version
@@ -39,5 +41,18 @@ def report():
     return out
 
 
+def machine():
+    """What the run landed on, which `report()` deliberately leaves out.
+
+    The accuracies are a property of the code and the library versions; the processor is
+    not, and `results.json` records one machine rather than every machine. It is printed
+    beside them because a hosted runner does not promise the same processor twice, and the
+    kernels numpy and OpenBLAS select depend on which one it is.
+    """
+    return {"processor": platform.processor() or "unknown",
+            "machine": platform.machine(),
+            "system": platform.system()}
+
+
 if __name__ == "__main__":
-    print(json.dumps(report()))
+    print(json.dumps({**report(), **machine()}))

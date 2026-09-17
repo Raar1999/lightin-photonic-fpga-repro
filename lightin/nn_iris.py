@@ -11,6 +11,8 @@ The trained unitary is realisable on the universal mesh (see lightin.unitary.fit
 i.e. it corresponds to a set of programmable MZI phases.
 """
 
+from lightin import _threads  # noqa: F401  (sets thread counts before numpy loads)
+
 import numpy as np
 from scipy.linalg import expm
 from scipy.optimize import minimize

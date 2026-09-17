@@ -7,6 +7,8 @@ writes results_quick.json and figures_quick/ so a quick run never overwrites the
 full one. Its numbers are noisier and are not the ones the report quotes.
 """
 
+import lightin._threads  # noqa: F401  (sets thread counts before numpy loads)
+
 import argparse
 import json
 import os
@@ -276,14 +278,27 @@ FLOOR_NOTE = ("phenomenological floor fitted to Fig 4d; the mesh model has no fl
 ENV_PACKAGES = ("numpy", "scipy", "scikit-learn", "matplotlib")
 
 
-def environment():
+def environment(iris=None):
     """Interpreter and package versions that produced this results.json.
 
-    The Iris accuracies move slightly with the scipy and scikit-learn versions, so the
-    numbers below are only reproducible against the versions recorded here.
+    The Iris accuracies are only reproducible against the versions recorded here, and
+    `seed0_reference` is what another machine compares itself against: the same four
+    seed-0 accuracies that `scripts/report_environment.py` prints, beside the versions
+    that produced them. They are taken from the Iris block rather than refitted, so the
+    two cannot disagree, and the CI jobs -- which resolve their own versions -- print the
+    same four keys for the same seed.
     """
     env = {"python_version": platform.python_version(), "platform": platform.platform()}
     env.update({pkg: version(pkg) for pkg in ENV_PACKAGES})
+    if iris is not None:
+        env["seed0_reference"] = {
+            "python": platform.python_version(),
+            **{pkg.replace("-", "_"): version(pkg) for pkg in ENV_PACKAGES},
+            "iris_full_acc": iris["full_acc"],
+            "iris_test_acc": iris["test_acc"],
+            "identity_full_acc": iris["identity_control"]["full_acc_per_seed"][0],
+            "logistic_full_acc": iris["logistic_baseline"]["full_acc_per_seed"][0],
+        }
     return env
 
 
@@ -889,7 +904,7 @@ def main(quick=False):
         "cross_check": xc,
         "recirculating": rc,
         "latency_on_chip_ps": propagation_latency(4.5e-3) * 1e12,
-        "environment": environment(),
+        "environment": environment(ir),
     }
     timings = close_sections()
     total = sum(t for _, t in timings)
