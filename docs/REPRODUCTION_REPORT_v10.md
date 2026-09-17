@@ -1063,6 +1063,18 @@ value. Thirteen of the thirty-two rows are checked that way. The rest document a
 argument or an inline literal, which has no module-level name to import, and are listed in
 [`docs/REPORT_UNCHECKED.md`](REPORT_UNCHECKED.md) with the reason.
 
+`python -m pytest -q` takes about 50 seconds on this machine, because
+`test_fig4d_digitized_fit` calls only the two single fits (`fit_proxy` and `fit_mesh`) instead
+of `fit_fig4.main()` with its bootstraps, `test_iris_accuracy` runs five random restarts rather
+than the fifteen the reported accuracies use, and every Fig 4e check runs at a few hundred
+fabrication realisations rather than 3200. The best restart is kept, so the test's accuracy is
+a lower bound on the reported one. A full `python scripts/run_all.py` takes about 22 minutes
+and prints a per-block runtime summary at the end; `python scripts/run_all.py --quick` runs the
+same pipeline with the Iris seed sweep cut to two seeds and every Fig 4d and Fig 4e bootstrap
+to 50 resamples, writing `results_quick.json` and `figures_quick/` so that a quick run never
+overwrites the reported outputs. Quick-mode numbers are noisier and are not the ones quoted
+here.
+
 When a number here disagrees with `results.json`, or with the module it documents, the
 document is what changes.
 
@@ -1070,42 +1082,17 @@ document is what changes.
 
 ## 7. Open items
 
-* `python -m pytest -q` takes about 50 seconds on this machine, because
-  `test_fig4d_digitized_fit` calls only the two single fits (`fit_proxy` and `fit_mesh`)
-  instead of `fit_fig4.main()` with its bootstraps, `test_iris_accuracy` runs five random
-  restarts rather than the fifteen the reported accuracies use, and every Fig 4e check
-  runs at a few hundred fabrication realisations rather than 3200. The best restart is
-  kept, so the test's accuracy is a lower bound on the reported one. A full `python
-  scripts/run_all.py` takes about 22 minutes and prints a per-block runtime summary at the
-  end; `python scripts/run_all.py --quick` runs the same pipeline with the Iris seed sweep
-  cut to two seeds and every Fig 4d and Fig 4e bootstrap to 50 resamples, writing
-  `results_quick.json` and `figures_quick/` so that a quick run never overwrites the
-  reported outputs. Quick-mode numbers are noisier and are not the ones quoted here.
-* The insertion-loss parameters in `switching.py` (0.25 dB per stage and 0.1 dB coupler
-  excess loss, both code constants rather than `results.json` values) have now been checked
-  against the paper's measured on-chip range. The model gives −1.40 to −1.80 dB over the
-  eight intended paths against the paper's measured −1.85 to −2.99 dB, so the two ranges do
-  not overlap and the model is optimistic by 0.45 dB at the least-lossy end and 1.19 dB at
-  the most-lossy end. The parameters were left unchanged, so the disagreement is on record
-  rather than tuned away.
+### 7.1 Limitations that cannot be resolved from the published material
+
 * The paper's Iris evaluation set is not established from the published values.
 * The coupler 3-dB wavelength carries a model-form uncertainty (3.6 nm between the proxy and
   mesh models) that the bootstrap intervals do not include.
-* The Iris accuracies depend on the installed scipy and scikit-learn versions: with
-  `nn_iris.py` unchanged, seed 0 currently yields a full-set accuracy of 95.33% where an
-  earlier environment recorded 94.67%. The environment is now pinned by
-  `requirements-lock.txt` and recorded in the `environment` block, but the size of that
-  variation across versions has not been measured, so how far the numbers move on another
-  stack remains unknown.
 * The −25 dB crosstalk floor in Fig 4d is modelled only as a fitted constant; whether it
   comes from the device (phase error, back-reflection, leakage paths) or from the
   measurement set-up is not established.
 * The rotational symmetry of the PUF design is reproduced from the preprint's description,
   but the specific MZI index groups shown in the paper's Fig. 5 were not read, so the orbit
   construction here may not match the chip's.
-* The population spread of the PUF metrics is reported across ten seeds; the die counts
-  used here (40 for the sweeps, 100 for the headline run) are smaller than a full
-  characterisation would use.
 * The vertex wiring of the recirculating mesh is a stated choice, not the paper's, and the
   search over it is exhaustive only over uniform rules (§6.5). Every recirculating-PUF number
   is conditional on that choice, mitigated but not removed by the two wirings agreeing to
@@ -1116,24 +1103,48 @@ document is what changes.
   one end and higher at the other, and the repository does not record the switch state,
   wavelength or path set behind that quoted range, so the two cannot be reconciled from
   what is available here.
+
+### 7.2 Disagreements on record
+
+* The insertion-loss parameters in `switching.py` (0.25 dB per stage and 0.1 dB coupler
+  excess loss, both code constants rather than `results.json` values) have now been checked
+  against the paper's measured on-chip range. The model gives −1.40 to −1.80 dB over the
+  eight intended paths against the paper's measured −1.85 to −2.99 dB, so the two ranges do
+  not overlap and the model is optimistic by 0.45 dB at the least-lossy end and 1.19 dB at
+  the most-lossy end. The parameters were left unchanged, so the disagreement is on record
+  rather than tuned away.
 * The chip's bar-state insertion loss falls monotonically with port index while the fabric
   model is symmetric under port reversal. Modelling the non-uniform grating-to-MZI
   waveguide sections described in the preprint would test whether those sections account
   for the difference.
+
+### 7.3 Work that would resolve or narrow an item above
+
+* The Iris accuracies depend on the installed scipy and scikit-learn versions: with
+  `nn_iris.py` unchanged, seed 0 currently yields a full-set accuracy of 95.33% where an
+  earlier environment recorded 94.67%. The environment is now pinned by `requirements-lock.txt`
+  and recorded in the `environment` block, but the size of that variation across versions has
+  not been measured, so how far the numbers move on another stack remains unknown. Measuring it
+  would also narrow the item on the paper's Iris evaluation set, by separating how much of the
+  difference from the published accuracies is the library stack.
+* The population spread of the PUF metrics is reported across ten seeds; the die counts
+  used here (40 for the sweeps, 100 for the headline run) are smaller than a full
+  characterisation would use.
 * Earlier report versions are not covered by the consistency test and are kept only as
   history.
 * Inline numeric literals that are documented in §6.3 but are not module-level constants
   are not covered by the constants test; promoting them to named constants would close
   that gap.
-* Twenty-three of the parameters in §6.3 have no source recorded anywhere in this
-  repository: the nominal 0.5 coupler split; `n_couplers_in_path` = 4 and `n_grating` = 2 in the link
+* Twenty-three of the parameters in §6.3 have no source recorded anywhere in this repository:
+  the nominal 0.5 coupler split; `n_couplers_in_path` = 4 and `n_grating` = 2 in the link
   budget; the four synthetic-demo constants `DEMO_LAMBDA0`, `DEMO_TRUE_KAPPA0`,
   `DEMO_TRUE_SLOPE` and `DEMO_TRUE_QUAD`; the 0.25 dB per-stage propagation loss; the two 0.02
-  fabrication spreads `SIGMA_SPLIT` and `SIGMA_PHASE`, and `ARM_LOSS_DB`, in
-  `switching.py`;
+  fabrication spreads `SIGMA_SPLIT` and `SIGMA_PHASE`, and `ARM_LOSS_DB`, in `switching.py`;
   the 8-port PUF mesh size; the MRM ring's `r` = 0.92, `a` = 0.90 and `data_swing` = 0.9
   together with the eye model's `bw` = 0.45 and `noise` = 0.02; the 120 µm and 600 µm
-  validation-ring lengths and the 0.004 ring detuning in `recirculating.py`; and
-  `N_RESTARTS` = 15, the 0.3 test fraction and the 1e-4 L2 penalty in `nn_iris.py`. Each is
-  a value someone chose. `MEAS_NOISE_SIGMA` is the one assumed parameter whose status is
-  already recorded in the code; the rest are not.
+  validation-ring lengths and the 0.004 ring detuning in `recirculating.py`; and `N_RESTARTS` =
+  15, the 0.3 test fraction and the 1e-4 L2 penalty in `nn_iris.py`. Each is a value someone
+  chose. `MEAS_NOISE_SIGMA` is the one assumed parameter whose status is already recorded in
+  the code; the rest are not. One of them, the 0.25 dB per-stage propagation loss, is a
+  parameter behind the insertion-loss disagreement above, so sourcing it would say whether that
+  gap is a parameter choice.

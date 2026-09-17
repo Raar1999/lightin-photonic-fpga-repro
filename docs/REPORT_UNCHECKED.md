@@ -192,8 +192,8 @@ are annotated and the surrounding N-formulae are not, and the percentile labels 
 ---
 
 Sections 1–8 above cover §2 to §6. §1 and §7 carry no `results.json` values: §1 is
-definitional and §7 is the open-items list, whose two runtimes are measurements of this
-machine rather than pipeline outputs.
+definitional and §7 is the open-items list. The two runtimes quoted where the test suite
+is described are measurements of this machine rather than pipeline outputs.
 
 ---
 
