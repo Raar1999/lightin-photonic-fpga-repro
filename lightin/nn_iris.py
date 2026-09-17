@@ -95,12 +95,16 @@ def train(seed=0, restarts=N_RESTARTS):
     N, n_classes = 4, 3
     rng = np.random.default_rng(seed)
     best = None
-    for _ in range(restarts):
+    best_index = None
+    tried = []
+    for k in range(restarts):
         p0 = rng.uniform(-1, 1, _n_params(N, n_classes))
         sol = minimize(_loss, p0, args=(Xtr, ytr, N, n_classes),
                        method="L-BFGS-B", options={"maxiter": 4000})
+        tried.append((k, sol))
         if best is None or sol.fun < best.fun:
             best = sol
+            best_index = k
     p = best.x
 
     def accuracy(Xset, yset):
@@ -117,6 +121,18 @@ def train(seed=0, restarts=N_RESTARTS):
         for pr in range(n_classes):
             cm[pr, t] = 100.0 * np.mean(pred_all[mask] == pr)
 
+    # Every restart, not only the winner. The optima are near-degenerate, so which one
+    # wins is what decides the reported accuracy, and that cannot be seen from the winner
+    # alone. Sorting is stable, so ties keep the order the loop saw them in and element 0
+    # is the restart the loop kept.
+    restarts_sorted = sorted(
+        ({"restart": k,
+          "objective": float(s.fun),
+          "full_acc": _accuracy(s.x, Xc, y, N, n_classes),
+          "test_acc": _accuracy(s.x, Xte, yte, N, n_classes)}
+         for k, s in tried),
+        key=lambda row: row["objective"])
+
     return {
         "train_acc": accuracy(Xtr, ytr),
         "test_acc": accuracy(Xte, yte),
@@ -124,6 +140,8 @@ def train(seed=0, restarts=N_RESTARTS):
         "confusion_percent": cm,
         "class_names": list(load_iris().target_names),
         "W": W,
+        "best_restart": best_index,
+        "restarts": restarts_sorted,
     }
 
 
