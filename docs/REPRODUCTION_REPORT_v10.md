@@ -16,9 +16,17 @@ values attributed to it can be checked only against a copy of the supplementary.
 
 `results.json` was generated on Python 3.11.9, Windows-10-10.0.26200-SP0, with numpy
 2.4.4, scipy 1.17.1, scikit-learn 1.9.0 and matplotlib 3.11.1 (the `environment` block;
-`requirements-lock.txt` pins those versions plus pytest 9.1.1). The Iris accuracies move
-slightly with the scipy and scikit-learn versions, so they are only reproducible against
-the versions recorded there.
+`requirements-lock.txt` pins those versions plus pytest 9.1.1).
+
+The determinism that claim rests on is scoped as follows. On the machine and versions named
+above, a full `python scripts/run_all.py` reproduces `results.json` byte for byte: all 971
+values, and the file's SHA-256, were unchanged by a regeneration. That is the only place
+byte-identical regeneration has been verified, and it is a statement about one machine.
+It does not extend to the hosted CI runners, where the seed-0 Iris accuracy was found to
+vary between runs of the same commit, by up to 1.33 points. The BLAS and OpenMP thread
+counts are now pinned to one (`lightin/_threads.py`) to remove one source of that variation;
+it did not remove it, and the CI accuracy still varies run to run. §7.3 records what is
+known and what is not. Every other number here was stable across every run made.
 
 ---
 
@@ -1119,6 +1127,9 @@ document is what changes.
 
 ## 7. Open items
 
+The reported Iris accuracies were produced with BLAS thread counts pinned to one; the values
+before pinning differed by up to 1.33 points between runs of the same code.
+
 ### 7.1 Limitations that cannot be resolved from the published material
 
 * The paper's Iris evaluation set is not established from the published values.
@@ -1157,53 +1168,54 @@ document is what changes.
 
 ### 7.3 Work that would resolve or narrow an item above
 
-* The Iris accuracies depend on the installed library versions, and measuring how much led
-  to a larger effect that was not known to be there. The second stack the measurement needed
-  was already running: the CI jobs install with `pip install -e .[dev]`, which resolves
-  against the lower bounds in `pyproject.toml` and not against `requirements-lock.txt`, so
-  each job picks its own versions of numpy, scipy, scikit-learn and matplotlib.
-  `scripts/report_environment.py` prints those versions and the seed-0 accuracies as one line
-  of JSON, and every job runs it after the test step, so the numbers appear in the log of
-  every run. On the pinned stack here -- Python 3.11.9 with numpy 2.4.4, scipy 1.17.1,
-  scikit-learn 1.9.0 and matplotlib 3.11.1 -- seed 0 gives a full-set accuracy of
-  95.33%<!--{environment.seed0_reference.iris_full_acc}-->, held out
+* The Iris accuracies depend on the installed library versions, and that dependence still
+  cannot be measured, because a larger effect sits on top of it: the seed-0 fit does not give
+  the same answer twice on a hosted runner. The CI jobs install with `pip install -e .[dev]`,
+  which resolves against the lower bounds in `pyproject.toml` and not against
+  `requirements-lock.txt`, so each job picks its own versions of numpy, scipy, scikit-learn
+  and matplotlib; `scripts/report_environment.py` prints those versions and the seed-0
+  accuracies as one line of JSON, and every job runs it after the test step. Running one
+  commit twice, with the BLAS and OpenMP thread counts pinned to one, gave a seed-0 full-set
+  accuracy of 96.00% then 94.67% on Python 3.11.16, 96.00% then 95.33% on 3.12.14, and 95.33%
+  both times on 3.13.15 -- two of the three jobs disagreed with themselves at identical
+  library versions, identical interpreter and identical code. The held-out, identity-control
+  and logistic-baseline accuracies were identical in every job of every run, so the
+  irreproducibility is confined to the one non-convex fit.
+* Where it comes from is not the thread count, which was the first hypothesis and is now
+  ruled out for this machine. All fifteen restart objectives of the seed-0 fit are
+  bit-identical here with the thread counts pinned and with them unset, and the accuracy is
+  95.33% on ten consecutive local runs across both conditions. The counts are pinned anyway,
+  because an execution setting that can reorder a floating-point reduction has no business
+  being left to whatever the machine happens to choose, but pinning them did not stop the
+  CI variation, and no claim is made that it would.
+* Two restarts of the Iris fit are near-tied in objective, so the reported accuracy depends
+  on which is selected; reporting the objective alongside the accuracy would make that
+  visible. The precise position is that the fit keeps the best of its restarts, and at seed 0
+  the best beats the second by 3.775e-04 in objective -- not a tie that rounding could break,
+  being some seven orders of magnitude above the 4e-17 that double precision affords at this
+  scale. The near-tie is one rank below: the third- and fourth-placed restarts sit 4.2e-06
+  apart and carry full-set accuracies of 96.00% and 94.67%, the two extremes CI reports. The
+  fifteen restarts converge to fifteen distinct optima whose accuracies span 94.00% to 96.00%,
+  so which one wins decides the reported number, and on a hosted runner something is moving
+  the optima themselves by enough to reorder them -- more than rounding, and not the threads.
+  What that is remains unidentified; `platform.processor()` returns only `x86_64` on those
+  runners, so the log does not say which processor a job landed on.
+* The item therefore stays open, and what remains unknown is now precise. The spread across
+  every CI observation is 1.33 points, larger than the
+  1.26<!--{iris.seed_sweep.full_acc_std|pct}-->-point seed-to-seed standard deviation reported
+  in §2, so a single-seed accuracy cannot be quoted to the hundredth of a point without naming
+  the machine. The version question itself is unanswerable while this holds: a between-version
+  difference cannot be separated from a between-run difference of the same size, and more CI
+  runs will not separate them. Answering it needs the fit made reproducible across machines
+  first -- which pinning the threads did not achieve -- or else replaced by a fit that does not
+  select among near-degenerate optima. On this machine none of it is visible: the full pipeline
+  regenerates `results.json` byte for byte, and seed 0 gives a full-set accuracy of
+  95.33%<!--{environment.seed0_reference.iris_full_acc}--> with held out
   93.33%<!--{environment.seed0_reference.iris_test_acc}-->, identity control
   86.00%<!--{environment.seed0_reference.identity_full_acc}--> and logistic baseline
-  95.33%<!--{environment.seed0_reference.logistic_full_acc}-->, and three consecutive runs on
-  this machine gave that line unchanged. CI resolved Python 3.11.16 with numpy 2.4.6, scipy
-  1.17.1, scikit-learn 1.9.1 and matplotlib 3.11.2, and Python 3.12.14 and 3.13.15 both with
-  numpy 2.5.3, scipy 1.18.1, scikit-learn 1.9.1 and matplotlib 3.11.2. Over four runs, which
-  differ from one another only in this document and not at all in `nn_iris.py`, those jobs
-  gave full-set accuracies of 94.67%, 94.67%, 96.00% and 94.67% on 3.11; 95.33% every time on
-  3.12; and 96.00%, 95.33%, 95.33% and 95.33% on 3.13. Two of the four are one commit run
-  twice, and it is that pair on which 3.11 gave first 94.67% and then 96.00%. The held-out,
-  identity-control and logistic-baseline accuracies were identical on every stack and every
-  run.
-* The largest spread in seed-0 full-set accuracy between any two of those observations is
-  1.33 points -- and the same 1.33 points separates the two runs of that one commit on Python
-  3.11.16, at library versions, interpreter and code all unchanged. The between-stack differences are
-  therefore not separable from the run-to-run ones, and what the exercise measured is not
-  version drift but the fit's own irreproducibility on those machines. Only three values ever
-  appear, 94.67%, 95.33% and 96.00%, which are 142, 143 and 144 of the 150 samples, so what
-  moves is one or two samples changing class. The available explanation is the fit: `train`
-  keeps the best of a set of random restarts of a non-convex L-BFGS-B optimisation, and if
-  the leading restarts are close in loss, last-bit differences in multithreaded BLAS
-  reductions -- which vary with a runner's core count and with what else is on it -- suffice
-  to change which restart wins. That is consistent with the observations and is not
-  established by them. The test is to pin the BLAS thread count in the job and see whether
-  the variation stops; this machine, where the thread count and the hardware do not change
-  between runs, cannot perform it.
-* The item therefore stays open, and what is unknown about it has changed. The 1.33-point
-  spread is larger than the 1.26<!--{iris.seed_sweep.full_acc_std|pct}-->-point seed-to-seed
-  standard deviation reported in §2, so a single-seed accuracy still cannot be quoted to the
-  hundredth of a point without naming the machine that produced it. But the original question
-  -- how far the numbers move on a different version stack -- is not answered, because an
-  effect of the same size sits on top of the version difference, and no number of CI runs
-  separates the two. Separating them requires the fit to be made reproducible first, by
-  pinning the thread count, and only then a matrix that varies one library at a time against
-  a fixed interpreter. One thing the exercise does settle is the 94.67% an earlier environment
-  here recorded, which this report could not reconstruct: unchanged code in CI reaches it, so
-  it is a value this fit can land on rather than a fingerprint of a lost library stack.
+  95.33%<!--{environment.seed0_reference.logistic_full_acc}--> on every run made. Those four
+  are the `environment.seed0_reference` block, which the pipeline writes from the Iris block
+  it has just computed, and which a CI job prints for itself under the same four names.
 * The population spread of the PUF metrics is reported across ten seeds; the die counts
   used here (40 for the sweeps, 100 for the headline run) are smaller than a full
   characterisation would use. Enlarging them is bounded by runtime rather than by method:

@@ -197,9 +197,10 @@ is unchecked there is the drift measurement itself, because it is not a pipeline
 | Value | Sections | What it is |
 |---|---|---|
 | 3.11.16, 3.12.14, 3.13.15, and the numpy, scipy, scikit-learn and matplotlib versions beside them | §7.3 | the versions the CI jobs resolved, read out of the job log. `results.json` records the pinned stack this machine ran, not another one |
-| 94.67%, 95.33%, 96.00% where they are the CI full-set accuracies | §7.3 | the seed-0 accuracies those jobs printed over four CI runs, from the same log |
-| 1.33 (points) | §7.3 | the largest difference between two of those accuracies |
-| 142, 143, 144, 150 | §7.3 | the sample counts those three percentages correspond to, arithmetic on the Iris set size |
+| 94.00%, 94.67%, 95.33%, 96.00% where they are CI accuracies or the accuracies of individual restarts | §7.3 | the seed-0 accuracies the jobs printed, and the span of the fifteen restarts, neither of which `results.json` stores — it keeps the winning restart's accuracy, not the losers' |
+| 1.33 (points) | §7, §7.3, preamble | the largest difference between two of those accuracies |
+| 3.775e-04, 4.2e-06, 4e-17 | §7.3 | the objective gaps between the ranked restarts of the seed-0 fit, and double precision at that scale. Measured by running the restarts individually, which the pipeline does not do |
+| 971 | preamble | the number of leaf values in `results.json`, a count of the file rather than a value in it |
 
 The two runtimes quoted where the test suite is described are measurements of this machine
 rather than pipeline outputs.
