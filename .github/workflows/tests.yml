@@ -5,6 +5,14 @@ on: [push, pull_request]
 jobs:
   tests:
     runs-on: ubuntu-latest
+    # OpenBLAS is built DYNAMIC_ARCH and picks its kernel from whatever processor the
+    # runner turns out to have, so the same job can execute different arithmetic on
+    # different runs. Fixing the core type fixes the kernel, so the fit does not depend
+    # on which runner generation executes it. Haswell is the choice because every runner
+    # generation seen here supports it, Intel and AMD alike, and it is the kernel the
+    # machine that produced results.json uses.
+    env:
+      OPENBLAS_CORETYPE: Haswell
     strategy:
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
