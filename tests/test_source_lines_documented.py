@@ -4,12 +4,11 @@ The file:line citations in the §6.3 parameter table must still point at their p
 Run directly:  PYTHONPATH=. python3 tests/test_source_lines_documented.py
 Or with pytest: PYTHONPATH=. pytest -q
 
-`tests/test_constants_documented.py` checks the thirteen rows whose value is a module-level
-constant, by importing it. The other nineteen rows document a default argument or an inline
-literal, which has no name to import, and all thirty-two rows carry a "Used in" cell naming
-the file and line where the parameter lives. Nothing checked those line numbers, so they
-drifted: every citation into `recirculating.py` pointed into the solver, and `FIG4D_FLOOR_DB`
-pointed at `SIGMA_SPLIT`.
+`tests/test_constants_documented.py` checks each row's value by importing the constant it
+names. Every one of the thirty-three rows also carries a "Used in" cell naming the file and
+line where the parameter lives, and nothing checked those line numbers, so they drifted:
+every citation into `recirculating.py` pointed into the solver, and `FIG4D_FLOOR_DB` pointed
+at `SIGMA_SPLIT`.
 
 A cited line passes if it names the row's parameter or carries the row's documented value.
 The parameter names are the backticked identifiers in the Parameter column. A name shorter

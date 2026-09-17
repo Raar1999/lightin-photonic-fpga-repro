@@ -34,7 +34,7 @@ supplementary, not from any computation in this repository.
 | 1.92, 1.875 | §2 | the paper's throughput and energy, in the "Paper value" column |
 | 17–18 dB, Q 7–8, 17.10, 17.83, 7.17, 8.08 | §2, §6 | the paper's eye-diagram SNR and Q |
 | 3, 96, 4.5 | §6 | the §6 paper-input table: the heater drive, the op count and the on-chip path length. The eight geometry values of that table -- the two indices, the coupler length, gap and width, the mesh side, the arm length and the heater length -- are transcribed into `coupler.py` as module-level constants, so each now carries a square-bracket comment and `tests/test_constants_documented.py` checks it |
-| 1560, 1555, 1545 | §2, §3, §4, §5, §6 | the paper's design wavelengths. Where the §6 table states them as the design values they are checked against `coupler.LAMBDA0` and `coupler.LAMBDA_MRM`; the grating peak has no module-level name, and neither do the restatements elsewhere |
+| 1560, 1555, 1545 | §2, §3, §4, §5, §6 | the paper's design wavelengths. Where the §6 table states them as the design values all three are checked, against `coupler.LAMBDA0`, `coupler.LAMBDA_MRM` and `coupler.GRATING_LAMBDA_PEAK_NM`; the restatements elsewhere carry no comment |
 | 0.08, 0.11, 0.76, 1.05 | §3, §6 | the paper's PUF arm-length spread and the phase it implies |
 | 49.97% where it appears in a "paper value" column with no adjacent published column | §2, §6 | see §2 below — the value *is* in `results.json` and is annotated wherever it is the repository's copy of it |
 
@@ -56,11 +56,11 @@ model output.
 
 Nothing is listed here. These are inputs to the model, not outputs of it, so `results.json`
 does not carry them and `tests/test_report_consistency.py` cannot reach them. Every one of
-the thirty-two rows now names a constant defined at module level, carries a square-bracket
+the thirty-three rows now names a constant defined at module level, carries a square-bracket
 comment naming the module and attribute, and is imported and compared by
 `tests/test_constants_documented.py`.
 
-Nineteen of those constants were default arguments or inline literals with no name to
+Twenty of those constants were default arguments or inline literals with no name to
 import. Each was given one -- `DC_EXCESS_LOSS_DB`, `DC_KAPPA0_NOMINAL`,
 `GRATING_PEAK_LOSS_DB`, `GRATING_BW_1P5DB_NM`, `LINK_WAVEGUIDE_CM`, `LINK_N_COUPLERS`,
 `LINK_N_GRATING`, `PROP_DB_PER_STAGE`, `N_PORTS`, `RING_R`, `RING_A`, `DATA_SWING_RAD`,
@@ -73,7 +73,7 @@ Where a row names more than one thing -- `PROP_LOSS_DB_CM`, `alpha_db_cm` and `l
 all 2.0 dB/cm -- the row is checked through the module-level name, and the others are
 default arguments carrying the same value.
 
-The line citations of all thirty-two rows are checked by
+The line citations of all thirty-three rows are checked by
 `tests/test_source_lines_documented.py`, which requires each cited line to name the
 parameter or carry the documented value.
 

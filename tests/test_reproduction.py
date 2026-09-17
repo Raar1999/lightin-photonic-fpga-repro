@@ -127,6 +127,25 @@ def test_coupler_3db_at_fitted_wavelength():
     assert coupler.extinction_ratio_db(1520.0) < 30.0
 
 
+def test_nominal_split_is_the_three_db_point():
+    """The nominal coupler split is not a free choice: it is what "3 dB" means.
+
+    §6.3 records the 3-dB definition as the source of `DC_KAPPA0_NOMINAL`, which is the
+    only one of the parameters §6.3 had recorded as unsourced that turned out to have one.
+    This test is
+    what makes that record falsifiable: 0.5 is half the power, and `DC_LAMBDA_3DB` is
+    named for the wavelength where this coupler reaches it. Change the split away from 0.5
+    and the source stops being true, whatever the table still says.
+
+    `test_coupler_3db_at_fitted_wavelength` above checks the fit against the literal 0.5
+    and so would not notice the constant moving; this checks the constant itself.
+    """
+    from lightin import coupler, switching
+    assert 10 * np.log10(coupler.DC_KAPPA0_NOMINAL) == pytest.approx(-3.0, abs=0.02)
+    # switching draws its nominal split from the same constant, so the two cannot diverge
+    assert switching.DC_KAPPA0_NOMINAL == coupler.DC_KAPPA0_NOMINAL
+
+
 def test_coupler_dispersion_fit():
     from lightin import coupler
     lam, k = coupler._demo_measured_dataset(seed=3)

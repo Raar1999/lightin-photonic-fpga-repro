@@ -617,7 +617,7 @@ chip-specific values below. These are the paper's numbers, used as inputs to the
 | PUF simulation (100 dies) | uniqueness 49.97%<!--{ppuf_recirc.vs_feedforward.paired_uniqueness.paper_uniqueness}-->, uniformity 50.15% | ppuf targets |
 | Switch crosstalk | −45 to <−20 dB at 1560 nm; <−15/−20 dB over >20 nm | switching targets |
 | On-chip insertion loss | −1.85<!--{switching.onchip_il_paper_range_db[1]}--> to −2.99<!--{switching.onchip_il_paper_range_db[0]}--> dB (8 measured paths) | switching comparison |
-| Design wavelengths | 1560<!--[lightin.coupler.LAMBDA0]--> nm (matrix), 1555<!--[lightin.coupler.LAMBDA_MRM]--> nm (MRM), 1545 nm (grating peak) | all modules |
+| Design wavelengths | 1560<!--[lightin.coupler.LAMBDA0]--> nm (matrix), 1555<!--[lightin.coupler.LAMBDA_MRM]--> nm (MRM), 1545<!--[lightin.coupler.GRATING_LAMBDA_PEAK_NM]--> nm (grating peak) | all modules |
 | MRM eye SNR / Q | 17.10 & 17.83 dB; Q 7.17–8.08 | mrm (hardware-only targets) |
 
 ### 6.1 Fig 4d digitized, and the coupler 3-dB wavelength decided by that data
@@ -887,9 +887,10 @@ sample sizes (die, challenge and bootstrap counts) and defined physical constant
 | `DC_SLOPE` | 0.0026<!--[lightin.coupler.DC_SLOPE]--> rad/nm | `coupler.py:32`; the same spectra | §6.1 — the same fit; pairs bootstrap [0.00239<!--{fig4d_mesh_fit.slope_pairs_p05}-->, 0.00285<!--{fig4d_mesh_fit.slope_pairs_p95}-->] rad/nm |
 | `PROP_LOSS_DB_CM`, `alpha_db_cm`, `loss_db_cm` | 2.0<!--[lightin.coupler.PROP_LOSS_DB_CM]--> dB/cm | `coupler.py:42,129`; `recirculating.py:51,160,196` | `coupler.py` module docstring — 2.14 dB/cm (arXiv:2111.01792), 2.2 ± 0.8 dB/cm over 19 dies (arXiv:1203.0767), ~2 dB/cm (nanoph-2023-0836) |
 | `excess_loss_db` / `DC_EXCESS_LOSS_DB` | 0.1<!--[lightin.coupler.DC_EXCESS_LOSS_DB]--> dB per coupler | `coupler.py:46,75,85`, called from `switching.py:76,111` | `coupler.py` module docstring — directional-coupler excess loss ~0.1–0.8 dB (Optica jlt-35-22-4916) |
-| `kappa0` (nominal split) / `DC_KAPPA0_NOMINAL` | 0.5<!--[lightin.coupler.DC_KAPPA0_NOMINAL]--> | `coupler.py:45,63,74,84,104`; `switching.py:67` | no source recorded |
+| `kappa0` (nominal split) / `DC_KAPPA0_NOMINAL` | 0.5<!--[lightin.coupler.DC_KAPPA0_NOMINAL]--> | `coupler.py:45,63,74,84,104`; `switching.py:67` | the 3-dB definition: 0.5 is half the power, and `DC_LAMBDA_3DB` is the wavelength at which this coupler reaches it (§6.1). `coupler.py`'s module docstring records that a 3-dB straight coupler is 50:50 at one wavelength only, and `tests/test_reproduction.py::test_nominal_split_is_the_three_db_point` holds the two together |
 | `peak_loss_db` / `GRATING_PEAK_LOSS_DB` | 4.4<!--[lightin.coupler.GRATING_PEAK_LOSS_DB]--> dB | `coupler.py:47,122`; fibre-to-fibre link budget | `coupler.py` module docstring — ~4.4 dB grating-coupler insertion loss (arXiv:1203.0767) |
 | `bw_1p5db` / `GRATING_BW_1P5DB_NM` | 45.0<!--[lightin.coupler.GRATING_BW_1P5DB_NM]--> nm | `coupler.py:49,123`; fibre-to-fibre link budget | `coupler.py` module docstring — ~45 nm 1.5-dB bandwidth (arXiv:1203.0767) |
+| `lam_peak` / `GRATING_LAMBDA_PEAK_NM` | 1545<!--[lightin.coupler.GRATING_LAMBDA_PEAK_NM]--> nm | `coupler.py:48,123,126`; fibre-to-fibre link budget | `coupler.py` module docstring — grating-coupler peak ~1545 nm (arXiv:1203.0767); the paper's third design wavelength |
 | `waveguide_cm` / `LINK_WAVEGUIDE_CM` | 0.45<!--[lightin.coupler.LINK_WAVEGUIDE_CM]--> cm | `coupler.py:50,134`; fibre-to-fibre link budget | the paper's 4.5 mm on-chip path length, the same length the latency row uses; `DOCUMENT_SEARCH_LIST_superseded.md` marks n_g = 4.0 and 4.5 mm as exact from the paper. Not listed in the §6 table. |
 | `n_couplers_in_path` / `LINK_N_COUPLERS` | 4<!--[lightin.coupler.LINK_N_COUPLERS]--> | `coupler.py:51,135`; fibre-to-fibre link budget | no source recorded |
 | `n_grating` / `LINK_N_GRATING` | 2<!--[lightin.coupler.LINK_N_GRATING]--> | `coupler.py:52,136`; fibre-to-fibre link budget | no source recorded |
@@ -1059,7 +1060,7 @@ police it: that file records what the model produced, not the constants the mode
 A row of that table whose name is a module-level constant carries a square-bracket comment
 naming the module and attribute, as in `0.02<!--[lightin.switching.SIGMA_SPLIT]-->`, and
 `tests/test_constants_documented.py` imports each one and compares it with the documented
-value. All thirty-two rows are checked that way. Nineteen of them were default arguments or inline
+value. All thirty-three rows are checked that way. Twenty of them were default arguments or inline
 literals with no name to import; each was given one and the defaults and call sites now
 reference it, so the row names both the argument and the constant. Naming them changed no
 value -- it is what brought them inside the check.
@@ -1165,8 +1166,8 @@ document is what changes.
   be the one the suite checks, so a new version cannot be left unchecked while the suite
   goes on verifying the old one. What stays unguarded is the content of the superseded
   files themselves, which nothing reads.
-* Twenty-three of the parameters in §6.3 have no source recorded anywhere in this repository:
-  the nominal 0.5 coupler split; `n_couplers_in_path` = 4 and `n_grating` = 2 in the link
+* Twenty-two of the parameters in §6.3 have no source recorded anywhere in this repository:
+  `n_couplers_in_path` = 4 and `n_grating` = 2 in the link
   budget; the four synthetic-demo constants `DEMO_LAMBDA0`, `DEMO_TRUE_KAPPA0`,
   `DEMO_TRUE_SLOPE` and `DEMO_TRUE_QUAD`; the 0.25 dB per-stage propagation loss; the two 0.02
   fabrication spreads `SIGMA_SPLIT` and `SIGMA_PHASE`, and `ARM_LOSS_DB`, in `switching.py`;
