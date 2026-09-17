@@ -16,8 +16,14 @@ for illustration and are not claimed to match the measured values.
 
 import numpy as np
 
+RING_R = 0.92        # ring self-coupling coefficient
+RING_A = 0.90        # round-trip amplitude transmission
+DATA_SWING_RAD = 0.9 # rad, peak-to-peak detuning swing between the two symbols
+EYE_BW = 0.45        # one-pole receiver bandwidth, per bit period
+EYE_NOISE = 0.02     # a.u., detector noise added to the eye traces
 
-def mrm_through(detuning, r=0.92, a=0.90):
+
+def mrm_through(detuning, r=RING_R, a=RING_A):
     """All-pass micro-ring through-port complex transmission vs round-trip detuning phi.
 
     t = (r - a e^{i*phi}) / (1 - r a e^{i*phi}),  phi = detuning (radians).
@@ -26,7 +32,7 @@ def mrm_through(detuning, r=0.92, a=0.90):
     return (r - a * e) / (1 - r * a * e)
 
 
-def symbol_fields(bias, data_swing=0.9, r=0.92, a=0.90):
+def symbol_fields(bias, data_swing=DATA_SWING_RAD, r=RING_R, a=RING_A):
     """Optical fields for logic '1' and '0' at a given heater bias (center detuning)."""
     E1 = mrm_through(bias + data_swing / 2, r, a)
     E0 = mrm_through(bias - data_swing / 2, r, a)
@@ -62,7 +68,7 @@ def sweep_bias(bias_range=(-1.2, 1.2), n=400, **kw):
     return {"bias": bias, "monitoring": mon, "er_db": er, "lock_bias": float(lock_bias)}
 
 
-def eye_data(bias, n_bits=600, sps=32, bw=0.45, noise=0.02, seed=0, **kw):
+def eye_data(bias, n_bits=600, sps=32, bw=EYE_BW, noise=EYE_NOISE, seed=0, **kw):
     """Model NRZ eye: bit stream -> ring -> bandwidth-limited -> overlaid traces."""
     rng = np.random.default_rng(seed)
     bits = rng.integers(0, 2, n_bits)

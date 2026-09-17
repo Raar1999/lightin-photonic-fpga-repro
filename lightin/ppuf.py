@@ -25,6 +25,7 @@ import numpy as np
 from .puc import puc_matrix, embed
 from .metrics import hamming_distance
 
+N_PORTS = 8         # ports of the feed-forward PUF mesh
 TIE_TOL = 1e-12     # intensity difference below this is a tie, not a decided bit
 
 MEAS_NOISE_SIGMA = 0.01   # rad, per-MZI phase noise added on each re-measurement
@@ -54,7 +55,7 @@ def n_mzi(N):
     return N * (N - 1) // 2
 
 
-def _intensities(challenge, eps, N=8, meas_noise=0.0, rng=None):
+def _intensities(challenge, eps, N=N_PORTS, meas_noise=0.0, rng=None):
     """Output intensities of one die for equal-power injection at ports 0 and N-1."""
     noise = 0.0
     if meas_noise and rng is not None:
@@ -65,7 +66,7 @@ def _intensities(challenge, eps, N=8, meas_noise=0.0, rng=None):
     return np.abs(v) ** 2
 
 
-def response(challenge, eps, N=8, meas_noise=0.0, rng=None):
+def response(challenge, eps, N=N_PORTS, meas_noise=0.0, rng=None):
     """One response from one die: theta = pi*challenge + eps (+ measurement noise).
 
     "Two equal-power lights enter diagonal ports" (module docstring), so the output
@@ -97,7 +98,7 @@ def phase_stats_from_arm_length(mu_um=-0.08, sigma_um=0.11, n_eff=2.36, lam_nm=1
     return mu_um * rad_per_um, sigma_um * rad_per_um
 
 
-def evaluate(n_dies=100, n_challenges=128, N=8, sigma_phase=None, mu_phase=None,
+def evaluate(n_dies=100, n_challenges=128, N=N_PORTS, sigma_phase=None, mu_phase=None,
              meas_noise=MEAS_NOISE_SIGMA, n_meas=5, seed=0):
     """Compute uniqueness, uniformity, reliability and tie fraction over simulated dies.
 
@@ -160,7 +161,7 @@ def evaluate(n_dies=100, n_challenges=128, N=8, sigma_phase=None, mu_phase=None,
     }
 
 
-def pair_class_fractions(sigma_phase, n_dies=40, n_challenges=64, N=8, mu_phase=0.0,
+def pair_class_fractions(sigma_phase, n_dies=40, n_challenges=64, N=N_PORTS, mu_phase=0.0,
                          seed=1, lit=0.1, dark=0.01):
     """Classify the compared pairs (2i, 2i+1) by their noise-free intensities.
 

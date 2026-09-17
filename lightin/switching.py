@@ -14,7 +14,10 @@ which depend on this chip's couplers.
 
 import numpy as np
 from .coupler import (mzi_single_theta, link_budget_db, LAMBDA0,
-                      DC_LAMBDA_3DB, DC_SLOPE)
+                      DC_LAMBDA_3DB, DC_SLOPE, DC_KAPPA0_NOMINAL,
+                      DC_EXCESS_LOSS_DB)
+
+PROP_DB_PER_STAGE = 0.25   # dB, propagation loss charged to one mesh stage
 
 SIGMA_SPLIT = 0.02     # assumed; consistent with the Fig 4e range 0.0152-0.0707
 # (report §6, fig4e_fit.sensitivity), which does not determine it. The digitized Fig 4e
@@ -49,7 +52,8 @@ def _embed(T2, m, n, N):
     return U
 
 
-def fabric_matrix(state, lam, N=4, kappa0s=None, prop_db_per_stage=0.25,
+def fabric_matrix(state, lam, N=4, kappa0s=None,
+                  prop_db_per_stage=PROP_DB_PER_STAGE,
                   lam0=None, slope=None):
     """NxN field transfer for an all-'cross'/'bar' config using dispersive couplers.
 
@@ -60,7 +64,7 @@ def fabric_matrix(state, lam, N=4, kappa0s=None, prop_db_per_stage=0.25,
     slope = DC_SLOPE if slope is None else slope
     n_mzi = N * (N - 1) // 2
     if kappa0s is None:
-        kappa0s = np.full(n_mzi, 0.5)
+        kappa0s = np.full(n_mzi, DC_KAPPA0_NOMINAL)
     theta = THETA_CROSS if state == "cross" else THETA_BAR
     amp = 10 ** (-prop_db_per_stage / 20.0)
     U = np.eye(N, dtype=complex)
@@ -69,7 +73,7 @@ def fabric_matrix(state, lam, N=4, kappa0s=None, prop_db_per_stage=0.25,
         L = np.eye(N, dtype=complex)
         for (m, n) in _layer_pairs(N, layer):
             M = mzi_single_theta(theta, lam, kappa0=kappa0s[k], slope=slope,
-                                 excess_loss_db=0.1, lam0=lam0)
+                                 excess_loss_db=DC_EXCESS_LOSS_DB, lam0=lam0)
             L = _embed(M, m, n, N) @ L
             k += 1
         U = (amp * L) @ U
@@ -95,7 +99,7 @@ def power_spectra(state, lambdas, N=4, seed=0, lam0=None, slope=None):
     kappa_b = np.clip(rng.normal(0.5, SIGMA_SPLIT, size=n_mzi), 0.3, 0.7)  # fabricated couplers
     arm_err = rng.normal(0, SIGMA_PHASE, size=n_mzi)                       # arm phase imbalance
     theta = THETA_CROSS if state == "cross" else THETA_BAR
-    amp = 10 ** (-0.25 / 20.0)
+    amp = 10 ** (-PROP_DB_PER_STAGE / 20.0)
     T = np.zeros((N, N, len(lambdas)))
     for li, lam in enumerate(lambdas):
         U = np.eye(N, dtype=complex)
@@ -104,7 +108,7 @@ def power_spectra(state, lambdas, N=4, seed=0, lam0=None, slope=None):
             L = np.eye(N, dtype=complex)
             for (m, n) in _layer_pairs(N, layer):
                 M = mzi_single_theta(theta, lam, kappa0=kappa_a[k], slope=slope,
-                                     excess_loss_db=0.1, kappa0_b=kappa_b[k],
+                                     excess_loss_db=DC_EXCESS_LOSS_DB, kappa0_b=kappa_b[k],
                                      arm_phase_err=arm_err[k], lam0=lam0)
                 L = _embed(M, m, n, N) @ L
                 k += 1
@@ -191,7 +195,7 @@ ARM_LOSS_DB = (0.0, 0.0)   # per-arm loss of the MZI phase section, both arms
 
 def _cell_variant(theta, lam, kappa0_a, kappa0_b, arm_phase_err,
                   arm_loss_db=ARM_LOSS_DB, ideal_coupler=False,
-                  excess_loss_db=0.1, slope=None, lam0=None):
+                  excess_loss_db=DC_EXCESS_LOSS_DB, slope=None, lam0=None):
     """One switch cell with each leakage term separately overridable.
 
     Reproduces coupler.mzi_single_theta exactly under its defaults (asserted in
@@ -240,7 +244,7 @@ def _center_range_with_arm_loss(state, arm_loss_db, lambdas=None, N=4, seed=0):
         lambdas = np.linspace(1530, 1565, 141)
     kappa_a, kappa_b, arm_err = _cell_draws(N, seed)
     theta = THETA_CROSS if state == "cross" else THETA_BAR
-    amp = 10 ** (-0.25 / 20.0)
+    amp = 10 ** (-PROP_DB_PER_STAGE / 20.0)
     center = int(np.argmin(np.abs(lambdas - LAMBDA0)))
     lam = float(lambdas[center])
     U = np.eye(N, dtype=complex)

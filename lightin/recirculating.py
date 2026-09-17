@@ -20,6 +20,10 @@ intricate) wiring is correct.
 import numpy as np
 from .puc import puc_matrix
 
+ALL_PASS_RING_UM = 120.0   # um, ring length of the all-pass solver validation
+ADD_DROP_RING_UM = 600.0   # um, ring length of the add-drop and bus validations
+BUS_DETUNE = 0.004         # fractional ring-length spread across the bus comb
+
 C_LIGHT = 2.99792458e8
 
 
@@ -153,7 +157,7 @@ class Circuit:
 # ---------------------------------------------------------------------------
 # Validation circuit 1: single ring resonator
 # ---------------------------------------------------------------------------
-def all_pass_ring(r, ring_um=120.0, n_eff=2.36, loss_db_cm=2.0):
+def all_pass_ring(r, ring_um=ALL_PASS_RING_UM, n_eff=2.36, loss_db_cm=2.0):
     """1-PUC all-pass ring (textbook coupler, self-coupling r): bus in -> through out."""
     c = Circuit(n_eff=n_eff, loss_db_cm=loss_db_cm)
     c.add_puc(0, textbook_coupler(r))
@@ -162,7 +166,7 @@ def all_pass_ring(r, ring_um=120.0, n_eff=2.36, loss_db_cm=2.0):
     return c
 
 
-def analytic_all_pass(r, lam_nm, ring_um=120.0, n_eff=2.36, loss_db_cm=2.0):
+def analytic_all_pass(r, lam_nm, ring_um=ALL_PASS_RING_UM, n_eff=2.36, loss_db_cm=2.0):
     """Closed-form all-pass through-port transmission for self-coupling r."""
     L_cm = ring_um * 1e-4
     a = 10 ** (-(loss_db_cm * L_cm) / 20.0)
@@ -174,7 +178,7 @@ def analytic_all_pass(r, lam_nm, ring_um=120.0, n_eff=2.36, loss_db_cm=2.0):
 def validate_ring(verbose=True):
     """Compare SMN through-port spectrum to the analytic all-pass formula."""
     r = np.sqrt(0.90)                         # r^2 = 0.90 self-coupling power
-    ring_um = 600.0
+    ring_um = ADD_DROP_RING_UM
     lams = np.linspace(1548, 1552, 1200)
     smn = all_pass_ring(r, ring_um=ring_um)
     p_smn = np.array([abs(smn.transfer(l, (0, "L", 0), (0, "R", 0))) ** 2 for l in lams])
@@ -189,7 +193,7 @@ def validate_ring(verbose=True):
 # ---------------------------------------------------------------------------
 # Validation circuit 2: add-drop ring
 # ---------------------------------------------------------------------------
-def add_drop_ring(r1, r2, ring_um=600.0, n_eff=2.36, loss_db_cm=2.0):
+def add_drop_ring(r1, r2, ring_um=ADD_DROP_RING_UM, n_eff=2.36, loss_db_cm=2.0):
     """2-PUC add-drop ring: in/through on bus 1, drop/add on bus 2."""
     c = Circuit(n_eff=n_eff, loss_db_cm=loss_db_cm)
     c.add_puc(0, textbook_coupler(r1))      # bus1 <-> ring
@@ -201,7 +205,8 @@ def add_drop_ring(r1, r2, ring_um=600.0, n_eff=2.36, loss_db_cm=2.0):
     return c
 
 
-def analytic_add_drop_drop(r1, r2, lam_nm, ring_um=600.0, n_eff=2.36, loss_db_cm=2.0):
+def analytic_add_drop_drop(r1, r2, lam_nm, ring_um=ADD_DROP_RING_UM, n_eff=2.36,
+                           loss_db_cm=2.0):
     """Closed-form drop-port power for an add-drop ring."""
     L_cm = ring_um * 1e-4
     a = 10 ** (-(loss_db_cm * L_cm) / 20.0)
@@ -259,7 +264,8 @@ def unitarity_check(circuit, lam_nm=1550.3):
 # ---------------------------------------------------------------------------
 # Scalable recirculating structure: N all-pass rings side-coupled to one bus
 # ---------------------------------------------------------------------------
-def multi_ring_bus(n_rings, r=None, base_um=600.0, detune=0.004, n_eff=2.36,
+def multi_ring_bus(n_rings, r=None, base_um=ADD_DROP_RING_UM, detune=BUS_DETUNE,
+                   n_eff=2.36,
                    loss_db_cm=2.0, seed=0):
     """N all-pass rings on a single bus -> N feedback loops, N PUCs, multi-notch comb."""
     rng = np.random.default_rng(seed)
@@ -293,7 +299,7 @@ def fir_vs_iir(verbose=True):
     p_ff = np.array([abs(ff.transfer(l, (0, "L", 0), (1, "R", 0))) ** 2 for l in lams])
 
     # recirculating: all-pass ring (one loop) -> sharp periodic resonances, IIR
-    ring = all_pass_ring(np.sqrt(0.9), ring_um=600.0)
+    ring = all_pass_ring(np.sqrt(0.9), ring_um=ADD_DROP_RING_UM)
     p_ring = np.array([abs(ring.transfer(l, (0, "L", 0), (0, "R", 0))) ** 2 for l in lams])
 
     ff_contrast = float(p_ff.max() - p_ff.min())

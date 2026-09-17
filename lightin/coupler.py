@@ -41,6 +41,16 @@ ARM_LENGTH_UM = 208.0  # MZI arm length (Methods)
 HEATER_LENGTH_UM = 100.0  # phase-shifter heater length (Methods)
 PROP_LOSS_DB_CM = 2.0  # strip-waveguide propagation loss (~2.14 dB/cm, arXiv:2111.01792)
 
+# --- Nominal component values used as default arguments below ---
+DC_KAPPA0_NOMINAL = 0.5       # nominal 50:50 power split of a directional coupler
+DC_EXCESS_LOSS_DB = 0.1       # excess loss of one directional coupler
+GRATING_PEAK_LOSS_DB = 4.4    # grating-coupler insertion loss at its peak
+GRATING_LAMBDA_PEAK_NM = 1545.0  # nm, grating-coupler peak wavelength
+GRATING_BW_1P5DB_NM = 45.0    # nm, grating-coupler 1.5-dB bandwidth
+LINK_WAVEGUIDE_CM = 0.45      # cm, on-chip path length of the fibre-to-fibre budget
+LINK_N_COUPLERS = 4           # directional couplers traversed in that path
+LINK_N_GRATING = 2            # grating couplers traversed in that path
+
 # --- Ground truth for the synthetic demo coupler dataset (_demo_measured_dataset) ---
 DEMO_LAMBDA0 = 1560.0  # nm, fixed reference wavelength of the synthetic demo dataset; independent of the chip coupler fit
 # Generator and fitter both reference kappa0 to DEMO_LAMBDA0, so the fitted kappa0 is
@@ -50,7 +60,7 @@ DEMO_TRUE_SLOPE = 0.0042    # rad/nm, linear coupling-phase dispersion
 DEMO_TRUE_QUAD = -8e-6      # rad/nm^2, higher-order term the CMT fit form cannot represent
 
 
-def dc_power_coupling(lam, kappa0=0.5, slope=DC_SLOPE, lam0=DC_LAMBDA_3DB):
+def dc_power_coupling(lam, kappa0=DC_KAPPA0_NOMINAL, slope=DC_SLOPE, lam0=DC_LAMBDA_3DB):
     """Power cross-coupling ratio of a directional coupler, 50:50 at lam0.
 
     K(lambda) = sin^2( arcsin(sqrt(kappa0)) + slope*(lambda - lam0) ).
@@ -61,7 +71,8 @@ def dc_power_coupling(lam, kappa0=0.5, slope=DC_SLOPE, lam0=DC_LAMBDA_3DB):
     return np.sin(a0 + slope * (np.asarray(lam, float) - lam0)) ** 2
 
 
-def dc_field_matrix(lam, kappa0=0.5, slope=DC_SLOPE, excess_loss_db=0.1,
+def dc_field_matrix(lam, kappa0=DC_KAPPA0_NOMINAL, slope=DC_SLOPE,
+                    excess_loss_db=DC_EXCESS_LOSS_DB,
                     lam0=DC_LAMBDA_3DB):
     """2x2 field transfer of a (slightly lossy) directional coupler."""
     k = dc_power_coupling(lam, kappa0, slope, lam0)
@@ -70,7 +81,8 @@ def dc_field_matrix(lam, kappa0=0.5, slope=DC_SLOPE, excess_loss_db=0.1,
     return amp * np.array([[t, 1j * c], [1j * c, t]], dtype=complex)
 
 
-def mzi_single_theta(theta, lam, kappa0=0.5, slope=DC_SLOPE, excess_loss_db=0.1,
+def mzi_single_theta(theta, lam, kappa0=DC_KAPPA0_NOMINAL, slope=DC_SLOPE,
+                     excess_loss_db=DC_EXCESS_LOSS_DB,
                      kappa0_b=None, arm_phase_err=0.0, lam0=DC_LAMBDA_3DB):
     """Single-internal-phase PUC built from two (dispersive) directional couplers.
 
@@ -89,7 +101,8 @@ def mzi_single_theta(theta, lam, kappa0=0.5, slope=DC_SLOPE, excess_loss_db=0.1,
     return DCb @ P @ DCa
 
 
-def extinction_ratio_db(lam, kappa0=0.5, slope=DC_SLOPE, n=512, lam0=DC_LAMBDA_3DB):
+def extinction_ratio_db(lam, kappa0=DC_KAPPA0_NOMINAL, slope=DC_SLOPE, n=512,
+                        lam0=DC_LAMBDA_3DB):
     """Max/min through-port transmission over theta -> achievable extinction (dB).
 
     Returns None when the minimum transmission is an ideal null (below 1e-15). The
@@ -106,19 +119,21 @@ def extinction_ratio_db(lam, kappa0=0.5, slope=DC_SLOPE, n=512, lam0=DC_LAMBDA_3
     return 10 * np.log10(p.max() / p.min())
 
 
-def grating_coupler_db(lam, peak_loss_db=4.4, lam_peak=1545.0, bw_1p5db=45.0):
+def grating_coupler_db(lam, peak_loss_db=GRATING_PEAK_LOSS_DB,
+                       lam_peak=GRATING_LAMBDA_PEAK_NM, bw_1p5db=GRATING_BW_1P5DB_NM):
     """Per-facet grating-coupler loss (dB). Quadratic roll-off; +1.5 dB at +/- bw/2."""
     k = 1.5 / (bw_1p5db / 2.0) ** 2
     return peak_loss_db + k * (np.asarray(lam, float) - lam_peak) ** 2
 
 
-def propagation_loss_db(length_cm, alpha_db_cm=2.0):
+def propagation_loss_db(length_cm, alpha_db_cm=PROP_LOSS_DB_CM):
     """Strip-waveguide propagation loss (dB)."""
     return alpha_db_cm * length_cm
 
 
-def link_budget_db(lam=LAMBDA0, waveguide_cm=0.45, n_couplers_in_path=4,
-                   dc_excess_db=0.1, n_grating=2):
+def link_budget_db(lam=LAMBDA0, waveguide_cm=LINK_WAVEGUIDE_CM,
+                   n_couplers_in_path=LINK_N_COUPLERS,
+                   dc_excess_db=DC_EXCESS_LOSS_DB, n_grating=LINK_N_GRATING):
     """End-to-end fibre-to-fibre loss budget (dB) at one wavelength."""
     return (n_grating * grating_coupler_db(lam)
             + propagation_loss_db(waveguide_cm)

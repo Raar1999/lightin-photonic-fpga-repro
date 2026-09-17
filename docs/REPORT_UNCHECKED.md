@@ -54,51 +54,28 @@ model output.
 
 ## 3. Code constants (§6.3 table, value column)
 
-These are inputs to the model, not outputs of it, so `results.json` does not carry them and
-`tests/test_report_consistency.py` cannot reach them. Thirteen of the thirty-two rows name a
-constant defined at module level; those carry a square-bracket comment naming the module and
-attribute, and `tests/test_constants_documented.py` imports each one and compares it with the
-documented value. They are not listed here:
+Nothing is listed here. These are inputs to the model, not outputs of it, so `results.json`
+does not carry them and `tests/test_report_consistency.py` cannot reach them. Every one of
+the thirty-two rows now names a constant defined at module level, carries a square-bracket
+comment naming the module and attribute, and is imported and compared by
+`tests/test_constants_documented.py`.
 
-`DC_LAMBDA_3DB` · `DC_SLOPE` · `PROP_LOSS_DB_CM` · `DEMO_LAMBDA0` · `DEMO_TRUE_KAPPA0` ·
-`DEMO_TRUE_SLOPE` · `DEMO_TRUE_QUAD` · `FIG4D_FLOOR_DB` · `SIGMA_SPLIT` · `SIGMA_PHASE` ·
-`ARM_LOSS_DB` (both elements) · `MEAS_NOISE_SIGMA` · `N_RESTARTS`.
+Nineteen of those constants were default arguments or inline literals with no name to
+import. Each was given one -- `DC_EXCESS_LOSS_DB`, `DC_KAPPA0_NOMINAL`,
+`GRATING_PEAK_LOSS_DB`, `GRATING_BW_1P5DB_NM`, `LINK_WAVEGUIDE_CM`, `LINK_N_COUPLERS`,
+`LINK_N_GRATING`, `PROP_DB_PER_STAGE`, `N_PORTS`, `RING_R`, `RING_A`, `DATA_SWING_RAD`,
+`EYE_BW`, `EYE_NOISE`, `ALL_PASS_RING_UM`, `ADD_DROP_RING_UM`, `BUS_DETUNE`, `TEST_SIZE`
+and `L2_PENALTY` -- and the defaults and call sites now reference it. Each row names both
+the argument and the constant, so the table still reads as a description of the function
+signature. The values did not change; naming them is what brought them inside the check.
 
-The remaining nineteen rows document a value that has no module-level name to import. Each
-row still records its own file, line and source, and several record that no source exists.
+Where a row names more than one thing -- `PROP_LOSS_DB_CM`, `alpha_db_cm` and `loss_db_cm`,
+all 2.0 dB/cm -- the row is checked through the module-level name, and the others are
+default arguments carrying the same value.
+
 The line citations of all thirty-two rows are checked by
 `tests/test_source_lines_documented.py`, which requires each cited line to name the
-parameter or carry the documented value; only the values of the nineteen are unchecked.
-
-| Value | Name as documented | Why it cannot be imported |
-|---|---|---|
-| 0.1 dB | `excess_loss_db` | default argument of `coupler.dc_field_matrix` and `coupler.mzi_single_theta` |
-| 0.5 | `kappa0` | default argument of four `coupler` functions and of `switching.fabric_matrix` |
-| 4.4 dB | `peak_loss_db` | default argument of `coupler.grating_coupler_db` |
-| 45.0 nm | `bw_1p5db` | default argument of `coupler.grating_coupler_db` |
-| 0.45 cm | `waveguide_cm` | default argument of `coupler.link_budget_db` |
-| 4 | `n_couplers_in_path` | default argument of `coupler.link_budget_db` |
-| 2 | `n_grating` | default argument of `coupler.link_budget_db` |
-| 0.25 dB | `prop_db_per_stage` | default argument of `switching.fabric_matrix` |
-| 8 | `N` | default argument throughout `ppuf` |
-| 0.92 | `r` | default argument of `mrm.mrm_through` and `mrm.symbol_fields` |
-| 0.90 | `a` | default argument of the same two functions |
-| 0.9 rad | `data_swing` | default argument of `mrm.symbol_fields` |
-| 0.45 | `bw` | inline literal in the eye-diagram call, `mrm.py:65` |
-| 0.02 a.u. | `noise` | inline literal in the same call |
-| 120.0 µm | `ring_um` | inline literal in the all-pass validation, `recirculating.py:127,136` |
-| 600.0 µm | `ring_um` / `base_um` | inline literals in the add-drop and bus validations |
-| 0.004 | `detune` | inline literal in the comb figure |
-| 0.3 | `test_size` | default argument of the Iris split |
-| 1e-4 | L2 penalty | inline literal, `nn_iris.py:76` |
-
-One row names three things at once: `PROP_LOSS_DB_CM`, `alpha_db_cm` and `loss_db_cm`, all
-2.0 dB/cm. The row is checked through `coupler.PROP_LOSS_DB_CM`; the other two names are
-default arguments in `recirculating` that carry the same value and are not separately
-imported.
-
-Promoting the inline literals to named constants would bring them inside the check; §7 of
-the report records that as an open item.
+parameter or carry the documented value.
 
 The literature values quoted in the source column of that table — 2.14, 2.2 ± 0.8, 19 dies,
 ~2 dB/cm, 0.1–0.8 dB, ~4.4 dB, ~45 nm — are citations, not repository values.

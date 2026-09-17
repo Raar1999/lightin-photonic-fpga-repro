@@ -20,6 +20,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 N_RESTARTS = 15     # random restarts of the offline training, shared by model and control
+TEST_SIZE = 0.3     # held-out fraction of the Iris split
+L2_PENALTY = 1e-4   # ridge penalty on the trained parameters
 
 
 def _train_test(seed, complex_features=True):
@@ -33,7 +35,7 @@ def _train_test(seed, complex_features=True):
     y = data.target.astype(int)
     Xs = StandardScaler().fit_transform(data.data.astype(float))
     X = Xs.astype(complex) if complex_features else Xs
-    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.3,
+    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=TEST_SIZE,
                                           random_state=seed, stratify=y)
     return X, y, Xtr, Xte, ytr, yte
 
@@ -73,7 +75,7 @@ def _loss(p, X, y, N=4, n_classes=3):
     probs, _ = _forward(p, X, N, n_classes)
     n = len(y)
     ll = -np.log(probs[np.arange(n), y] + 1e-12).mean()
-    return ll + 1e-4 * np.sum(p ** 2)
+    return ll + L2_PENALTY * np.sum(p ** 2)
 
 
 def train(seed=0, restarts=N_RESTARTS):
