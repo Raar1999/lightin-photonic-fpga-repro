@@ -277,6 +277,30 @@ FLOOR_NOTE = ("phenomenological floor fitted to Fig 4d; the mesh model has no fl
               "term, so modelled crosstalk below this level is not reached on the chip")
 ENV_PACKAGES = ("numpy", "scipy", "scikit-learn", "matplotlib")
 
+# The seed-0 Iris fit is the one quantity the CI probe set leaves out, because it selects
+# among near-degenerate optima instead of computing a fixed function of fixed inputs. With
+# the OpenBLAS kernel and the numpy dispatch tiers both fixed, that selection became
+# reproducible and then split by library version alone; the two sets below are what those
+# jobs printed. They are transcribed observations, not outputs of this pipeline, which
+# installs one stack and cannot produce a second. `source` says so inside `results.json`,
+# so a reader of the file does not have to come here to learn it.
+CI_LIBRARY_EFFECT = {
+    "numpy_a": "2.4.6",
+    "scipy_a": "1.17.1",
+    "objective_a": 0.19097,
+    "restart_a": 3,
+    "full_acc_a": 144 / 150,
+    "numpy_b": "2.5.3",
+    "scipy_b": "1.18.1",
+    "objective_b": 0.19098,
+    "restart_b": 4,
+    "full_acc_b": 143 / 150,
+    "full_acc_difference": 144 / 150 - 143 / 150,
+    "n_jobs_observed": 9,
+    "source": ("observed in CI with OPENBLAS_CORETYPE and NPY_DISABLE_CPU_FEATURES "
+               "fixed; not computed by this pipeline"),
+}
+
 
 def environment(iris=None):
     """Interpreter and package versions that produced this results.json.
@@ -813,6 +837,11 @@ def main(quick=False):
                  # are, so the reported accuracy can be read with the margin that chose
                  # it. Taken from the restarts of the fit reported above, not refitted.
                  "restart_degeneracy": nn_iris.degeneracy_summary(ir["restarts"]),
+                 # What one library step does to that selection, read out of the CI logs
+                 # once the kernel and the dispatch tiers were fixed. Stored here so the
+                 # report's numbers are checked against the recorded observation; the
+                 # pipeline runs one stack and does not recompute these.
+                 "ci_library_effect": CI_LIBRARY_EFFECT,
                  # The identity control runs the same seeds on the same splits, so the
                  # difference of the two full-set means is what the unitary contributes.
                  "unitary_minus_identity_full_acc": float(

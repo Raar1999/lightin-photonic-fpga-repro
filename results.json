@@ -134,6 +134,21 @@
       "all_full_acc_max": 0.96,
       "min_adjacent_gap": 4.21400793043647e-06
     },
+    "ci_library_effect": {
+      "numpy_a": "2.4.6",
+      "scipy_a": "1.17.1",
+      "objective_a": 0.19097,
+      "restart_a": 3,
+      "full_acc_a": 0.96,
+      "numpy_b": "2.5.3",
+      "scipy_b": "1.18.1",
+      "objective_b": 0.19098,
+      "restart_b": 4,
+      "full_acc_b": 0.9533333333333334,
+      "full_acc_difference": 0.006666666666666599,
+      "n_jobs_observed": 9,
+      "source": "observed in CI with OPENBLAS_CORETYPE and NPY_DISABLE_CPU_FEATURES fixed; not computed by this pipeline"
+    },
     "unitary_minus_identity_full_acc": 0.09866666666666657
   },
   "mrm": {

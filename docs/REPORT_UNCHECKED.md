@@ -209,7 +209,17 @@ job logs, because none of it is a pipeline output:
 | 8.9e-08, 2.5e-11, 5.0e-18, 3.4e-19 | §7.3 | absolute differences between a CI job's probe value and the `results.json` value beside it, read out of the job log. The stored side of each is annotated; the difference is a property of the pair of machines, not a pipeline output |
 | 1.5e-07, 2.1e-07, 1.7e-02, 4.0e-04 | §7.3 | those four differences expressed as ratios -- the first two against the annotated standard errors, the last two against the annotated RMS residuals. Quotients of values given elsewhere |
 | 1e-12, 1e-16 | §7.3 | the relative threshold the probes were read against, and the order of magnitude of the two unitarity residuals. Both are scales quoted for comparison, not measurements |
-| 971, 984 | preamble | the number of leaf values in `results.json`, a count of the file rather than a value in it |
+| 971, 984, 997 | preamble | the number of leaf values in `results.json`, a count of the file rather than a value in it |
+
+The bullet that measures the library effect on the seed-0 fit is the one exception above:
+its job count, its two restart indices, its two objectives, its two accuracies and their
+0.67-point difference are annotated against `iris.ci_library_effect`, a block
+`scripts/run_all.py` writes as a transcription of the CI logs rather than as something this
+pipeline computes, so `tests/test_report_consistency.py` checks those numbers against the
+recorded observation and not against a fresh computation. The numpy and scipy versions in
+that bullet stay unchecked with the other version strings above, the comparison being
+numeric. Every other occurrence of those values in section 7.3 is unchecked as the rows
+above describe.
 
 The two runtimes quoted where the test suite is described are measurements of this machine
 rather than pipeline outputs.

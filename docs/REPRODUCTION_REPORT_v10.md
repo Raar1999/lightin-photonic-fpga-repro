@@ -19,8 +19,8 @@ values attributed to it can be checked only against a copy of the supplementary.
 `requirements-lock.txt` pins those versions plus pytest 9.1.1).
 
 The determinism that claim rests on is scoped as follows. On the machine and versions named
-above, a full `python scripts/run_all.py` reproduces `results.json` byte for byte: all 984
-values, and the file's SHA-256, were unchanged by a regeneration. Three regenerations have
+above, a full `python scripts/run_all.py` reproduces `results.json` byte for byte: all 997
+values, and the file's SHA-256, were unchanged by a regeneration. Four regenerations have
 been made and none altered a value. That is the only place
 byte-identical regeneration has been verified, and it is a statement about one machine.
 It does not extend to the hosted CI runners, where the seed-0 Iris accuracy was found to
@@ -1284,12 +1284,17 @@ before pinning differed by up to 1.33 points between runs of the same code.
   the degeneracy paragraph below gives, and is measured on its own in the bullet that
   follows.
 * That measurement is what the reproducible runs of the third round already contain. With
-  the kernel and the dispatch tiers both fixed, nine jobs across five processors returned
+  the kernel and the dispatch tiers both fixed, 9<!--{iris.ci_library_effect.n_jobs_observed}--> jobs across five processors returned
   bit-identical objectives, and what was left divided by library version rather than by
   interpreter or processor. Python 3.11, carrying numpy 2.4.6 and scipy 1.17.1, selected
-  restart 3 at objective 0.19097 for a full-set accuracy of 96.00%; Python 3.12 and 3.13,
-  carrying numpy 2.5.3 and scipy 1.18.1, selected restart 4 at 0.19098 for 95.33%. The
-  effect of one library step on the single-seed accuracy is therefore 0.67 points, which is
+  restart 3<!--{iris.ci_library_effect.restart_a}--> at objective
+  0.19097<!--{iris.ci_library_effect.objective_a}--> for a full-set accuracy of
+  96.00%<!--{iris.ci_library_effect.full_acc_a}-->; Python 3.12 and 3.13,
+  carrying numpy 2.5.3 and scipy 1.18.1, selected restart
+  4<!--{iris.ci_library_effect.restart_b}--> at 0.19098<!--{iris.ci_library_effect.objective_b}-->
+  for 95.33%<!--{iris.ci_library_effect.full_acc_b}-->. The
+  effect of one library step on the single-seed accuracy is therefore
+  0.67<!--{iris.ci_library_effect.full_acc_difference|pct}--> points, which is
   one sample of the 150. It is a difference in which near-degenerate optimum the fit
   selects rather than a difference in the physics, since all nine stable probes agreed bit
   for bit across those same jobs, and the ten-seed mean and standard deviation are
