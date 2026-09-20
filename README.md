@@ -19,6 +19,41 @@ reported value is emitted by running the code, with the paper's value shown alon
 for comparison. The PUF is simulated on a feed-forward mesh rather than on the chip's
 recirculating mesh; see the report's open items.
 
+## Status
+
+The reproduction is complete at commit `11683de`, where `results.json` and the model code
+behind it last changed; the commits after it are documentation and packaging, and none of
+them touches a model value. Everything in the paper that can be reached without the
+fabricated chip has been reproduced, and what cannot be is marked as such rather than
+filled in.
+
+The suite is 76 tests, and 773 numbers in this file and in
+[`docs/REPRODUCTION_REPORT_v10.md`](docs/REPRODUCTION_REPORT_v10.md) are checked against the
+code on every run: 703 against the values `results.json` holds, and 70 against the
+module-level constants the model was given, which `results.json` does not record because
+they are inputs to the model rather than outputs of it. The report's §6.3 table also cites
+74 source lines, and each is checked to still point at the parameter it names. What sits
+outside those checks is inventoried, with its provenance, in
+[`docs/REPORT_UNCHECKED.md`](docs/REPORT_UNCHECKED.md).
+
+On the machine and the library versions that wrote them — recorded in the `environment`
+block of `results.json` and pinned in `requirements-lock.txt` — `results.json` and the
+eleven figures in `figures/` regenerate byte for byte, so a full `python scripts/run_all.py`
+leaves the working tree clean.
+
+That has now been checked from outside this working copy as well. A clone of the public
+repository, in a new virtual environment installed with `pip install -e .[dev]`, passed all
+76 tests and ran the full pipeline in 19.5 minutes. Six of the 997 values in the
+`results.json` it produced differed from the committed file, and all six were the recorded
+numpy, scikit-learn and matplotlib versions, which that install resolves to the current
+releases rather than to the pinned ones. The other 991 were identical, and the eleven
+figures matched in pixel data, differing only in the matplotlib version that PNG metadata
+carries. No computed value differed.
+
+The work that remains is the report's open items (§7), in three groups: limitations that the
+published material cannot resolve, disagreements left on record rather than tuned away, and
+the work that would narrow either.
+
 ---
 
 ## Quick start
@@ -30,7 +65,7 @@ python -m venv .venv && source .venv/bin/activate
 # Windows: .venv\Scripts\activate
 pip install -e .                       # or: pip install -r requirements.txt
 python scripts/run_all.py              # runs everything, writes results.json + figures/
-pytest -q                              # 60 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
+pytest -q                              # 76 checks (or: PYTHONPATH=. python tests/test_reproduction.py)
 ```
 
 On a typical laptop CPU, `scripts/run_all.py` takes about 22 minutes, most of which is
@@ -162,15 +197,20 @@ lightin-photonic-fpga-repro/
 ├── requirements-lock.txt             pinned versions that produced results.json
 ├── CITATION.cff
 ├── results.json                      last run's consolidated numbers
-├── lightin/                          the package (12 modules)
+├── lightin/                          the package (15 modules)
 ├── scripts/
 │   ├── run_all.py                    run every module, write results.json + figures/
 │   ├── fit_fig4.py                   fit the coupler to the digitized Fig 4d crosstalk
 │   └── fit_fig4e.py                  fit the bar-state spread to the digitized Fig 4e crosstalk
 ├── tests/
-│   ├── test_reproduction.py          54 checks (pytest or standalone)
-│   ├── test_report_consistency.py     4 checks: the report and README against results.json
-│   └── test_constants_documented.py   2 checks: the §6.3 parameter table against the modules
+│   ├── test_reproduction.py             55 checks (pytest or standalone)
+│   ├── test_report_consistency.py       5 checks: the report and README against results.json
+│   ├── test_constants_documented.py     2 checks: the §6.3 parameter table against the modules
+│   ├── test_source_lines_documented.py  2 checks: the §6.3 file:line citations against those files
+│   ├── test_transcriptions_agree.py     3 checks: values the code records in more than one place
+│   ├── test_probe_stability.py          4 checks: the probes report_environment.py prints in CI
+│   ├── test_restart_degeneracy.py       3 checks: the stored Iris restart table against a fresh fit
+│   └── test_iris_fit_deterministic.py   2 checks: the seed-0 Iris fit repeated in one process
 ├── data/
 │   ├── fig4d_T20_digitized.csv       colour-digitized cross-state crosstalk (with provenance header)
 │   ├── fig4e_bar_digitized.csv       colour-digitized bar-state crosstalk (with provenance header)

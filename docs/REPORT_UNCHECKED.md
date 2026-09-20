@@ -246,6 +246,10 @@ reads this file's two documents rather than the report alone. What is left:
 | 1560, 1549–1565, 1530–1549, 1550–1574 nm | crosstalk and loss rows | wavelength bounds of the stated comparisons |
 | 8 paths, 8 modelled paths, 4×4, 40 PUCs, 10 seeds | throughout | structure, as in §8 above |
 | 22 minutes, 50 seconds, 4 minutes | quick start | measured on this machine, not pipeline outputs |
-| 60 checks | quick start | the size of the test suite |
+| 76 checks, and the eight per-file counts in the repository tree | quick start, Status, repository tree | the size of the test suite, collected by pytest |
+| 11683de | Status | the commit the reproduction is complete at, read from the history |
+| 773, 703, 70, 74 | Status | how many document numbers and source-line citations the suite checks. Counts of the checks themselves, reported by the four document tests, not values `results.json` holds |
+| 997, 991, six, 19.5 minutes | Status | the fresh-clone comparison: the number of leaf values in `results.json`, how many of them matched, how many did not, and the clone's pipeline runtime. A count of the file and a measurement of one run, as with the runtimes above |
+| 15 modules, eleven figures | Status, repository tree | structure, as in §8 above |
 | 6.22/5.47 bit, 60 ps, 1.92 TOPS, 1.875 pJ/MAC in the module-reference table and the tier list | module reference, Scope | restatements of the paper's values, identifying what a module covers |
 | 0.0182 and the `0.0152-0.0707` range printed in the "How to run" block | how-to-run | inside a fenced code block, where an HTML comment would render as literal text |
