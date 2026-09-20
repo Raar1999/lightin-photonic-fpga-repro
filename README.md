@@ -16,8 +16,9 @@ This repository aims to reproduce each result in the paper that can be reproduce
 (ii) the simulations the paper itself ran — and it clearly marks the measured hardware
 quantities that are *not* reproducible from a PDF. No numbers are fabricated: every
 reported value is emitted by running the code, with the paper's value shown alongside only
-for comparison. The PUF is simulated on a feed-forward mesh rather than on the chip's
-recirculating mesh; see the report's open items.
+for comparison. The PUF is simulated on both a feed-forward mesh and the chip's
+4x4 square recirculating mesh, whose vertex wiring is a stated choice rather than the
+paper's; see the report's open items.
 
 ## Status
 
