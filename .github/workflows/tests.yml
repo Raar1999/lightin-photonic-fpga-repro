@@ -11,8 +11,18 @@ jobs:
     # on which runner generation executes it. Haswell is the choice because every runner
     # generation seen here supports it, Intel and AMD alike, and it is the kernel the
     # machine that produced results.json uses.
+    # numpy dispatches its own kernels the same way, independently of OpenBLAS, so an
+    # element-wise reduction can run AVX-512 code on one runner and AVX2 code on the next.
+    # Disabling the AVX-512 targets fixes numpy's own kernel dispatch, so the fit does not
+    # depend on which instruction set the runner offers. The six feature names are the
+    # pre-2.3 dispatch targets; X86_V4 is the x86-64 level group that numpy 2.3 and later
+    # use in their place. Both spellings are listed because the three Python versions
+    # resolve different numpy versions, and a name that is not a dispatch target on the
+    # installed numpy is reported in an ImportWarning and ignored without affecting the
+    # names that are.
     env:
       OPENBLAS_CORETYPE: Haswell
+      NPY_DISABLE_CPU_FEATURES: "AVX512F AVX512CD AVX512_SKX AVX512_CLX AVX512_CNL AVX512_ICL X86_V4"
     strategy:
       matrix:
         python-version: ["3.11", "3.12", "3.13"]

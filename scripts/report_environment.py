@@ -99,6 +99,46 @@ def _openblas_coretype():
                 "openblas_source": "unavailable"}
 
 
+def _avx512():
+    """Whether the processor offers AVX-512, and whether numpy is dispatching to it.
+
+    Two different statements, and the CI job needs both. `__cpu_features__` is numpy's
+    detection of what the processor supports, so its AVX-512 entries say whether this
+    runner is one of the generations that offers the instruction set at all.
+    `NPY_DISABLE_CPU_FEATURES` does not change those entries: from numpy 2.3 the
+    dispatch targets are the x86-64 level groups, and the SIMD extensions block of
+    `numpy.show_config` is where a disabled group moves from "found" to "not found".
+    Printing both is what lets the log distinguish a runner with no AVX-512 from a
+    runner whose AVX-512 was disabled, which the accuracies alone cannot separate.
+
+    The dict is read from `numpy._core` where that exists and from `numpy.core`
+    otherwise; the latter is the pre-2.0 spelling and warns on newer versions.
+    """
+    out = {}
+    feats = None
+    for mod in ("numpy._core._multiarray_umath", "numpy.core._multiarray_umath"):
+        try:
+            feats = __import__(mod, fromlist=["__cpu_features__"]).__cpu_features__
+            break
+        except Exception:
+            continue
+    if feats is None:
+        out["avx512_features"] = "unavailable"
+    else:
+        out["avx512_features"] = {k: bool(v) for k, v in feats.items() if "AVX512" in k}
+        out["avx512_any"] = any(out["avx512_features"].values())
+    try:
+        import numpy as np
+        simd = np.show_config(mode="dicts").get("SIMD Extensions", {})
+        out["simd_baseline"] = simd.get("baseline")
+        out["simd_found"] = simd.get("found")
+        out["simd_not_found"] = simd.get("not found")
+    except Exception:
+        out["simd_baseline"] = out["simd_found"] = out["simd_not_found"] = None
+    out["npy_disable_cpu_features_env"] = os.environ.get("NPY_DISABLE_CPU_FEATURES")
+    return out
+
+
 def machine():
     """What the run landed on, which `report()` deliberately leaves out.
 
@@ -113,6 +153,7 @@ def machine():
            "system": platform.system()}
     out.update(_openblas_coretype())
     out["openblas_coretype_env"] = os.environ.get("OPENBLAS_CORETYPE")
+    out.update(_avx512())
     return out
 
 
