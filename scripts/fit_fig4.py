@@ -14,6 +14,14 @@ the (lambda, dB) pairs with replacement and refit -- turns that scatter into an 
 on lambda0 and on the dispersion slope.
 """
 import os
+import sys
+
+# Python puts scripts/ on sys.path when this file is run as a script, not the repository
+# root, so `lightin` resolves only when the package itself has been installed. Adding the
+# root keeps `pip install -r requirements.txt` -- which installs the dependencies and not
+# this package -- a working alternative to `pip install -e .`.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import numpy as np
 from scipy.optimize import curve_fit
 import matplotlib

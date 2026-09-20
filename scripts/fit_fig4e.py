@@ -25,6 +25,14 @@ not move. 0.02 lies inside that range. Every fit below is still run and still re
 because what the panel rules out is worth having; nothing downstream reads its value.
 """
 import os
+import sys
+
+# Python puts scripts/ on sys.path when this file is run as a script, not the repository
+# root, so `lightin` resolves only when the package itself has been installed. Adding the
+# root keeps `pip install -r requirements.txt` -- which installs the dependencies and not
+# this package -- a working alternative to `pip install -e .`.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import warnings
 import numpy as np
 from scipy.optimize import curve_fit, OptimizeWarning

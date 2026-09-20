@@ -31,12 +31,19 @@ The accuracy keys are the ones `results.json` stores under
 Run directly:  python scripts/report_environment.py
 """
 
+import os
+import sys
+
+# Python puts scripts/ on sys.path when this file is run as a script, not the repository
+# root, so `lightin` resolves only when the package itself has been installed. Adding the
+# root keeps `pip install -r requirements.txt` -- which installs the dependencies and not
+# this package -- a working alternative to `pip install -e .`.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import lightin._threads  # noqa: F401  (sets thread counts before numpy loads)
 
 import json
-import os
 import platform
-import sys
 from importlib.metadata import version
 
 from lightin import coupler, expressivity, nn_iris, recirculating

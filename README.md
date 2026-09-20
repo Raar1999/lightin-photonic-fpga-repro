@@ -240,7 +240,8 @@ python scripts/fit_fig4e.py      # → bar-state coupler-split spread fitted at 
 
 ```bash
 pytest -q
-# or, with no pytest installed:
+# or, to run the main verification file by itself, without the pytest runner
+# (it still imports pytest, for one approx comparison and one raises check):
 PYTHONPATH=. python tests/test_reproduction.py
 ```
 

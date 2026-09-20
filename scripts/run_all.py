@@ -7,14 +7,21 @@ writes results_quick.json and figures_quick/ so a quick run never overwrites the
 full one. Its numbers are noisier and are not the ones the report quotes.
 """
 
+import os
+import sys
+
+# Python puts scripts/ on sys.path when this file is run as a script, not the repository
+# root, so `lightin` resolves only when the package itself has been installed. Adding the
+# root keeps `pip install -r requirements.txt` -- which installs the dependencies and not
+# this package -- a working alternative to `pip install -e .`.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import lightin._threads  # noqa: F401  (sets thread counts before numpy loads)
 
 import argparse
 import json
-import os
 import platform
 import time
-import sys
 from importlib.metadata import version
 import numpy as np
 import matplotlib
