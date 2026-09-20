@@ -1280,8 +1280,21 @@ before pinning differed by up to 1.33 points between runs of the same code.
   another is not a quantity worth reading. The item is closed on that basis: the libraries
   are not moving the physics, and
   only the optimiser's selection among near-degenerate optima was ever sensitive to the
-  arithmetic. The single-seed Iris accuracy is excluded for the reason the degeneracy
-  paragraph below gives, and is the one quantity the question is not answered for.
+  arithmetic. The single-seed Iris accuracy is excluded from the probe set for the reason
+  the degeneracy paragraph below gives, and is measured on its own in the bullet that
+  follows.
+* That measurement is what the reproducible runs of the third round already contain. With
+  the kernel and the dispatch tiers both fixed, nine jobs across five processors returned
+  bit-identical objectives, and what was left divided by library version rather than by
+  interpreter or processor. Python 3.11, carrying numpy 2.4.6 and scipy 1.17.1, selected
+  restart 3 at objective 0.19097 for a full-set accuracy of 96.00%; Python 3.12 and 3.13,
+  carrying numpy 2.5.3 and scipy 1.18.1, selected restart 4 at 0.19098 for 95.33%. The
+  effect of one library step on the single-seed accuracy is therefore 0.67 points, which is
+  one sample of the 150. It is a difference in which near-degenerate optimum the fit
+  selects rather than a difference in the physics, since all nine stable probes agreed bit
+  for bit across those same jobs, and the ten-seed mean and standard deviation are
+  unaffected in kind because they average over the selection instead of reporting one
+  instance of it.
 * The continuous-integration environment reports stable physics probes on every run; a
   library upgrade that changed a result would show there. The single-seed Iris accuracy is
   reported alongside them for information and is not a drift signal.
