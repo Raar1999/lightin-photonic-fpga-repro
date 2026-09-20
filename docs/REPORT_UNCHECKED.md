@@ -201,9 +201,14 @@ job logs, because none of it is a pipeline output:
 | 94.00%, 94.67%, 95.33%, 96.00% where they are CI accuracies or the accuracies of individual restarts | §7.3 | the seed-0 accuracies the jobs printed, and the span of the fifteen restarts, neither of which `results.json` stores — it keeps the winning restart's accuracy, not the losers' |
 | 1.33 (points) | §7, §7.3, preamble | the largest difference between two of those accuracies |
 | 4e-17 | §7.3 | double precision at the objective's scale, quoted to compare with the gaps that are annotated |
-| 0.19053, 0.19074, 0.19078, 0.19098, 0.19103 | §3, §7.3 | winning objectives. Only the local one, 0.19053, is in `results.json`, and it is annotated where §3 quotes it as the best objective; the others are what CI jobs printed and are transcribed from their logs |
-| 5, 3, 9 where they count restarts within the tolerance, CI rounds and CI jobs | §7.3 | counts of the runs made, not measurements |
-| AMD EPYC 7763, AMD EPYC 9V74, Xeon Platinum 8573C, Xeon 6973P-C | §7.3 | processor models the CI jobs reported, from their logs |
+| 0.19053, 0.19074, 0.19078, 0.19097, 0.19098, 0.19103 | §3, §7.3 | winning objectives. Only the local one, 0.19053, is in `results.json`, and it is annotated where §3 quotes it as the best objective; the others are what CI jobs printed and are transcribed from their logs |
+| 0.67 (points) | §7.3 | the gap between the two library sets over the last two rounds, a difference of two of those accuracies |
+| 5, 3, 9, and the counts written as words -- four rounds, nine and six jobs, nine probes, five and four of the nine, fifty-four comparisons | §7.3 | counts of the runs and comparisons made, not measurements |
+| AMD EPYC 7763, AMD EPYC 9V74, AMD EPYC 9V45, Xeon Platinum 8573C, Xeon Platinum 8370C, Xeon 6973P-C | §7.3 | processor models the CI jobs reported, from their logs |
+| 2.3 in "numpy 2.3 and later", and `X86_V4`, `AVX512_ICL`, `AVX512_SPR` | §7.3 | the numpy release that replaced the individual AVX-512 dispatch names with x86-64 level groups, and the dispatch target names the jobs printed |
+| 8.9e-08, 2.5e-11, 5.0e-18, 3.4e-19 | §7.3 | absolute differences between a CI job's probe value and the `results.json` value beside it, read out of the job log. The stored side of each is annotated; the difference is a property of the pair of machines, not a pipeline output |
+| 1.5e-07, 2.1e-07, 1.7e-02, 4.0e-04 | §7.3 | those four differences expressed as ratios -- the first two against the annotated standard errors, the last two against the annotated RMS residuals. Quotients of values given elsewhere |
+| 1e-12, 1e-16 | §7.3 | the relative threshold the probes were read against, and the order of magnitude of the two unitarity residuals. Both are scales quoted for comparison, not measurements |
 | 971, 984 | preamble | the number of leaf values in `results.json`, a count of the file rather than a value in it |
 
 The two runtimes quoted where the test suite is described are measurements of this machine

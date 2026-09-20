@@ -1144,9 +1144,12 @@ here.
 The suite also runs in CI on Python 3.11, 3.12 and 3.13, and those jobs install from
 `pyproject.toml` rather than from `requirements-lock.txt`, so they run on an unpinned stack
 whose library versions are whatever pip resolves on the day. Each job ends by running
-`scripts/report_environment.py`, which prints the installed versions and the seed-0 Iris,
-identity-control and logistic-baseline accuracies as one line of JSON, so version drift away
-from the pinned numbers is visible in every run rather than only when someone goes looking.
+`scripts/report_environment.py`, which prints the installed versions, nine stable physics
+probes and the seed-0 Iris, identity-control and logistic-baseline accuracies, so version
+drift away from the pinned numbers is visible in every run rather than only when someone
+goes looking. The probes are the drift signal and each is printed beside its `results.json`
+value and the difference; the accuracies are printed for information, because the fit
+selects among near-degenerate optima and moves for arithmetic reasons (§7.3).
 
 When a number here disagrees with `results.json`, or with the module it documents, the
 document is what changes.
@@ -1196,13 +1199,14 @@ before pinning differed by up to 1.33 points between runs of the same code.
 
 ### 7.3 Work that would resolve or narrow an item above
 
-* The Iris accuracies depend on the installed library versions, and that dependence still
-  cannot be isolated, because the fit does not return the same answer twice on hosted CI
-  runners. The jobs install with `pip install -e .[dev]`, which resolves against the lower
-  bounds in `pyproject.toml` rather than `requirements-lock.txt`, so each picks its own
-  versions; `scripts/report_environment.py` prints those versions, the runner's processor
-  and OpenBLAS core type, and the two leading restart objectives, after the test step of
-  every job. Two rounds of three runs each were read out of those logs.
+* The Iris accuracies depend on the installed library versions. The jobs install with
+  `pip install -e .[dev]`, which resolves against the lower bounds in `pyproject.toml`
+  rather than `requirements-lock.txt`, so each picks its own versions;
+  `scripts/report_environment.py` prints those versions, the runner's processor, the
+  OpenBLAS core type, whether numpy is dispatching AVX-512, the stable probes described
+  below and the two leading restart objectives, after the test step of every job. Four
+  rounds have been read out of those logs, three runs of one commit each except the last,
+  which was two.
 * The first round identified the cause of most of the variation, and it is the OpenBLAS
   kernel. OpenBLAS is built `DYNAMIC_ARCH` and chooses a kernel from whatever processor the
   runner has, and across nine jobs the winning objective was an exact function of that choice
@@ -1220,26 +1224,79 @@ before pinning differed by up to 1.33 points between runs of the same code.
   96.00% twice and 95.33% once, or the reverse, over three runs. One job settles it -- Python
   3.12 on an AMD EPYC 9V74 with the Haswell kernel forced returned objective 0.19103 on one
   run and 0.19098 on another, at identical library versions, identical interpreter and
-  identical code. Something below the BLAS kernel still differs between runs; numpy dispatches
-  its own vectorised loops on the processor's instruction set independently of OpenBLAS, which
-  would do it, but that was not established and the cause is not pursued further here.
-* The version question cannot be answered on this infrastructure. A between-version difference
-  of a few tenths of a point cannot be separated from a between-run difference of the same
-  size on machines that do not hold their arithmetic fixed, and more runs will not separate
-  them: the spread across all CI observations remains 1.33 points, against the
-  1.26<!--{iris.seed_sweep.full_acc_std|pct}-->-point seed-to-seed standard deviation reported
-  in §2. Answering it needs an environment that fixes the instruction set as well as the
-  library versions -- a pinned container image on known hardware, or a runner whose processor
-  is specified rather than allocated -- and the accuracies compared there. Failing that, it
-  needs the reported quantity changed to one that does not depend on the arithmetic, which is
-  the item below. What is not in doubt is the pinned local stack: the full pipeline regenerates
+  identical code. Something below the BLAS kernel still differed between runs, and the third
+  round identified it.
+* The remaining variation was numpy's own SIMD dispatch. numpy chooses its vectorised loops
+  from the processor's instruction set independently of OpenBLAS, so
+  `NPY_DISABLE_CPU_FEATURES` is now set in the workflow beside the core type, naming the
+  AVX-512 dispatch targets and the `X86_V4` group that numpy 2.3 and later use in their
+  place. Over the nine jobs of a third round -- three runs of one commit -- every job
+  carrying the same library versions returned a bit-identical objective and the same
+  accuracy, and no Python version varied between runs any more. That held across five
+  processors: AMD EPYC 7763, 9V74 and 9V45, Intel Xeon 6973P-C and Xeon Platinum 8573C,
+  three of which report AVX-512 in hardware and two of which do not. The cause is
+  established as far as the dispatch tiers the variable names, and no further. `X86_V4` and
+  `AVX512_ICL` moved from "found" to "not found" in every job; `AVX512_SPR` is not in the
+  list, stayed enabled on both Intel parts that carry it, and those jobs still agreed bit
+  for bit with the AMD ones, so what mattered was those two tiers rather than AVX-512 as
+  such. The cause is not pursued further here.
+* The three Python versions still do not all agree, but the disagreement is now a function
+  of the library versions rather than of the run. 3.12 and 3.13 resolve numpy 2.5.3 and
+  scipy 1.18.1 and returned objective 0.19098 and 95.33% in all six of their jobs; 3.11
+  resolves numpy 2.4.6 and scipy 1.17.1 and returned 0.19097 and 96.00% in all three of its
+  own. The difference is reproducible, and it is still not evidence about the model: the fit
+  keeps the lowest-objective restart of fifteen whose closest pair sits
+  4.2e-06<!--{iris.restart_degeneracy.min_adjacent_gap}--> apart in objective, so a last-bit
+  difference moves the winner and the accuracy follows it. That number answers which optimum
+  a machine selected, not whether the libraries changed the result.
+* The version question is answered for every quantity except that single-seed accuracy, and
+  the answer is that the libraries are not moving the physics.
+  `scripts/report_environment.py` computes nine probes beside the accuracies, each a
+  deterministic function of fixed inputs and none of them a selection among optima: the two
+  effective-bit figures, 6.216<!--{unitary.enob_at_sigma_0.0269}--> bit at sigma = 0.0269
+  and 5.464<!--{nonunitary.enob_at_sigma_0.0453}--> bit at 0.0453; the on-chip propagation
+  latency 60.04<!--{latency_on_chip_ps}--> ps; the coupler extinction at 1560 nm,
+  22.34<!--{coupler.extinction_at_1560_db}--> dB; the mesh fit's lambda0,
+  1574.68<!--{fig4d_mesh_fit.lambda0_nm}--> nm, and its slope,
+  0.002609<!--{fig4d_mesh_fit.slope}-->; the recirculating validation's ring and add-drop
+  RMS residuals, 2.9e-16<!--{recirculating.ring_rms}--> and
+  8.4e-16<!--{recirculating.add_drop_rms}-->; and the realisable-unitary fidelity
+  1.0<!--{expressivity.realizable_unitary_fidelity}-->. Each is printed beside the
+  `results.json` value and the absolute difference between them.
+* Across a fourth round -- two runs of one commit, six jobs, fifty-four comparisons -- all
+  nine probes took the same value in every job, bit for bit, on three Python versions, two
+  numpy versions and two scipy versions across three processors. Five of the nine reproduce
+  the stored value exactly. The other four differ from the Windows machine that wrote
+  `results.json`, not from each other, and none of them separates one library version from
+  another, because the two numpy and the two scipy versions inside CI agree with each other
+  exactly. The largest absolute difference anywhere is 8.9e-08 nm on the
+  mesh lambda0, which is 1.5e-07 of its own 0.61<!--{fig4d_mesh_fit.lambda0_se_nm}--> nm
+  standard error, and 2.5e-11 on the slope, 2.1e-07 of its own. The two RMS residuals are
+  unitarity checks of order 1e-16 -- zero to double precision -- so their 5.0e-18 and
+  3.4e-19 differences are large as ratios, 1.7e-02 and 4.0e-04, and empty as magnitudes.
+  Four of the nine therefore exceed 1e-12 relative to the stored value: the two fit
+  parameters at the last bits of a least-squares solve run on another operating system and
+  another BLAS build, and the two residuals because the ratio of one rounding error to
+  another is not a quantity worth reading. The item is closed on that basis: the libraries
+  are not moving the physics, and
+  only the optimiser's selection among near-degenerate optima was ever sensitive to the
+  arithmetic. The single-seed Iris accuracy is excluded for the reason the degeneracy
+  paragraph below gives, and is the one quantity the question is not answered for.
+* The continuous-integration environment reports stable physics probes on every run; a
+  library upgrade that changed a result would show there. The single-seed Iris accuracy is
+  reported alongside them for information and is not a drift signal.
+* What is not in doubt is the pinned local stack: the full pipeline regenerates
   `results.json` byte for byte, and seed 0 gives a full-set accuracy of
   95.33%<!--{environment.seed0_reference.iris_full_acc}--> with held out
   93.33%<!--{environment.seed0_reference.iris_test_acc}-->, identity control
   86.00%<!--{environment.seed0_reference.identity_full_acc}--> and logistic baseline
   95.33%<!--{environment.seed0_reference.logistic_full_acc}--> on every run made. Those four
   are the `environment.seed0_reference` block, which the pipeline writes from the Iris block
-  it has just computed, and which a CI job prints for itself under the same four names.
+  it has just computed, and which a CI job prints for itself under the same four names. The
+  spread across every CI accuracy observed here remains 1.33 points, against the
+  1.26<!--{iris.seed_sweep.full_acc_std|pct}-->-point seed-to-seed standard deviation
+  reported in §2; over the last two rounds it is the 0.67-point gap between the two
+  library sets, and it no longer moves between runs.
 * The Iris fit selects among near-degenerate optima, so its single-seed accuracy is not a
   stable quantity. Reporting the objective alongside the accuracy, or averaging the accuracies
   of all restarts within a tolerance of the best, would make the reported number reproducible.
