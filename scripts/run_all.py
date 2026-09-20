@@ -287,18 +287,19 @@ ENV_PACKAGES = ("numpy", "scipy", "scikit-learn", "matplotlib")
 CI_LIBRARY_EFFECT = {
     "numpy_a": "2.4.6",
     "scipy_a": "1.17.1",
-    "objective_a": 0.19097,
+    "objective_a": 0.19096745026782289,
     "restart_a": 3,
     "full_acc_a": 144 / 150,
     "numpy_b": "2.5.3",
     "scipy_b": "1.18.1",
-    "objective_b": 0.19098,
+    "objective_b": 0.19098208277957279,
     "restart_b": 4,
     "full_acc_b": 143 / 150,
     "full_acc_difference": 144 / 150 - 143 / 150,
-    "n_jobs_observed": 9,
+    "n_jobs_in_experiment": 9,
     "source": ("observed in CI with OPENBLAS_CORETYPE and NPY_DISABLE_CPU_FEATURES "
-               "fixed; not computed by this pipeline"),
+               "fixed; not computed by this pipeline; the count is the third round's "
+               "nine jobs and is not updated by later runs"),
 }
 
 

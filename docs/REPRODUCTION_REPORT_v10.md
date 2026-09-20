@@ -1284,7 +1284,7 @@ before pinning differed by up to 1.33 points between runs of the same code.
   the degeneracy paragraph below gives, and is measured on its own in the bullet that
   follows.
 * That measurement is what the reproducible runs of the third round already contain. With
-  the kernel and the dispatch tiers both fixed, 9<!--{iris.ci_library_effect.n_jobs_observed}--> jobs across five processors returned
+  the kernel and the dispatch tiers both fixed, 9<!--{iris.ci_library_effect.n_jobs_in_experiment}--> jobs across five processors returned
   bit-identical objectives, and what was left divided by library version rather than by
   interpreter or processor. Python 3.11, carrying numpy 2.4.6 and scipy 1.17.1, selected
   restart 3<!--{iris.ci_library_effect.restart_a}--> at objective
