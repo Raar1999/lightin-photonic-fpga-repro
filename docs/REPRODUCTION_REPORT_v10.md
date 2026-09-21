@@ -1196,6 +1196,19 @@ before pinning differed by up to 1.33 points between runs of the same code.
   model is symmetric under port reversal. Modelling the non-uniform grating-to-MZI
   waveguide sections described in the preprint would test whether those sections account
   for the difference.
+* The source cited for the coupler excess loss gives about 0.8 dB per coupler, not the
+  0.1<!--[lightin.coupler.DC_EXCESS_LOSS_DB]--> dB used here. An intended path through the
+  four-stage fabric crosses four, six or eight directional couplers, depending on which
+  input and which state, so at 0.8 dB per coupler the modelled on-chip loss would be −4.20
+  to −7.40 dB across the eight paths instead of the
+  −1.40<!--{switching.onchip_il_max_db}--> to −1.80<!--{switching.onchip_il_min_db}-->
+  dB the model reports. That is far beyond the paper's measured
+  −1.85<!--{switching.onchip_il_paper_range_db[1]}--> to
+  −2.99<!--{switching.onchip_il_paper_range_db[0]}--> dB: the worst path would sit 4.41 dB
+  below the most lossy path the paper measured. Whatever the chip's couplers are, they are
+  much better than the ones that source characterised, so its figure cannot be carried over
+  to this model. The 0.1 dB used here remains a chosen value rather than a sourced one, and
+  it is listed as such in §6.3 and §7.3.
 
 ### 7.3 Work that would resolve or narrow an item above
 

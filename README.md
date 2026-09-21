@@ -28,9 +28,9 @@ them touches a model value. Everything in the paper that can be reached without 
 fabricated chip has been reproduced, and what cannot be is marked as such rather than
 filled in.
 
-The suite is 76 tests, and 773 numbers in this file and in
+The suite is 76 tests, and 778 numbers in this file and in
 [`docs/REPRODUCTION_REPORT_v10.md`](docs/REPRODUCTION_REPORT_v10.md) are checked against the
-code on every run: 703 against the values `results.json` holds, and 70 against the
+code on every run: 707 against the values `results.json` holds, and 71 against the
 module-level constants the model was given, which `results.json` does not record because
 they are inputs to the model rather than outputs of it. The report's §6.3 table also cites
 74 source lines, and each is checked to still point at the parameter it names. What sits
