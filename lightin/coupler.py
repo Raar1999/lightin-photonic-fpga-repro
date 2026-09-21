@@ -4,16 +4,46 @@ Coupled-mode-theory (CMT) directional coupler and link models for 220 nm SOI.
 Replaces the earlier toy/lossless coupler with a physically grounded, wavelength-
 dependent model parameterised from the silicon-photonics literature:
 
+Every citation below was read for the value it is cited for; docs/CITATION_CHECK.md gives
+the location in each source and the classification each earned. "supported" means the
+source states the value for this quantity; "related" means it concerns the quantity but
+does not establish the value used here.
+
 * Strip-waveguide propagation loss ~ 2 dB/cm
-  (2.14 dB/cm, arXiv:2111.01792; 2.2 +/- 0.8 dB/cm over 19 dies, arXiv:1203.0767;
-   ~2 dB/cm typical review value, nanoph-2023-0836).
-* Directional-coupler dispersion: power coupling drifts with wavelength
-  (kappa varies ~0.60 -> 0.82 over 1500-1600 nm for a 100 nm gap, arXiv:2302.13177);
-  the standard CMT fit form is K(lambda) = A sin^2(k'(lambda) L + phi0)
-  (Ghent pub_4030; US 9,445,165). A 3-dB straight DC hits 50:50 at one wavelength only.
-* Grating coupler: ~4.4 dB insertion loss, ~45 nm 1.5-dB bandwidth, peak ~1545 nm
-  (arXiv:1203.0767); 1-dB bandwidth ~38 nm (PMC10576773).
-* Directional-coupler excess loss ~ 0.1-0.8 dB (Optica jlt-35-22-4916).
+  - ~2 dB/cm for a 0.45 um x 220 nm SOI strip waveguide (supported): Xie, Y., et al.,
+    "Towards large-scale programmable silicon photonic chip for signal processing",
+    Nanophotonics 13(12) 2051-2073, 2024, doi 10.1515/nanoph-2023-0836.
+  - 2.14 dB/cm (related: a boron-doped Si rib waveguide at 1305 nm, not a strip
+    waveguide): Ochiai, T., et al., "Ultrahigh-sensitivity optical power monitor for Si
+    photonic circuits", arXiv:2111.01792, 2021, doi 10.1038/s41467-022-35206-4.
+  - 2.2 +/- 0.8 dB/cm over 19 dies (related: that is the rib average; the same paragraph
+    gives 2.4 +/- 0.3 dB/cm for the channel guide this model is): Baehr-Jones, T., et
+    al., "A 25 Gb/s Silicon Photonics Platform", arXiv:1203.0767, 2012.
+* Directional-coupler dispersion: power coupling drifts with wavelength.
+  - kappa varies ~0.60 -> 0.82 over 1500-1600 nm at a 100 nm gap (related: those are the
+    source's numbers, but its kappa is the field coupling coefficient, so as power
+    coupling they are ~0.36 -> ~0.67): Moss, D. J., "Sagnac interference in integrated
+    photonics for reflection mirrors, gyroscopes, filters, and wavelength interleavers",
+    Applied Physics Reviews 10, 011309, 2023, arXiv:2302.13177, doi 10.1063/5.0123236.
+  - The standard CMT fit form is K(lambda) = A sin^2(k'(lambda) L + phi0). Related:
+    Dorin, B. and Ye, W. N., "System and method for an optical coupler", US patent
+    9,445,165 B2, FutureWei Technologies Inc., granted 13 September 2016, states sin^2 of
+    a wavelength-dependent coupling phase times a length but carries no free amplitude
+    and no constant offset inside the sine. Not accessible: Ghent pub_4030, an identifier
+    that does not resolve.
+  - A 3-dB straight DC hits 50:50 at one wavelength only.
+* Grating coupler: ~4.4 dB insertion loss, ~45 nm 1.5-dB bandwidth, peak ~1545 nm, all
+  three supported and all three in one sentence of Baehr-Jones, T., et al.,
+  arXiv:1203.0767, 2012, which gives the loss as an average over 19 dies, 4.4 +/- 0.2 dB.
+  - 1-dB bandwidth ~38 nm (related: a simulated value for a silicon nitride coupler on a
+    400 nm Si3N4 layer, not for silicon): Korcek, R., et al., "Library of single-etch
+    silicon nitride grating couplers for low-loss and fabrication-robust fiber-chip
+    interconnection", Scientific Reports 13, 17467, 2023, doi 10.1038/s41598-023-44824-x.
+* Directional-coupler excess loss. The value used here is 0.1 dB. Related: Gupta, R. K.,
+  Chandran, S. and Das, B. K., "Wavelength-Independent Directional Couplers for
+  Integrated Silicon Photonics", Journal of Lightwave Technology 35(22) 4916-4923, 2017,
+  doi 10.1109/JLT.2017.2759162, gives an average excess loss of about 0.8 dB. No source
+  states 0.1 dB, so this parameter has no verified source.
 
 These let us model the *measured-style* dispersion of the LightIN couplers (the exact
 chip values are not published; parameters here are literature-typical and the model is
@@ -39,7 +69,7 @@ WG_WIDTH_NM = 450.0    # waveguide width (Methods)
 SQUARE_SIDE_UM = 500.0 # square-mesh unit side length (Methods) -> loop length
 ARM_LENGTH_UM = 208.0  # MZI arm length (Methods)
 HEATER_LENGTH_UM = 100.0  # phase-shifter heater length (Methods)
-PROP_LOSS_DB_CM = 2.0  # strip-waveguide propagation loss (~2.14 dB/cm, arXiv:2111.01792)
+PROP_LOSS_DB_CM = 2.0  # strip-waveguide propagation loss (~2 dB/cm, Xie et al. 2024; see the module docstring)
 
 # --- Nominal component values used as default arguments below ---
 DC_KAPPA0_NOMINAL = 0.5       # nominal 50:50 power split of a directional coupler

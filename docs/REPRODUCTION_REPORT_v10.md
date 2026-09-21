@@ -919,21 +919,21 @@ sample sizes (die, challenge and bootstrap counts) and defined physical constant
 
 | Parameter | Value | Used in | Source found |
 |---|---|---|---|
-| `DC_LAMBDA_3DB` | 1574.7<!--[lightin.coupler.DC_LAMBDA_3DB]--> nm | `coupler.py:27`; every coupler and switch spectrum | §6.1 — fit of `mesh_t20_model` to the 25<!--{fig4d_mesh_fit.n_points}--> points of `data/fig4d_T20_digitized.csv`, digitized from the paper's Fig 4d. Both fabrication spreads are assumed rather than fitted, so the fit is solved in one pass and refitting at the converged value reproduces it |
-| `DC_SLOPE` | 0.0026<!--[lightin.coupler.DC_SLOPE]--> rad/nm | `coupler.py:32`; the same spectra | §6.1 — the same fit; pairs bootstrap [0.00239<!--{fig4d_mesh_fit.slope_pairs_p05}-->, 0.00285<!--{fig4d_mesh_fit.slope_pairs_p95}-->] rad/nm |
-| `PROP_LOSS_DB_CM`, `alpha_db_cm`, `loss_db_cm` | 2.0<!--[lightin.coupler.PROP_LOSS_DB_CM]--> dB/cm | `coupler.py:42,129`; `recirculating.py:51,160,196` | `coupler.py` module docstring — 2.14 dB/cm (arXiv:2111.01792), 2.2 ± 0.8 dB/cm over 19 dies (arXiv:1203.0767), ~2 dB/cm (nanoph-2023-0836) |
-| `excess_loss_db` / `DC_EXCESS_LOSS_DB` | 0.1<!--[lightin.coupler.DC_EXCESS_LOSS_DB]--> dB per coupler | `coupler.py:46,75,85`, called from `switching.py:76,111` | `coupler.py` module docstring — directional-coupler excess loss ~0.1–0.8 dB (Optica jlt-35-22-4916) |
-| `kappa0` (nominal split) / `DC_KAPPA0_NOMINAL` | 0.5<!--[lightin.coupler.DC_KAPPA0_NOMINAL]--> | `coupler.py:45,63,74,84,104`; `switching.py:67` | the 3-dB definition: 0.5 is half the power, and `DC_LAMBDA_3DB` is the wavelength at which this coupler reaches it (§6.1). `coupler.py`'s module docstring records that a 3-dB straight coupler is 50:50 at one wavelength only, and `tests/test_reproduction.py::test_nominal_split_is_the_three_db_point` holds the two together |
-| `peak_loss_db` / `GRATING_PEAK_LOSS_DB` | 4.4<!--[lightin.coupler.GRATING_PEAK_LOSS_DB]--> dB | `coupler.py:47,122`; fibre-to-fibre link budget | `coupler.py` module docstring — ~4.4 dB grating-coupler insertion loss (arXiv:1203.0767) |
-| `bw_1p5db` / `GRATING_BW_1P5DB_NM` | 45.0<!--[lightin.coupler.GRATING_BW_1P5DB_NM]--> nm | `coupler.py:49,123`; fibre-to-fibre link budget | `coupler.py` module docstring — ~45 nm 1.5-dB bandwidth (arXiv:1203.0767) |
-| `lam_peak` / `GRATING_LAMBDA_PEAK_NM` | 1545<!--[lightin.coupler.GRATING_LAMBDA_PEAK_NM]--> nm | `coupler.py:48,123,126`; fibre-to-fibre link budget | `coupler.py` module docstring — grating-coupler peak ~1545 nm (arXiv:1203.0767); the paper's third design wavelength |
-| `waveguide_cm` / `LINK_WAVEGUIDE_CM` | 0.45<!--[lightin.coupler.LINK_WAVEGUIDE_CM]--> cm | `coupler.py:50,134`; fibre-to-fibre link budget | the paper's 4.5 mm on-chip path length, the same length the latency row uses; `DOCUMENT_SEARCH_LIST_superseded.md` marks n_g = 4.0 and 4.5 mm as exact from the paper. Not listed in the §6 table. |
-| `n_couplers_in_path` / `LINK_N_COUPLERS` | 4<!--[lightin.coupler.LINK_N_COUPLERS]--> | `coupler.py:51,135`; fibre-to-fibre link budget | no source recorded |
-| `n_grating` / `LINK_N_GRATING` | 2<!--[lightin.coupler.LINK_N_GRATING]--> | `coupler.py:52,136`; fibre-to-fibre link budget | no source recorded |
-| `DEMO_LAMBDA0` | 1560.0<!--[lightin.coupler.DEMO_LAMBDA0]--> nm | `coupler.py:55`; synthetic demo dataset only | no source recorded — §4.2 states it is deliberately independent of the chip fit and says nothing about this chip |
-| `DEMO_TRUE_KAPPA0` | 0.5<!--[lightin.coupler.DEMO_TRUE_KAPPA0]--> | `coupler.py:58`; synthetic demo dataset only | no source recorded |
-| `DEMO_TRUE_SLOPE` | 0.0042<!--[lightin.coupler.DEMO_TRUE_SLOPE]--> rad/nm | `coupler.py:59`; synthetic demo dataset only | no source recorded |
-| `DEMO_TRUE_QUAD` | −8e-6<!--[lightin.coupler.DEMO_TRUE_QUAD]--> rad/nm² | `coupler.py:60`; synthetic demo dataset only | no source recorded |
+| `DC_LAMBDA_3DB` | 1574.7<!--[lightin.coupler.DC_LAMBDA_3DB]--> nm | `coupler.py:57`; every coupler and switch spectrum | §6.1 — fit of `mesh_t20_model` to the 25<!--{fig4d_mesh_fit.n_points}--> points of `data/fig4d_T20_digitized.csv`, digitized from the paper's Fig 4d. Both fabrication spreads are assumed rather than fitted, so the fit is solved in one pass and refitting at the converged value reproduces it |
+| `DC_SLOPE` | 0.0026<!--[lightin.coupler.DC_SLOPE]--> rad/nm | `coupler.py:62`; the same spectra | §6.1 — the same fit; pairs bootstrap [0.00239<!--{fig4d_mesh_fit.slope_pairs_p05}-->, 0.00285<!--{fig4d_mesh_fit.slope_pairs_p95}-->] rad/nm |
+| `PROP_LOSS_DB_CM`, `alpha_db_cm`, `loss_db_cm` | 2.0<!--[lightin.coupler.PROP_LOSS_DB_CM]--> dB/cm | `coupler.py:72,159`; `recirculating.py:51,160,196` | `coupler.py` module docstring, all three read in §CITATION_CHECK — ~2 dB/cm for a 0.45 µm × 220 nm SOI strip waveguide, Xie, Y., et al., *Nanophotonics* 13(12) 2051–2073, 2024, doi 10.1515/nanoph-2023-0836 (supported); 2.14 dB/cm, Ochiai, T., et al., arXiv:2111.01792, 2021 (related: a boron-doped Si rib waveguide at 1305 nm, not a strip waveguide); 2.2 ± 0.8 dB/cm over 19 dies, Baehr-Jones, T., et al., arXiv:1203.0767, 2012 (related: source gives 2.4 ± 0.3 dB/cm for the channel guide this model is) |
+| `excess_loss_db` / `DC_EXCESS_LOSS_DB` | 0.1<!--[lightin.coupler.DC_EXCESS_LOSS_DB]--> dB per coupler | `coupler.py:76,105,115`, called from `switching.py:76,111` | `coupler.py` module docstring — Gupta, R. K., Chandran, S. and Das, B. K., *Journal of Lightwave Technology* 35(22) 4916–4923, 2017, doi 10.1109/JLT.2017.2759162 (related: source gives an average excess loss of about 0.8 dB, not the 0.1 dB used here, and states no lower bound; no source states 0.1 dB, so this parameter has no verified source — §7.3) |
+| `kappa0` (nominal split) / `DC_KAPPA0_NOMINAL` | 0.5<!--[lightin.coupler.DC_KAPPA0_NOMINAL]--> | `coupler.py:75,93,104,114,134`; `switching.py:67` | the 3-dB definition: 0.5 is half the power, and `DC_LAMBDA_3DB` is the wavelength at which this coupler reaches it (§6.1). `coupler.py`'s module docstring records that a 3-dB straight coupler is 50:50 at one wavelength only, and `tests/test_reproduction.py::test_nominal_split_is_the_three_db_point` holds the two together |
+| `peak_loss_db` / `GRATING_PEAK_LOSS_DB` | 4.4<!--[lightin.coupler.GRATING_PEAK_LOSS_DB]--> dB | `coupler.py:77,152`; fibre-to-fibre link budget | `coupler.py` module docstring — Baehr-Jones, T., et al., arXiv:1203.0767, 2012 (supported: "The average grating coupler insertion loss across 19 dies was determined to be 4.4±0.2 dB", p.4 §3.1; the source calls it an average, not a peak, and the ± 0.2 dB is dropped here) |
+| `bw_1p5db` / `GRATING_BW_1P5DB_NM` | 45.0<!--[lightin.coupler.GRATING_BW_1P5DB_NM]--> nm | `coupler.py:79,153`; fibre-to-fibre link budget | `coupler.py` module docstring — Baehr-Jones, T., et al., arXiv:1203.0767, 2012 (supported: "a typical 1.5 dB bandwidth of 45 nm", p.4 §3.1, at the decibel level cited) |
+| `lam_peak` / `GRATING_LAMBDA_PEAK_NM` | 1545<!--[lightin.coupler.GRATING_LAMBDA_PEAK_NM]--> nm | `coupler.py:78,153,156`; fibre-to-fibre link budget | `coupler.py` module docstring — Baehr-Jones, T., et al., arXiv:1203.0767, 2012 (supported: "with a peak wavelength near 1545 nm", p.4 §3.1); also the paper's third design wavelength |
+| `waveguide_cm` / `LINK_WAVEGUIDE_CM` | 0.45<!--[lightin.coupler.LINK_WAVEGUIDE_CM]--> cm | `coupler.py:80,164`; fibre-to-fibre link budget | the paper's 4.5 mm on-chip path length, the same length the latency row uses; `DOCUMENT_SEARCH_LIST_superseded.md` marks n_g = 4.0 and 4.5 mm as exact from the paper. Not listed in the §6 table. |
+| `n_couplers_in_path` / `LINK_N_COUPLERS` | 4<!--[lightin.coupler.LINK_N_COUPLERS]--> | `coupler.py:81,165`; fibre-to-fibre link budget | no source recorded |
+| `n_grating` / `LINK_N_GRATING` | 2<!--[lightin.coupler.LINK_N_GRATING]--> | `coupler.py:82,166`; fibre-to-fibre link budget | no source recorded |
+| `DEMO_LAMBDA0` | 1560.0<!--[lightin.coupler.DEMO_LAMBDA0]--> nm | `coupler.py:85`; synthetic demo dataset only | no source recorded — §4.2 states it is deliberately independent of the chip fit and says nothing about this chip |
+| `DEMO_TRUE_KAPPA0` | 0.5<!--[lightin.coupler.DEMO_TRUE_KAPPA0]--> | `coupler.py:88`; synthetic demo dataset only | no source recorded |
+| `DEMO_TRUE_SLOPE` | 0.0042<!--[lightin.coupler.DEMO_TRUE_SLOPE]--> rad/nm | `coupler.py:89`; synthetic demo dataset only | no source recorded |
+| `DEMO_TRUE_QUAD` | −8e-6<!--[lightin.coupler.DEMO_TRUE_QUAD]--> rad/nm² | `coupler.py:90`; synthetic demo dataset only | no source recorded |
 | `FIG4D_FLOOR_DB` | −26.2<!--[lightin.switching.FIG4D_FLOOR_DB]--> dB | `switching.py:34`; recorded, not added to any reported crosstalk | §6.1 — fitted to the digitized Fig 4d alongside λ₀ and slope; §6.1 also states that its physical origin is not established |
 | `prop_db_per_stage` / `PROP_DB_PER_STAGE` | 0.25<!--[lightin.switching.PROP_DB_PER_STAGE]--> dB per stage | `switching.py:20,56,102,247`; on-chip insertion loss, all switch spectra | no source recorded |
 | `SIGMA_SPLIT` | 0.02<!--[lightin.switching.SIGMA_SPLIT]-->, clipped to [0.3, 0.7] | `switching.py`; bar-state crosstalk | no source recorded — the digitized Fig 4e curve was fitted for it and the fitted value was not adopted, because the model does no better on those points than a constant and the result ranges over a factor of 4.6<!--{fig4e_fit.sensitivity.sigma_split_range_factor}--> with the ensemble percentile. 0.02<!--{cross_check.sigma_split}--> falls inside that range, so §6.1 records the panel as a consistency check on this value rather than a source for it |
@@ -1353,6 +1353,21 @@ before pinning differed by up to 1.33 points between runs of the same code.
   the code; the rest are not. One of them, the 0.25 dB per-stage propagation loss, is a
   parameter behind the insertion-loss disagreement above, so sourcing it would say whether that
   gap is a parameter choice.
+* Every literature citation in this repository has now been read for the value it is cited
+  for, and the result is in `docs/CITATION_CHECK.md`: four citations are supported, six are
+  related, none is irrelevant, and one is not accessible. No parameter has *all* of its
+  citations classified `not relevant` or `not accessible`, so on the letter of that test the
+  list is empty. One parameter nevertheless has no verified source and belongs with the
+  unsourced values above: `DC_EXCESS_LOSS_DB` = 0.1 dB per coupler, whose only citation is
+  `related` because the source it names gives an average excess loss of about 0.8 dB and
+  states no lower bound. The value is unchanged and is not tuned; what changes is that it is
+  now read as a chosen value rather than a borrowed one, and sourcing it, or measuring it,
+  would settle the one coupler parameter the literature does not carry. Two further citations
+  support no parameter at all and so cannot appear in that list, but are worth the same
+  scepticism: the coupler-dispersion note quotes field coupling coefficients under a power
+  coupling label, and the 38 nm grating bandwidth is a simulated silicon nitride value quoted
+  beside measured silicon ones. Neither feeds a model value.
+
 * No further work on the consistency, constants, source-line or transcription checks is
   planned; they cover every number that a script can recompute, and extending them further
   would add runtime without adding assurance.
